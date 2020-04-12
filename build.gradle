@@ -1,0 +1,27 @@
+plugins {
+    id 'groovy'
+    id 'java-gradle-plugin'
+}
+
+defaultTasks 'build'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+	compileOnly gradleApi()
+	compileOnly localGroovy()
+}
+
+
+gradlePlugin {
+	plugins {
+		simplePlugin {
+			id = 'org.screamingsandals.gradle.builder'
+			implementationClass = 'org.screamingsandals.gradle.builder.BuilderPlugin'
+		}
+	}
+}
+
+sourceCompatibility = '1.8'

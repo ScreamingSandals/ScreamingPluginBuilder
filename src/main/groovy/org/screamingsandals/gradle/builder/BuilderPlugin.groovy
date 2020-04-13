@@ -1,7 +1,7 @@
 package org.screamingsandals.gradle.builder;
 
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import org.gradle.api.Plugin
+import org.gradle.api.Project
 import org.gradle.api.artifacts.ExternalModuleDependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.dsl.RepositoryHandler
@@ -11,14 +11,22 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.publish.tasks.GenerateModuleMetadata
+import org.screamingsandals.gradle.builder.attributes.BungeePluginAttributes
+import org.screamingsandals.gradle.builder.task.BungeeYamlCreateTask
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
+import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.compile.AbstractCompile
 
 class BuilderPlugin implements Plugin<Project> {
+	
+	private Project project;
 
 	@Override
 	public void apply(Project project) {
+		this.project = project;
+		
 		project.repositories.jcenter()
 		project.repositories.mavenCentral()
 		project.repositories.mavenLocal()
@@ -34,7 +42,8 @@ class BuilderPlugin implements Plugin<Project> {
 		project.apply([
 			plugin: MavenPublishPlugin.class
 		])
-	
+		
+		setupBungeeYamlGeneration()
 	
 		project.tasks.getByName("spigotPluginYaml").enabled = false
 		
@@ -106,6 +115,27 @@ class BuilderPlugin implements Plugin<Project> {
 		}
 		
 		project.tasks.create("screamCompile").dependsOn = tasks
+	}
+	
+	def setupBungeeYamlGeneration() {
+		def attrType = BungeePluginAttributes
+		def attrs = project.extensions.create('bungee', attrType)
+		def task = project.task('bungeePluginYaml', type: BungeeYamlCreateTask) {
+			group = 'ScreamingPluginBuilder'
+			description = 'Auto generate a bungee.yml file.'
+			attributes = attrs
+			enabled = false /* Disable by default */
+		}
+		project.tasks.withType(Jar) {
+			it.dependsOn task
+		}
+		def compileTasks = project.tasks.withType(AbstractCompile)
+		if (!compileTasks.isEmpty()) {
+			compileTasks.first()?.with {
+				task.dependsOn it
+			}
+		}
+
 	}
 	
 }

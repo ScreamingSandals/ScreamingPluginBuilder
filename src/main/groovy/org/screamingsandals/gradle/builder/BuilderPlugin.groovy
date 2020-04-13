@@ -16,6 +16,11 @@ import org.screamingsandals.gradle.builder.task.BungeeYamlCreateTask
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
+
+import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
+
+import kr.entree.spigradle.SpigradlePlugin
+
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.AbstractCompile
 
@@ -27,21 +32,26 @@ class BuilderPlugin implements Plugin<Project> {
 	public void apply(Project project) {
 		this.project = project;
 		
-		project.repositories.jcenter()
-		project.repositories.mavenCentral()
-		project.repositories.mavenLocal()
+		project.apply { 
+			plugin ShadowPlugin.class
+			plugin SpigradlePlugin.class
+			plugin MavenPublishPlugin.class
+		}
 		
-		project.apply([
-			plugin: 'com.github.johnrengelman.shadow'
-		])
+		project.repositories {
+			jcenter()
+			mavenCentral()
+			mavenLocal()
+			
+			maven { 
+				url = 'https://repo.screamingsandals.org'
+			}
+		}
 		
-		project.apply([
-			plugin: 'kr.entree.spigradle'
-		])
-		
-		project.apply([
-			plugin: MavenPublishPlugin.class
-		])
+		project.dependencies {
+			compileOnly lombok()
+			compileOnly 'org.jetbrains:annotations:19.0.0'
+		}
 		
 		setupBungeeYamlGeneration()
 	
@@ -50,8 +60,6 @@ class BuilderPlugin implements Plugin<Project> {
 		PublishingExtension publishing = project.extensions.getByName("publishing")
 		publishing.publications.create("maven", MavenPublication) {
 			it.from(project.components.getByName("java"))
-			
-			it.artifact('sourceJar')
 			
 			it.pom.withXml {
 				List<String> usedArtifacts = new ArrayList<>();

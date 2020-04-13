@@ -3,7 +3,7 @@ Gradle plugin for making your build.gradle smaller and prepared for minecraft pl
 
 ## You build.gradle with this plugin (with subprojects)
 ```groovy
-defaultTasks 'screamCompile'
+defaultTasks 'screamCompile' // use our task as default
 
 allprojects {
     group = 'com.example.plugin'
@@ -11,13 +11,13 @@ allprojects {
 }
 
 buildscript {
-    repositories {
+    repositories { // apply these repositories
         jcenter()
         maven {
           url = 'https://repo.screamingsandals.org'
         }
     }
-    dependencies {
+    dependencies { // apply this dependency
         classpath 'org.screamingsandals.gradle.builder:screaming-plugin-builder:1.0.0'
     }
 }
@@ -37,16 +37,16 @@ subprojects {
     }
     
     dependencies {
-      // add some provided dependenciew
-    	compileOnly paper()
-    	compileOnly lombok()
+      // add some provided dependencies
+      compileOnly paper()
+      compileOnly lombok()
       
       // add some compiled dependencies
       implementation 'org.screamingsandals.simpleinventories:SimpleInventories-Core:1.0.0'
     }
 
     shadowJar {
-       relocate org.screamingsandals.simpleinventories', 'org.screamingsandals.simpleinventories2' // add some relocation if you shade something inside
+       relocate 'org.screamingsandals.simpleinventories', 'org.screamingsandals.simpleinventories2' // add some relocation if you shade something inside
     }
     
     sourceCompatibility = '1.8' // now add here your favourite java version (at least 1.8, recommended 11)

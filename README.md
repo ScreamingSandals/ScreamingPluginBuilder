@@ -1,7 +1,48 @@
 # screaming-plugin-builder
-Gradle plugin for making your build.gradle smaller and prepared for minecraft plugins
+Gradle plugin for making your build.gradle smaller and prepared for minecraft plugins!
+This plugin extends Spigradle gradle plugin and combine it with shadow plugin. 
 
-## You build.gradle with this plugin (with subprojects)
+**This gradle plugin requires Gradle >= 6.0**
+
+## Table of contents
+* [Apply Plugin](#apply-plugin)
+* [Use our task](#use-our-task)
+* [Example with subprojects](#example-with-subprojects)
+
+## Apply plugin
+
+There is one way for apply the plugin.
+
+```groovy
+buildscript {
+    repositories {
+        jcenter() // this repo is needed because there are saved dependencies for our plugin
+        maven {
+          url = 'https://repo.screamingsandals.org'
+        }
+    }
+    dependencies {
+        classpath 'org.screamingsandals.gradle.builder:screaming-plugin-builder:1.0.0'
+    }
+}
+
+// Spigradle and Shadow will be imported automatically
+apply plugin: 'org.screamingsandals.gradle.builder'
+```
+
+## Use our task
+Just add this line to top of your build.gradle and than run default task of your plugin
+```groovy
+defaultTasks 'screamCompile'
+```
+This task will:
+* clean of your build files
+* compile plugins and shade all dependencies with scope `implementation` into new jar file
+* prepare your pom.xml to right format and publish it to your local maven repository (folder `.m2`)
+* If you run gradle with switch `-PscreamingRepository="file:///directory/with/repository"`
+  * then it'll also publish your work here
+
+## Example with subprojects
 ```groovy
 defaultTasks 'screamCompile' // use our task as default
 

@@ -13,21 +13,22 @@ import kr.entree.spigradle.asm.visitor.ClassInspector
 import static org.objectweb.asm.ClassReader.*
 
 class CustomByteInspector extends ByteInspector {
-	
-	public final def pluginClass;
-	
-	CustomByteInspector() {
-		this(SPIGOT_PLUGIN_NAME)
-	}
-	
-	CustomByteInspector(Project project, String pluginClass) {
-		super(project);
-		this.pluginClass = pluginClass;
-	}
-	
-	/* from ByteInspector */
-	@Override
-	InspectorContext doInspect() {
+
+    public final def pluginClass;
+
+    CustomByteInspector() {
+        this(SPIGOT_PLUGIN_NAME)
+    }
+
+    CustomByteInspector(Project project, String pluginClass) {
+        super(project);
+        this.pluginClass = pluginClass;
+    }
+
+    /* from ByteInspector */
+
+    @Override
+    InspectorContext doInspect() {
         def context = new InspectorContext()
         def targets = new HashSet([this.pluginClass])
         directories.find { directory ->
@@ -53,5 +54,5 @@ class CustomByteInspector extends ByteInspector {
             context.isDone()
         }
         return context
-	}
+    }
 }

@@ -29,17 +29,15 @@ subprojects {
 
     repositories { // add some custom dependencies
         maven {
-            url = 'https://repo.screamingsandals.org'
-        }
-        maven {
             url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
         }
     }
     
     dependencies {
+      // lombok and jetbrains annotations is added automatically
+    
       // add some provided dependencies
       compileOnly paper()
-      compileOnly lombok()
       
       // add some compiled dependencies
       implementation 'org.screamingsandals.simpleinventories:SimpleInventories-Core:1.0.0'

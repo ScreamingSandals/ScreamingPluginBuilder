@@ -10,6 +10,7 @@ import org.gradle.api.plugins.ObjectConfigurationAction
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
+import org.gradle.api.publish.tasks.GenerateModuleMetadata
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
@@ -40,6 +41,8 @@ class BuilderPlugin implements Plugin<Project> {
 		PublishingExtension publishing = project.extensions.getByName("publishing")
 		publishing.publications.create("maven", MavenPublication) {
 			it.from(project.components.getByName("java"))
+			
+			it.artifact('sourceJar')
 			
 			it.pom.withXml {
 				List<String> usedArtifacts = new ArrayList<>();
@@ -81,7 +84,6 @@ class BuilderPlugin implements Plugin<Project> {
 						dependencyList.appendChild(node)
 					}
 				}
-
 			}
 		}
 		
@@ -91,6 +93,10 @@ class BuilderPlugin implements Plugin<Project> {
 					repository.url = project.property("screamingRepository")
 				})
 			}
+		}
+		
+		project.tasks.withType(GenerateModuleMetadata.class).every { 
+			it.enabled = false // disable for now since there are parts that should be removed
 		}
 		
 		List tasks = ["clean", "shadowJar", "publishToMavenLocal"]

@@ -44,6 +44,7 @@ class BuilderPlugin implements Plugin<Project> {
 
         project.dependencies {
             compileOnly lombok()
+            annotationProcessor lombok()
             compileOnly 'org.jetbrains:annotations:19.0.0'
         }
 

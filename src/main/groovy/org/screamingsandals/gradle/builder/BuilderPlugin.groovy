@@ -97,7 +97,7 @@ class BuilderPlugin implements Plugin<Project> {
             }
         }
 
-        List tasks = ["clean", "shadowJar", "publishToMavenLocal"]
+        List tasks = ["shadowJar", "publishToMavenLocal"]
 
         if (project.hasProperty("screamingRepository")) {
             tasks.add("publish")

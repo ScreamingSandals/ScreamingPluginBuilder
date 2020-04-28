@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-defaultTasks 'build', 'publishToMavenLocal'
+defaultTasks 'clean', 'build', 'publishToMavenLocal'
 
 if (project.hasProperty('screamingRepository')) {
 	defaultTasks.add('publish')       

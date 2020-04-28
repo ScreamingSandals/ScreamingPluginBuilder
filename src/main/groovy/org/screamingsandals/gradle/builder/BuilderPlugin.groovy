@@ -1,6 +1,6 @@
 package org.screamingsandals.gradle.builder
 
-import com.github.jengelman.gradle.plugins.shadow.ShadowExtension;
+import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
@@ -55,10 +55,17 @@ class BuilderPlugin implements Plugin<Project> {
         project.tasks.getByName("spigotPluginYaml").enabled = false
         project.tasks.getByName("shadowJar").minimize()
 
+        project.task('sourceJar', type: Jar) {
+            it.classifier 'sources'
+            from project.sourceSets.main.allJava
+        }
+
         PublishingExtension publishing = project.extensions.getByName("publishing")
         publishing.publications.create("maven", MavenPublication) {
             ShadowExtension shadow = project.extensions.getByName("shadow")
             shadow.component(it)
+
+            it.artifact(project.tasks.sourceJar)
 
             it.artifacts.every {
                 it.classifier = ""

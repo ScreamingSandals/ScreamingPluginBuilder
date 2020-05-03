@@ -53,7 +53,7 @@ class BuilderPlugin implements Plugin<Project> {
         new SpigradleAdditionalSetup(project);
 
         project.tasks.getByName("spigotPluginYaml").enabled = false
-        project.tasks.getByName("shadowJar").minimize()
+        //project.tasks.getByName("shadowJar").minimize()
 
         project.task('sourceJar', type: Jar) {
             it.classifier 'sources'

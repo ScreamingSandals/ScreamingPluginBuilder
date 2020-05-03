@@ -1,5 +1,8 @@
 package org.screamingsandals.gradle.builder.attributes
 
+import kr.entree.spigradle.annotation.MappingObject
+
+@MappingObject
 class BungeePluginAttributes {
     String main
     String name

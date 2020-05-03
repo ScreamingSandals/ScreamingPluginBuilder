@@ -8,8 +8,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.Jar
 import org.screamingsandals.gradle.builder.asm.CustomByteInspector
 import org.screamingsandals.gradle.builder.attributes.BungeePluginAttributes
-import org.yaml.snakeyaml.DumperOptions
-import org.yaml.snakeyaml.Yaml
+import kr.entree.spigradle.libs.snakeyaml.DumperOptions
+import kr.entree.spigradle.libs.snakeyaml.Yaml
 
 class BungeeYamlCreateTask extends DefaultTask {
     @Input
@@ -68,7 +68,7 @@ class BungeeYamlCreateTask extends DefaultTask {
     }
 
     static def validateYamlMap(Map<String, Object> yamlMap) {
-        if (yamlMap.main == null) {
+        if (yamlMap.get("main") == null) {
             throw new IllegalArgumentException("""\
                 ScreamingBuilderPlugin couldn\'t find a main class automatically.
                 Please manually present your main class using @kr.entree.spigradle.Plugin annotation

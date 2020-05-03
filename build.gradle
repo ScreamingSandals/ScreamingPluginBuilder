@@ -18,13 +18,11 @@ dependencies {
 	compileOnly gradleApi()
 	compileOnly localGroovy()
 	implementation 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
-	implementation 'org.yaml:snakeyaml:1.25'
-    implementation 'org.ow2.asm:asm:7.2'
 	implementation 'kr.entree:spigradle:1.2.4'
 }
 
 group = 'org.screamingsandals.gradle.builder'
-version = '1.0.3'
+version = '1.0.4'
 
 publishing {
     publications {

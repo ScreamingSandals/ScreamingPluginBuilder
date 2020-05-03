@@ -1,8 +1,8 @@
 package org.screamingsandals.gradle.builder.asm
 
 import org.gradle.api.Project
-import org.objectweb.asm.ClassReader
-import org.objectweb.asm.Opcodes
+import kr.entree.spigradle.libs.asm.ClassReader;
+import kr.entree.spigradle.libs.asm.Opcodes
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -10,7 +10,7 @@ import kr.entree.spigradle.asm.ByteInspector
 import kr.entree.spigradle.asm.InspectorContext
 import kr.entree.spigradle.asm.visitor.ClassInspector
 
-import static org.objectweb.asm.ClassReader.*
+import static kr.entree.spigradle.libs.asm.ClassReader.*;
 
 class CustomByteInspector extends ByteInspector {
 

@@ -8,6 +8,7 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
+import org.gradle.api.tasks.javadoc.Javadoc
 import org.screamingsandals.gradle.builder.attributes.BungeePluginAttributes
 import org.screamingsandals.gradle.builder.task.BungeeYamlCreateTask
 
@@ -60,6 +61,17 @@ class BuilderPlugin implements Plugin<Project> {
             from project.sourceSets.main.allJava
         }
 
+        if (project.hasProperty("screamingDocs")) {
+            project.javadoc {
+                def mainScreamingDir = project.hasProperty('customMainScreamingDir') ? project.property('customMainScreamingDir') : project.rootProject.name.toLowerCase().endsWith('-parent') ? project.rootProject.name.toLowerCase().substring(0, project.rootProject.name.toLowerCase().length() - 7) : project.rootProject.name.toLowerCase()
+                destinationDir = project.file(project.property('screamingDocs') + '/' + mainScreamingDir + '/' + project.name.toLowerCase())
+                options {
+                    links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
+                }
+                options.addBooleanOption('html5', true)
+            }
+        }
+
         PublishingExtension publishing = project.extensions.getByName("publishing")
         publishing.publications.create("maven", MavenPublication) {
             ShadowExtension shadow = project.extensions.getByName("shadow")
@@ -102,6 +114,11 @@ class BuilderPlugin implements Plugin<Project> {
         if (project.hasProperty("screamingRepository")) {
             tasks.add("publish")
         }
+
+        if (project.hasProperty("screamingDocs")) {
+            tasks.add("javadoc")
+        }
+
 
         project.tasks.create("screamCompile").dependsOn = tasks
     }

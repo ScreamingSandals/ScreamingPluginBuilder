@@ -1,6 +1,8 @@
 package org.screamingsandals.gradle.builder
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
+import io.franzbecker.gradle.lombok.LombokPlugin
+import io.franzbecker.gradle.lombok.LombokPluginExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
@@ -8,7 +10,7 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import org.gradle.api.tasks.javadoc.Javadoc
+import io.franzbecker.gradle.lombok.task.DelombokTask
 import org.screamingsandals.gradle.builder.attributes.BungeePluginAttributes
 import org.screamingsandals.gradle.builder.task.BungeeYamlCreateTask
 
@@ -31,6 +33,7 @@ class BuilderPlugin implements Plugin<Project> {
             plugin ShadowPlugin.class
             plugin SpigradlePlugin.class
             plugin MavenPublishPlugin.class
+            plugin LombokPlugin.class
         }
 
         project.repositories {
@@ -44,8 +47,6 @@ class BuilderPlugin implements Plugin<Project> {
         }
 
         project.dependencies {
-            compileOnly lombok()
-            annotationProcessor lombok()
             compileOnly 'org.jetbrains:annotations:19.0.0'
         }
 
@@ -54,7 +55,6 @@ class BuilderPlugin implements Plugin<Project> {
         new SpigradleAdditionalSetup(project);
 
         project.tasks.getByName("spigotPluginYaml").enabled = false
-        //project.tasks.getByName("shadowJar").minimize()
 
         project.task('sourceJar', type: Jar) {
             it.classifier 'sources'
@@ -62,7 +62,21 @@ class BuilderPlugin implements Plugin<Project> {
         }
 
         if (project.hasProperty("screamingDocs")) {
+            project.task('delombokForJavadoc', type: DelombokTask, dependsOn: 'compileJava') {
+                ext.outputDir = project.file("$project.buildDir/delombok")
+                outputs.dir(outputDir)
+                project.sourceSets.main.java.srcDirs.each {
+                    inputs.dir(it)
+                    args(it, "-d", outputDir)
+                }
+                doFirst {
+                    outputDir.deleteDir()
+                }
+            }
+
             project.javadoc {
+                dependsOn 'delombokForJavadoc'
+                source = project.tasks.getByName('delombokForJavadoc').outputDir
                 def mainScreamingDir = project.hasProperty('customMainScreamingDir') ? project.property('customMainScreamingDir') : project.rootProject.name.toLowerCase().endsWith('-parent') ? project.rootProject.name.toLowerCase().substring(0, project.rootProject.name.toLowerCase().length() - 7) : project.rootProject.name.toLowerCase()
                 destinationDir = project.file(project.property('screamingDocs') + '/' + mainScreamingDir + '/' + project.name.toLowerCase())
                 options {

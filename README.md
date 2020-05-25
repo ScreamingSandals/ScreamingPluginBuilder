@@ -36,7 +36,6 @@ Just add this line to top of your build.gradle and than run default task of your
 defaultTasks 'screamCompile'
 ```
 This task will:
-* clean of your build files
 * compile plugins and shade all dependencies with scope `implementation` into new jar file
 * prepare your pom.xml to right format and publish it to your local maven repository (folder `.m2`)
 * If you run gradle with switch `-PscreamingRepository="file:///directory/with/repository"`
@@ -44,7 +43,7 @@ This task will:
 
 ## Example with subprojects
 ```groovy
-defaultTasks 'screamCompile' // use our task as default
+defaultTasks 'clean', 'screamCompile' // use our task as default
 
 allprojects {
     group = 'com.example.plugin'
@@ -54,12 +53,15 @@ allprojects {
 buildscript {
     repositories { // apply these repositories
         jcenter()
+        maven { 
+          url = "https://plugins.gradle.org/m2/"
+        }
         maven {
           url = 'https://repo.screamingsandals.org'
         }
     }
     dependencies { // apply this dependency
-        classpath 'org.screamingsandals.gradle.builder:screaming-plugin-builder:1.0.0'
+        classpath 'org.screamingsandals.gradle.builder:screaming-plugin-builder:LATEST_VERSION_HERE'
     }
 }
 

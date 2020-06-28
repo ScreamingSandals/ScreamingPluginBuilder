@@ -16,7 +16,12 @@ There is one way for apply the plugin.
 ```groovy
 buildscript {
     repositories {
-        jcenter() // this repo is needed because there are saved dependencies for our plugin
+        /* these repos are needed because there are saved dependencies for our plugin */
+        jcenter() 
+        maven { 
+          url = "https://plugins.gradle.org/m2/"
+        }
+        /* in this repository is our plugin */
         maven {
           url = 'https://repo.screamingsandals.org'
         }
@@ -77,7 +82,7 @@ subprojects {
     }
     
     dependencies {
-      // lombok and jetbrains annotations is added automatically
+      // lombok and jetbrains annotations are added automatically
     
       // add some provided dependencies
       compileOnly paper()

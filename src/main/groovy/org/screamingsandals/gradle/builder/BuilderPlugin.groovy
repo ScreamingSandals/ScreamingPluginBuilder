@@ -2,7 +2,10 @@ package org.screamingsandals.gradle.builder
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 import io.franzbecker.gradle.lombok.LombokPlugin
-import io.franzbecker.gradle.lombok.LombokPluginExtension
+import kr.entree.spigradle.data.BungeeDependencies
+import kr.entree.spigradle.data.Dependency
+import kr.entree.spigradle.module.bungee.BungeePlugin
+import kr.entree.spigradle.module.spigot.SpigotPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
@@ -11,17 +14,19 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import io.franzbecker.gradle.lombok.task.DelombokTask
-import org.screamingsandals.gradle.builder.attributes.BungeePluginAttributes
-import org.screamingsandals.gradle.builder.task.BungeeYamlCreateTask
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 
-import kr.entree.spigradle.SpigradlePlugin
-
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.api.tasks.compile.AbstractCompile
 
 class BuilderPlugin implements Plugin<Project> {
+
+    public static Dependency WATERFALL = new Dependency(
+            "io.github.waterfallmc",
+            "waterfall-api",
+            BungeeDependencies.BUNGEE_CORD.getVersion(),
+            BungeeDependencies.BUNGEE_CORD.getVersionModifier()
+    )
 
     private Project project;
 
@@ -31,7 +36,8 @@ class BuilderPlugin implements Plugin<Project> {
 
         project.apply {
             plugin ShadowPlugin.class
-            plugin SpigradlePlugin.class
+            plugin SpigotPlugin.class
+            plugin BungeePlugin.class
             plugin MavenPublishPlugin.class
             plugin LombokPlugin.class
         }
@@ -50,11 +56,12 @@ class BuilderPlugin implements Plugin<Project> {
             compileOnly 'org.jetbrains:annotations:19.0.0'
         }
 
-        setupBungeeYamlGeneration()
+        project.dependencies.ext['waterfall'] = { String version = null ->
+            WATERFALL.format(version)
+        }
 
-        new SpigradleAdditionalSetup(project);
-
-        project.tasks.getByName("spigotPluginYaml").enabled = false
+        project.tasks.getByName('generateSpigotDescription').enabled = false
+        project.tasks.getByName('generateBungeeDescription').enabled = false
 
         project.task('sourceJar', type: Jar) {
             it.classifier 'sources'
@@ -104,7 +111,7 @@ class BuilderPlugin implements Plugin<Project> {
 
                 def dependenciesNode = asNode().appendNode("dependencies")
                 project.configurations.compileOnly.dependencies.each {
-                    if (! (it instanceof SelfResolvingDependency) && it.name != "spigradle") {
+                    if (!(it instanceof SelfResolvingDependency) && it.name != "spigradle") {
                         def dependencyNode = dependenciesNode.appendNode('dependency')
                         dependencyNode.appendNode('groupId', it.group)
                         dependencyNode.appendNode('artifactId', it.name)
@@ -133,29 +140,7 @@ class BuilderPlugin implements Plugin<Project> {
             tasks.add("javadoc")
         }
 
-
         project.tasks.create("screamCompile").dependsOn = tasks
-    }
-
-    def setupBungeeYamlGeneration() {
-        def attrType = BungeePluginAttributes
-        def attrs = project.extensions.create('bungee', attrType)
-        def task = project.task('bungeePluginYaml', type: BungeeYamlCreateTask) {
-            group = 'ScreamingPluginBuilder'
-            description = 'Auto generate a bungee.yml file.'
-            attributes = attrs
-            enabled = false /* Disable by default */
-        }
-        project.tasks.withType(Jar) {
-            it.dependsOn task
-        }
-        def compileTasks = project.tasks.withType(AbstractCompile)
-        if (!compileTasks.isEmpty()) {
-            compileTasks.first()?.with {
-                task.dependsOn it
-            }
-        }
-
     }
 
 }

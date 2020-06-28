@@ -72,12 +72,14 @@ class BuilderPlugin implements Plugin<Project> {
             project.task('delombokForJavadoc', type: DelombokTask, dependsOn: 'compileJava') {
                 ext.outputDir = project.file("$project.buildDir/delombok")
                 outputs.dir(outputDir)
-                project.sourceSets.main.java.srcDirs.each {
-                    inputs.dir(it)
-                    args(it, "-d", outputDir)
-                }
-                doFirst {
-                    outputDir.deleteDir()
+                if (project.sourceSets.main.java.srcDirs) {
+                    project.sourceSets.main.java.srcDirs.each {
+                        inputs.dir(it)
+                        args(it, "-d", outputDir)
+                    }
+                    doFirst {
+                        outputDir.deleteDir()
+                    }
                 }
             }
 

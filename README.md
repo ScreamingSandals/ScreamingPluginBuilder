@@ -27,7 +27,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'org.screamingsandals.gradle.builder:screaming-plugin-builder:1.0.0'
+        classpath 'org.screamingsandals.gradle.builder:screaming-plugin-builder:LATEST_VERSION_HERE'
     }
 }
 

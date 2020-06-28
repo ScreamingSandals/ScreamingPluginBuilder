@@ -69,10 +69,12 @@ class BuilderPlugin implements Plugin<Project> {
         }
 
         if (project.hasProperty("screamingDocs")) {
-            project.task('delombokForJavadoc', type: DelombokTask, dependsOn: 'compileJava') {
+            def srcmain = project.file("src/main");
+            def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
+            if (processDelombok) {
+                project.task('delombokForJavadoc', type: DelombokTask, dependsOn: 'compileJava') {
                 ext.outputDir = project.file("$project.buildDir/delombok")
                 outputs.dir(outputDir)
-                if (project.sourceSets.main.java.srcDirs) {
                     project.sourceSets.main.java.srcDirs.each {
                         inputs.dir(it)
                         args(it, "-d", outputDir)
@@ -84,8 +86,10 @@ class BuilderPlugin implements Plugin<Project> {
             }
 
             project.javadoc {
-                dependsOn 'delombokForJavadoc'
-                source = project.tasks.getByName('delombokForJavadoc').outputDir
+                if (processDelombok) {
+                    dependsOn 'delombokForJavadoc'
+                    source = project.tasks.getByName('delombokForJavadoc').outputDir
+                }
                 def mainScreamingDir = project.hasProperty('customMainScreamingDir') ? project.property('customMainScreamingDir') : project.rootProject.name.toLowerCase().endsWith('-parent') ? project.rootProject.name.toLowerCase().substring(0, project.rootProject.name.toLowerCase().length() - 7) : project.rootProject.name.toLowerCase()
                 destinationDir = project.file(project.property('screamingDocs') + '/' + mainScreamingDir + '/' + project.name.toLowerCase())
                 options {

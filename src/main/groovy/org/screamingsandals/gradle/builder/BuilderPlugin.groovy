@@ -60,7 +60,9 @@ class BuilderPlugin implements Plugin<Project> {
             WATERFALL.format(version)
         }
 
+        project.tasks.getByName('detectSpigotMain').enabled = false
         project.tasks.getByName('generateSpigotDescription').enabled = false
+        project.tasks.getByName('detectBungeeMain').enabled = false
         project.tasks.getByName('generateBungeeDescription').enabled = false
 
         project.task('sourceJar', type: Jar) {

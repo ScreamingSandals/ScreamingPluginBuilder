@@ -24,7 +24,7 @@ dependencies {
 }
 
 group = 'org.screamingsandals.gradle.builder'
-version = '1.0.12'
+version = '1.0.13'
 
 publishing {
     publications {

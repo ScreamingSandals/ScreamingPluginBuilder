@@ -94,9 +94,9 @@ class BuilderPlugin implements Plugin<Project> {
                 }
                 def mainScreamingDir = project.hasProperty('customMainScreamingDir') ? project.property('customMainScreamingDir') : project.rootProject.name.toLowerCase().endsWith('-parent') ? project.rootProject.name.toLowerCase().substring(0, project.rootProject.name.toLowerCase().length() - 7) : project.rootProject.name.toLowerCase()
                 destinationDir = project.file(project.property('screamingDocs') + '/' + mainScreamingDir + '/' + project.name.toLowerCase())
-                options {
+                /* options {
                     links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
-                }
+                } */
                 options.addBooleanOption('html5', true)
             }
         }

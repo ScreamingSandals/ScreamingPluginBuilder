@@ -4,6 +4,7 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 import io.franzbecker.gradle.lombok.LombokPlugin
 import kr.entree.spigradle.data.BungeeDependencies
 import kr.entree.spigradle.data.Dependency
+import kr.entree.spigradle.data.VersionModifier
 import kr.entree.spigradle.module.bungee.BungeePlugin
 import kr.entree.spigradle.module.spigot.SpigotPlugin
 import org.gradle.api.Plugin
@@ -28,11 +29,18 @@ class BuilderPlugin implements Plugin<Project> {
             BungeeDependencies.BUNGEE_CORD.getVersionModifier()
     )
 
-    private Project project;
+    public static Dependency VELOCITY = new Dependency(
+            "com.velocitypowered",
+            "velocity-api",
+            "1.0.9-SNAPSHOT",
+            VersionModifier.SNAPSHOT_APPENDER
+    )
+
+    private Project project
 
     @Override
-    public void apply(Project project) {
-        this.project = project;
+    void apply(Project project) {
+        this.project = project
 
         project.apply {
             plugin ShadowPlugin.class
@@ -45,10 +53,13 @@ class BuilderPlugin implements Plugin<Project> {
         project.repositories {
             jcenter()
             mavenCentral()
-            mavenLocal()
+            //mavenLocal()
 
             maven {
                 url = 'https://repo.screamingsandals.org'
+            }
+            maven {
+                url = 'https://repo.velocitypowered.com/snapshots/'
             }
         }
 
@@ -58,6 +69,10 @@ class BuilderPlugin implements Plugin<Project> {
 
         project.dependencies.ext['waterfall'] = { String version = null ->
             WATERFALL.format(version)
+        }
+
+        project.dependencies.ext['velocity'] = { String version = null ->
+            VELOCITY.format(version)
         }
 
         project.tasks.getByName('detectSpigotMain').enabled = false
@@ -75,8 +90,8 @@ class BuilderPlugin implements Plugin<Project> {
             def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
             if (processDelombok) {
                 project.task('delombokForJavadoc', type: DelombokTask, dependsOn: 'compileJava') {
-                ext.outputDir = project.file("$project.buildDir/delombok")
-                outputs.dir(outputDir)
+                    ext.outputDir = project.file("$project.buildDir/delombok")
+                    outputs.dir(outputDir)
                     project.sourceSets.main.java.srcDirs.each {
                         inputs.dir(it)
                         args(it, "-d", outputDir)

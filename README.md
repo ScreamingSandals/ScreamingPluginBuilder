@@ -87,8 +87,8 @@ subprojects {
       // add some provided dependencies
       compileOnly paper()
       
-      // add some compiled dependencies
-      implementation 'org.screamingsandals.simpleinventories:SimpleInventories-Core:1.0.0'
+      // add some compiled dependencies (due to fabric loom compatibility we need to use custom scope)
+      shade 'org.screamingsandals.simpleinventories:SimpleInventories-Core:1.0.0'
     }
 
     shadowJar {

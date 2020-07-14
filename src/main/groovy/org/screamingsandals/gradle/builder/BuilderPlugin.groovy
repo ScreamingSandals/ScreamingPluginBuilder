@@ -1,12 +1,17 @@
 package org.screamingsandals.gradle.builder
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import io.franzbecker.gradle.lombok.LombokPlugin
 import kr.entree.spigradle.data.BungeeDependencies
 import kr.entree.spigradle.data.Dependency
+import kr.entree.spigradle.data.Repositories
+import kr.entree.spigradle.data.SpigotRepositories
 import kr.entree.spigradle.data.VersionModifier
 import kr.entree.spigradle.module.bungee.BungeePlugin
+import kr.entree.spigradle.module.common.SpigradlePlugin
 import kr.entree.spigradle.module.spigot.SpigotPlugin
+import net.fabricmc.loom.LoomGradlePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
@@ -44,8 +49,7 @@ class BuilderPlugin implements Plugin<Project> {
 
         project.apply {
             plugin ShadowPlugin.class
-            plugin SpigotPlugin.class
-            plugin BungeePlugin.class
+            plugin SpigradlePlugin.class
             plugin MavenPublishPlugin.class
             plugin LombokPlugin.class
         }
@@ -55,6 +59,9 @@ class BuilderPlugin implements Plugin<Project> {
             mavenCentral()
             //mavenLocal()
 
+            maven { url Repositories.SONATYPE}
+            maven { url SpigotRepositories.PAPER_MC}
+            maven { url SpigotRepositories.SPIGOT_MC}
             maven {
                 url = 'https://repo.screamingsandals.org'
             }
@@ -75,10 +82,61 @@ class BuilderPlugin implements Plugin<Project> {
             VELOCITY.format(version)
         }
 
-        project.tasks.getByName('detectSpigotMain').enabled = false
-        project.tasks.getByName('generateSpigotDescription').enabled = false
-        project.tasks.getByName('detectBungeeMain').enabled = false
-        project.tasks.getByName('generateBungeeDescription').enabled = false
+        project.configurations {
+            def shade = it.maybeCreate("shade")
+            project.configurations.runtimeClasspath.extendsFrom(shade)
+            project.configurations.compileClasspath.extendsFrom(shade)
+            project.configurations.runtimeElements.extendsFrom(shade)
+        }
+
+        project.shadowJar {
+            configurations = [project.configurations.shade]
+        }
+
+        project.ext['prepareFabric'] = { String minecraftVersion, String mappingsVersion, String loaderVersion, String apiVersion = null ->
+            project.apply {
+                plugin LoomGradlePlugin
+            }
+
+            project.dependencies {
+                minecraft "com.mojang:minecraft:${minecraftVersion}"
+                mappings "net.fabricmc:yarn:${mappingsVersion}"
+                modImplementation "net.fabricmc:fabric-loader:${loaderVersion}"
+
+                if (apiVersion != null) {
+                    modImplementation "net.fabricmc:fabric-api:${apiVersion}"
+                }
+            }
+
+            project.processResources {
+                inputs.property "version", project.version
+
+                from(project.sourceSets.main.resources.srcDirs) {
+                    include "fabric.mod.json"
+                    expand "version": project.version
+                }
+
+                from(project.sourceSets.main.resources.srcDirs) {
+                    exclude "fabric.mod.json"
+                }
+            }
+
+            project.jar {
+                from "LICENSE"
+            }
+        }
+
+        project.ext['enableSpigradleSpigot'] = {
+            project.apply {
+                plugin SpigotPlugin.class
+            }
+        }
+
+        project.ext['enableSpigradleBungee'] = {
+            project.apply {
+                plugin BungeePlugin.class
+            }
+        }
 
         project.task('sourceJar', type: Jar) {
             it.classifier 'sources'

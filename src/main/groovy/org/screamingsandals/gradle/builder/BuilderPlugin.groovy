@@ -1,7 +1,6 @@
 package org.screamingsandals.gradle.builder
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import io.franzbecker.gradle.lombok.LombokPlugin
 import kr.entree.spigradle.data.BungeeDependencies
 import kr.entree.spigradle.data.Dependency
@@ -12,6 +11,7 @@ import kr.entree.spigradle.module.bungee.BungeePlugin
 import kr.entree.spigradle.module.common.SpigradlePlugin
 import kr.entree.spigradle.module.spigot.SpigotPlugin
 import net.fabricmc.loom.LoomGradlePlugin
+import net.fabricmc.loom.task.RemapJarTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
@@ -22,7 +22,6 @@ import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import io.franzbecker.gradle.lombok.task.DelombokTask
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
-
 import org.gradle.api.tasks.bundling.Jar
 
 class BuilderPlugin implements Plugin<Project> {
@@ -62,12 +61,9 @@ class BuilderPlugin implements Plugin<Project> {
             maven { url Repositories.SONATYPE}
             maven { url SpigotRepositories.PAPER_MC}
             maven { url SpigotRepositories.SPIGOT_MC}
-            maven {
-                url = 'https://repo.screamingsandals.org'
-            }
-            maven {
-                url = 'https://repo.velocitypowered.com/snapshots/'
-            }
+            maven { url 'https://repo.screamingsandals.org' }
+            maven { url 'https://repo.velocitypowered.com/snapshots/' }
+            maven { url 'https://maven.fabricmc.net/' }
         }
 
         project.dependencies {
@@ -80,6 +76,10 @@ class BuilderPlugin implements Plugin<Project> {
 
         project.dependencies.ext['velocity'] = { String version = null ->
             VELOCITY.format(version)
+        }
+
+        project.dependencies.ext['screaming'] = { String lib, String version ->
+            return "org.screamingsandals.lib:$lib:$version"
         }
 
         project.configurations {
@@ -124,6 +124,30 @@ class BuilderPlugin implements Plugin<Project> {
             project.jar {
                 from "LICENSE"
             }
+
+            project.shadowJar {
+                classifier = "dev"
+            }
+
+            project.tasks.register("remapShadowJar", RemapJarTask) {
+                def shadowJar = project.tasks.getByName("shadowJar")
+                dependsOn(shadowJar)
+                input.set(shadowJar.archiveFile)
+                archiveFileName.set(shadowJar.archiveFileName.get().replaceAll('-dev\\.jar$', '-all.jar'))
+                addNestedDependencies.set(true)
+                remapAccessWidener.set(true)
+            }
+
+            def remapShadowJar = project.tasks.getByName("remapShadowJar")
+            project.tasks.getByName("screamCompile").dependsOn(remapShadowJar);
+            project.tasks.getByName("publishToMavenLocal").dependsOn(remapShadowJar);
+            if (project.hasProperty("screamingRepository")) {
+                project.tasks.getByName("publish").dependsOn(remapShadowJar);
+            }
+            if (project.hasProperty("screamingDocs")) {
+                project.tasks.getByName("javadoc").dependsOn(remapShadowJar);
+            }
+
         }
 
         project.ext['enableSpigradleSpigot'] = {
@@ -181,9 +205,9 @@ class BuilderPlugin implements Plugin<Project> {
 
             it.artifact(project.tasks.sourceJar)
 
-            it.artifacts.every {
+            /*it.artifacts.every {
                 it.classifier = ""
-            }
+            }*/
 
             it.pom.withXml {
                 if (asNode().get("dependencies") != null) {

@@ -36,7 +36,7 @@ class BuilderPlugin implements Plugin<Project> {
     public static Dependency VELOCITY = new Dependency(
             "com.velocitypowered",
             "velocity-api",
-            "1.0.9-SNAPSHOT",
+            ${velocity_version},
             VersionModifier.SNAPSHOT_APPENDER
     )
 

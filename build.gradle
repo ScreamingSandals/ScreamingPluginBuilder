@@ -1,5 +1,11 @@
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 
+buildscript {
+    ext {
+        velocity_version = "1.1.0-SNAPSHOT"
+    }
+}
+
 plugins {
     id 'groovy'
     id 'maven-publish'
@@ -60,4 +66,4 @@ publishing {
     }
 }
 
-sourceCompatibility = '1.8'
+sourceCompatibility = JavaVersion.VERSION_1_8

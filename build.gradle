@@ -14,7 +14,7 @@ plugins {
 
 defaultTasks 'clean', 'build', 'publishToMavenLocal'
 
-if (project.hasProperty('screamingRepository')) {
+if (project.hasProperty('nexus')) {
 	defaultTasks.add('publish')       
 }
 
@@ -35,7 +35,7 @@ dependencies {
 }
 
 group = 'org.screamingsandals.gradle.builder'
-version = '1.0.16'
+version = '1.0.17'
 
 publishing {
     publications {
@@ -57,10 +57,12 @@ publishing {
         }
     }
     
-    if (project.hasProperty('screamingRepository')) {
+    if (project.hasProperty("nexus")) {
     	repositories {
 			maven {
-				url = project.property("screamingRepository")
+				url = System.getProperty("NEXUS_URL")
+				username = System.getProperty("NEXUS_USERNAME")
+				password = System.getProperty("NEXUS_PASSWORD")
 			}
 		}
     }

@@ -61,7 +61,7 @@ class BuilderPlugin implements Plugin<Project> {
             maven { url Repositories.SONATYPE}
             maven { url SpigotRepositories.PAPER_MC}
             maven { url SpigotRepositories.SPIGOT_MC}
-            maven { url 'https://repo.screamingsandals.org' }
+            maven { url 'https://repo.screamingsandals.org/repository/maven-public/' }
             maven { url 'https://repo.velocitypowered.com/snapshots/' }
             maven { url 'https://maven.fabricmc.net/' }
         }
@@ -141,7 +141,7 @@ class BuilderPlugin implements Plugin<Project> {
             def remapShadowJar = project.tasks.getByName("remapShadowJar")
             project.tasks.getByName("screamCompile").dependsOn(remapShadowJar);
             project.tasks.getByName("publishToMavenLocal").dependsOn(remapShadowJar);
-            if (project.hasProperty("screamingRepository")) {
+            if (project.hasProperty("nexus")) {
                 project.tasks.getByName("publish").dependsOn(remapShadowJar);
             }
             if (project.hasProperty("screamingDocs")) {
@@ -167,7 +167,7 @@ class BuilderPlugin implements Plugin<Project> {
             from project.sourceSets.main.allJava
         }
 
-        if (project.hasProperty("screamingDocs")) {
+        if (project.hasProperty("nexus")) {
             def srcmain = project.file("src/main");
             def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
             if (processDelombok) {
@@ -189,11 +189,6 @@ class BuilderPlugin implements Plugin<Project> {
                     dependsOn 'delombokForJavadoc'
                     source = project.tasks.getByName('delombokForJavadoc').outputDir
                 }
-                def mainScreamingDir = project.hasProperty('customMainScreamingDir') ? project.property('customMainScreamingDir') : project.rootProject.name.toLowerCase().endsWith('-parent') ? project.rootProject.name.toLowerCase().substring(0, project.rootProject.name.toLowerCase().length() - 7) : project.rootProject.name.toLowerCase()
-                destinationDir = project.file(project.property('screamingDocs') + '/' + mainScreamingDir + '/' + project.name.toLowerCase())
-                /* options {
-                    links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
-                } */
                 options.addBooleanOption('html5', true)
             }
         }
@@ -204,6 +199,7 @@ class BuilderPlugin implements Plugin<Project> {
             shadow.component(it)
 
             it.artifact(project.tasks.sourceJar)
+            it.artifact(project.tasks.javadoc)
 
             /*it.artifacts.every {
                 it.classifier = ""
@@ -227,21 +223,20 @@ class BuilderPlugin implements Plugin<Project> {
             }
         }
 
-        if (project.hasProperty("screamingRepository")) {
+        if (project.hasProperty("nexus")) {
             publishing.repositories {
                 it.maven({ MavenArtifactRepository repository ->
-                    repository.url = project.property("screamingRepository")
+                    repository.url = System.getProperty("NEXUS_URL")
+                    repository.username = System.getProperty("NEXUS_USERNAME")
+                    repository.password = System.getProperty("NEXUS_PASSWORD")
                 })
             }
         }
 
         List tasks = ["shadowJar", "publishToMavenLocal"]
 
-        if (project.hasProperty("screamingRepository")) {
+        if (project.hasProperty("nexus")) {
             tasks.add("publish")
-        }
-
-        if (project.hasProperty("screamingDocs")) {
             tasks.add("javadoc")
         }
 

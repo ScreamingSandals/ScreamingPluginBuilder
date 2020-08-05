@@ -227,12 +227,12 @@ class BuilderPlugin implements Plugin<Project> {
             publishing.repositories {
                 it.maven({ MavenArtifactRepository repository ->
                     if (((String) project.version).contains("SNAPSHOT")) {
-                        repository.url = System.getProperty("NEXUS_URL_SNAPSHOT")
+                        repository.url = System.getenv("NEXUS_URL_SNAPSHOT")
                     } else {
-                        repository.url = System.getProperty("NEXUS_URL_RELEASE")
+                        repository.url = System.getenv("NEXUS_URL_RELEASE")
                     }
-                    repository.credentials.username = System.getProperty("NEXUS_USERNAME")
-                    repository.credentials.password = System.getProperty("NEXUS_PASSWORD")
+                    repository.credentials.username = System.getenv("NEXUS_USERNAME")
+                    repository.credentials.password = System.getenv("NEXUS_PASSWORD")
                 })
             }
         }

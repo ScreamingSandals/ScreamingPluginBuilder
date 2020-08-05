@@ -61,12 +61,12 @@ publishing {
     	repositories {
 			maven {
                 credentials {
-                    username = System.getProperty("NEXUS_USERNAME")
-                    password = System.getProperty("NEXUS_PASSWORD")
+                    username = System.getenv("NEXUS_USERNAME")
+                    password = System.getenv("NEXUS_PASSWORD")
                 }
 
                 name = 'nexus'
-				url = System.getProperty("NEXUS_URL")
+				url = System.getenv("NEXUS_URL")
 			}
 		}
     }

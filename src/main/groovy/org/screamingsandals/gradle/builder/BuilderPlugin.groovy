@@ -226,7 +226,11 @@ class BuilderPlugin implements Plugin<Project> {
         if (project.hasProperty("nexus")) {
             publishing.repositories {
                 it.maven({ MavenArtifactRepository repository ->
-                    repository.url = System.getProperty("NEXUS_URL")
+                    if (((String) project.version).contains("SNAPSHOT")) {
+                        repository.url = System.getProperty("NEXUS_URL_SNAPSHOT")
+                    } else {
+                        repository.url = System.getProperty("NEXUS_URL_RELEASE")
+                    }
                     repository.credentials.username = System.getProperty("NEXUS_USERNAME")
                     repository.credentials.password = System.getProperty("NEXUS_PASSWORD")
                 })

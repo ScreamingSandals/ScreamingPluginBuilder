@@ -227,8 +227,8 @@ class BuilderPlugin implements Plugin<Project> {
             publishing.repositories {
                 it.maven({ MavenArtifactRepository repository ->
                     repository.url = System.getProperty("NEXUS_URL")
-                    repository.username = System.getProperty("NEXUS_USERNAME")
-                    repository.password = System.getProperty("NEXUS_PASSWORD")
+                    repository.credentials.username = System.getProperty("NEXUS_USERNAME")
+                    repository.credentials.password = System.getProperty("NEXUS_PASSWORD")
                 })
             }
         }

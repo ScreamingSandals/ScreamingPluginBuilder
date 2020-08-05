@@ -60,9 +60,13 @@ publishing {
     if (project.hasProperty("nexus")) {
     	repositories {
 			maven {
+                credentials {
+                    username = System.getProperty("NEXUS_USERNAME")
+                    password = System.getProperty("NEXUS_PASSWORD")
+                }
+
+                name = 'nexus'
 				url = System.getProperty("NEXUS_URL")
-				username = System.getProperty("NEXUS_USERNAME")
-				password = System.getProperty("NEXUS_PASSWORD")
 			}
 		}
     }

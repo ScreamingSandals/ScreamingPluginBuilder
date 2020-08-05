@@ -15,21 +15,21 @@ plugins {
 defaultTasks 'clean', 'build', 'publishToMavenLocal'
 
 if (project.hasProperty('nexus')) {
-	defaultTasks.add('publish')       
+    defaultTasks.add('publish')
 }
 
 
 repositories {
     jcenter()
-    maven {  url "https://plugins.gradle.org/m2/" }
-    maven {  url 'https://maven.fabricmc.net/' }
+    maven { url "https://plugins.gradle.org/m2/" }
+    maven { url 'https://maven.fabricmc.net/' }
 }
 
 dependencies {
-	compileOnly gradleApi()
-	compileOnly localGroovy()
-	implementation 'com.github.jengelman.gradle.plugins:shadow:6.0.0'
-	implementation 'kr.entree:spigradle:2.0.1'
+    compileOnly gradleApi()
+    compileOnly localGroovy()
+    implementation 'com.github.jengelman.gradle.plugins:shadow:6.0.0'
+    implementation 'kr.entree:spigradle:2.0.1'
     implementation 'io.franzbecker:gradle-lombok:4.0.0'
     implementation 'net.fabricmc:fabric-loom:0.4-SNAPSHOT'
 }
@@ -39,7 +39,7 @@ version = '1.0.17'
 
 publishing {
     publications {
-        maven (MavenPublication) {
+        maven(MavenPublication) {
             ShadowExtension shadow = project.extensions.getByName("shadow")
             shadow.component(it)
 
@@ -56,19 +56,24 @@ publishing {
             }
         }
     }
-    
+
     if (project.hasProperty("nexus")) {
-    	repositories {
-			maven {
+        repositories {
+            maven {
                 credentials {
                     username = System.getenv("NEXUS_USERNAME")
                     password = System.getenv("NEXUS_PASSWORD")
                 }
 
                 name = 'nexus'
-				url = System.getenv("NEXUS_URL")
-			}
-		}
+
+                if (((String) project.version).contains("SNAPSHOT")) {
+                    url = System.getenv("NEXUS_URL_SNAPSHOT")
+                } else {
+                    url = System.getenv("NEXUS_URL_RELEASE")
+                }
+            }
+        }
     }
 }
 

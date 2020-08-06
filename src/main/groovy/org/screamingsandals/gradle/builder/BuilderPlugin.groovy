@@ -167,6 +167,19 @@ class BuilderPlugin implements Plugin<Project> {
             from project.sourceSets.main.allJava
         }
 
+        project.javadoc {
+            if (processDelombok) {
+                dependsOn 'delombokForJavadoc'
+                source = project.tasks.getByName('delombokForJavadoc').outputDir
+            }
+            options.addBooleanOption('html5', true)
+        }
+
+        project.task('javadocJar', type: Jar, dependsOn: project.javadoc) {
+            it.classifier = 'javadoc'
+            from project.javadoc
+        }
+
         if (project.hasProperty("nexus")) {
             def srcmain = project.file("src/main");
             def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
@@ -183,19 +196,6 @@ class BuilderPlugin implements Plugin<Project> {
                     }
                 }
             }
-
-            project.javadoc {
-                if (processDelombok) {
-                    dependsOn 'delombokForJavadoc'
-                    source = project.tasks.getByName('delombokForJavadoc').outputDir
-                }
-                options.addBooleanOption('html5', true)
-            }
-
-            project.task('javadocJar', type: Jar) {
-                it.classifier = 'javadoc'
-                from project.javadoc
-            }
         }
 
         PublishingExtension publishing = project.extensions.getByName("publishing")
@@ -204,7 +204,6 @@ class BuilderPlugin implements Plugin<Project> {
             shadow.component(it)
 
             it.artifact(project.tasks.sourceJar)
-            it.artifact(project.tasks.javadocJar)
 
             /*it.artifacts.every {
                 it.classifier = ""

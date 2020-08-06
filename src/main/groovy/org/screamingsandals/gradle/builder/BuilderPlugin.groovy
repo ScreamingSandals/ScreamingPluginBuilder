@@ -191,6 +191,11 @@ class BuilderPlugin implements Plugin<Project> {
                 }
                 options.addBooleanOption('html5', true)
             }
+
+            project.task('javadocJar', type: Jar) {
+                it.classifier = 'javadoc'
+                from project.javadoc
+            }
         }
 
         PublishingExtension publishing = project.extensions.getByName("publishing")
@@ -199,7 +204,7 @@ class BuilderPlugin implements Plugin<Project> {
             shadow.component(it)
 
             it.artifact(project.tasks.sourceJar)
-            it.artifact(project.tasks.javadoc)
+            it.artifact(project.tasks.javadocJar)
 
             /*it.artifacts.every {
                 it.classifier = ""

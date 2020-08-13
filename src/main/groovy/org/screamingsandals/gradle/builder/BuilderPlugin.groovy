@@ -205,9 +205,9 @@ class BuilderPlugin implements Plugin<Project> {
 
             it.artifact(project.tasks.sourceJar)
 
-            /*it.artifacts.every {
+            it.artifacts.every {
                 it.classifier = ""
-            }*/
+            }
 
             it.pom.withXml {
                 if (asNode().get("dependencies") != null) {

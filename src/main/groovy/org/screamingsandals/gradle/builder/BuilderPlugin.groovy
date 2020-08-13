@@ -166,15 +166,17 @@ class BuilderPlugin implements Plugin<Project> {
             it.classifier 'sources'
             from project.sourceSets.main.allJava
         }
-
+/*
         project.javadoc {
+            def srcmain = project.file("src/main");
+            def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
             if (processDelombok) {
                 dependsOn 'delombokForJavadoc'
                 source = project.tasks.getByName('delombokForJavadoc').outputDir
             }
             options.addBooleanOption('html5', true)
-        }
-
+        } // Ceph's assigned this job to himself. Good luck boi
+*/
         project.task('javadocJar', type: Jar, dependsOn: project.javadoc) {
             it.classifier = 'javadoc'
             from project.javadoc

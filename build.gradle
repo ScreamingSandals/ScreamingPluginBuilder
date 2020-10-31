@@ -23,13 +23,13 @@ dependencies {
     compileOnly gradleApi()
     compileOnly localGroovy()
     implementation 'com.github.jengelman.gradle.plugins:shadow:6.0.0'
-    implementation 'kr.entree:spigradle:2.0.1'
+    implementation 'kr.entree:spigradle:2.2.3'
     implementation 'io.franzbecker:gradle-lombok:4.0.0'
     implementation 'net.fabricmc:fabric-loom:0.4-SNAPSHOT'
 }
 
 group = 'org.screamingsandals.gradle.builder'
-version = '1.0.24'
+version = '1.0.25'
 
 publishing {
     publications {

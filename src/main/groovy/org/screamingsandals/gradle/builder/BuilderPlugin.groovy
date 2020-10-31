@@ -29,15 +29,25 @@ class BuilderPlugin implements Plugin<Project> {
     public static Dependency WATERFALL = new Dependency(
             "io.github.waterfallmc",
             "waterfall-api",
-            BungeeDependencies.BUNGEE_CORD.getVersion(),
-            BungeeDependencies.BUNGEE_CORD.getVersionModifier()
+            "1.16-R0.4-SNAPSHOT",
+            false,
+            VersionModifier.INSTANCE.getSNAPSHOT_APPENDER()
     )
 
     public static Dependency VELOCITY = new Dependency(
             "com.velocitypowered",
             "velocity-api",
-            "1.1.0-SNAPSHOT",
-            VersionModifier.SNAPSHOT_APPENDER
+            "1.1.2-SNAPSHOT",
+            false,
+            VersionModifier.INSTANCE.getSNAPSHOT_APPENDER()
+    )
+
+    public static Dependency PAPERLIB = new Dependency(
+            "io.papermc",
+            "paperlib",
+            "1.0.6-SNAPSHOT",
+            false,
+            VersionModifier.INSTANCE.getSNAPSHOT_APPENDER()
     )
 
     private Project project
@@ -62,12 +72,13 @@ class BuilderPlugin implements Plugin<Project> {
             maven { url SpigotRepositories.PAPER_MC}
             maven { url SpigotRepositories.SPIGOT_MC}
             maven { url 'https://repo.screamingsandals.org/repository/maven-public/' }
+            maven { url 'https://repo.hoz.network/repository/maven-public/' }
             maven { url 'https://repo.velocitypowered.com/snapshots/' }
             maven { url 'https://maven.fabricmc.net/' }
         }
 
         project.dependencies {
-            compileOnly 'org.jetbrains:annotations:19.0.0'
+            compileOnly 'org.jetbrains:annotations:20.1.0'
         }
 
         project.dependencies.ext['waterfall'] = { String version = null ->
@@ -76,6 +87,10 @@ class BuilderPlugin implements Plugin<Project> {
 
         project.dependencies.ext['velocity'] = { String version = null ->
             VELOCITY.format(version)
+        }
+
+        project.dependencies.ext['paperlib'] = { String version = null ->
+            PAPERLIB.format(version)
         }
 
         project.dependencies.ext['screaming'] = { String lib, String version ->
@@ -166,6 +181,7 @@ class BuilderPlugin implements Plugin<Project> {
             it.classifier 'sources'
             from project.sourceSets.main.allJava
         }
+        //still need TODO this.
 /*
         project.javadoc {
             def srcmain = project.file("src/main");

@@ -29,7 +29,7 @@ dependencies {
 }
 
 group = 'org.screamingsandals.gradle.builder'
-version = '1.0.25'
+version = '1.0.27'
 
 publishing {
     publications {

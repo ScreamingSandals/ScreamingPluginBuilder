@@ -1,8 +1,9 @@
 package org.screamingsandals.gradle.builder
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
+import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import io.franzbecker.gradle.lombok.LombokPlugin
-import kr.entree.spigradle.data.BungeeDependencies
+import io.franzbecker.gradle.lombok.task.DelombokTask
 import kr.entree.spigradle.data.Dependency
 import kr.entree.spigradle.data.Repositories
 import kr.entree.spigradle.data.SpigotRepositories
@@ -19,9 +20,6 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import io.franzbecker.gradle.lombok.task.DelombokTask
-
-import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import org.gradle.api.tasks.bundling.Jar
 
 class BuilderPlugin implements Plugin<Project> {
@@ -31,7 +29,7 @@ class BuilderPlugin implements Plugin<Project> {
             "waterfall-api",
             "1.16-R0.4-SNAPSHOT",
             false,
-            VersionModifier.INSTANCE.getSNAPSHOT_APPENDER()
+            VersionModifier.INSTANCE.createAdjuster("R0.4", "SNAPSHOT")
     )
 
     public static Dependency VELOCITY = new Dependency(
@@ -48,6 +46,14 @@ class BuilderPlugin implements Plugin<Project> {
             "1.0.6-SNAPSHOT",
             false,
             VersionModifier.INSTANCE.getSNAPSHOT_APPENDER()
+    )
+
+    public static Dependency PLACEHOLDERAPI = new Dependency(
+            "me.clip",
+            "placeholderapi",
+            "2.10.9",
+            false,
+            VersionModifier.INSTANCE.createAdjuster("")
     )
 
     private Project project
@@ -68,13 +74,14 @@ class BuilderPlugin implements Plugin<Project> {
             mavenCentral()
             //mavenLocal()
 
-            maven { url Repositories.SONATYPE}
-            maven { url SpigotRepositories.PAPER_MC}
-            maven { url SpigotRepositories.SPIGOT_MC}
+            maven { url Repositories.SONATYPE }
+            maven { url SpigotRepositories.PAPER_MC }
+            maven { url SpigotRepositories.SPIGOT_MC }
             maven { url 'https://repo.screamingsandals.org/repository/maven-public/' }
             maven { url 'https://repo.hoz.network/repository/maven-public/' }
             maven { url 'https://repo.velocitypowered.com/snapshots/' }
             maven { url 'https://maven.fabricmc.net/' }
+            maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
         }
 
         project.dependencies {
@@ -91,6 +98,10 @@ class BuilderPlugin implements Plugin<Project> {
 
         project.dependencies.ext['paperlib'] = { String version = null ->
             PAPERLIB.format(version)
+        }
+
+        project.dependencies.ext['placeholder_api'] = { String version = null ->
+            PLACEHOLDERAPI.format(version)
         }
 
         project.dependencies.ext['screaming'] = { String lib, String version ->

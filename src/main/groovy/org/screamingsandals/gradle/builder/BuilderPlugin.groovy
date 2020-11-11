@@ -1,8 +1,9 @@
 package org.screamingsandals.gradle.builder
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
+import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import io.franzbecker.gradle.lombok.LombokPlugin
-import kr.entree.spigradle.data.BungeeDependencies
+import io.franzbecker.gradle.lombok.task.DelombokTask
 import kr.entree.spigradle.data.Dependency
 import kr.entree.spigradle.data.Repositories
 import kr.entree.spigradle.data.SpigotRepositories
@@ -20,9 +21,6 @@ import org.gradle.api.credentials.HttpHeaderCredentials
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import io.franzbecker.gradle.lombok.task.DelombokTask
-
-import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.authentication.http.HttpHeaderAuthentication
 
@@ -31,15 +29,33 @@ class BuilderPlugin implements Plugin<Project> {
     public static Dependency WATERFALL = new Dependency(
             "io.github.waterfallmc",
             "waterfall-api",
-            BungeeDependencies.BUNGEE_CORD.getVersion(),
-            BungeeDependencies.BUNGEE_CORD.getVersionModifier()
+            "1.16-R0.4-SNAPSHOT",
+            false,
+            VersionModifier.INSTANCE.createAdjuster("R0.4", "SNAPSHOT")
     )
 
     public static Dependency VELOCITY = new Dependency(
             "com.velocitypowered",
             "velocity-api",
-            "1.1.0-SNAPSHOT",
-            VersionModifier.SNAPSHOT_APPENDER
+            "1.1.2-SNAPSHOT",
+            false,
+            VersionModifier.INSTANCE.getSNAPSHOT_APPENDER()
+    )
+
+    public static Dependency PAPERLIB = new Dependency(
+            "io.papermc",
+            "paperlib",
+            "1.0.6-SNAPSHOT",
+            false,
+            VersionModifier.INSTANCE.getSNAPSHOT_APPENDER()
+    )
+
+    public static Dependency PLACEHOLDERAPI = new Dependency(
+            "me.clip",
+            "placeholderapi",
+            "2.10.9",
+            false,
+            VersionModifier.INSTANCE.createAdjuster("")
     )
 
     private Project project
@@ -60,16 +76,18 @@ class BuilderPlugin implements Plugin<Project> {
             mavenCentral()
             //mavenLocal()
 
-            maven { url Repositories.SONATYPE}
-            maven { url SpigotRepositories.PAPER_MC}
-            maven { url SpigotRepositories.SPIGOT_MC}
+            maven { url Repositories.SONATYPE }
+            maven { url SpigotRepositories.PAPER_MC }
+            maven { url SpigotRepositories.SPIGOT_MC }
             maven { url 'https://repo.screamingsandals.org/repository/maven-public/' }
+            maven { url 'https://repo.hoz.network/repository/maven-public/' }
             maven { url 'https://repo.velocitypowered.com/snapshots/' }
             maven { url 'https://maven.fabricmc.net/' }
+            maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
         }
 
         project.dependencies {
-            compileOnly 'org.jetbrains:annotations:19.0.0'
+            compileOnly 'org.jetbrains:annotations:20.1.0'
         }
 
         project.dependencies.ext['waterfall'] = { String version = null ->
@@ -78,6 +96,14 @@ class BuilderPlugin implements Plugin<Project> {
 
         project.dependencies.ext['velocity'] = { String version = null ->
             VELOCITY.format(version)
+        }
+
+        project.dependencies.ext['paperlib'] = { String version = null ->
+            PAPERLIB.format(version)
+        }
+
+        project.dependencies.ext['placeholder_api'] = { String version = null ->
+            PLACEHOLDERAPI.format(version)
         }
 
         project.dependencies.ext['screaming'] = { String lib, String version ->
@@ -168,6 +194,7 @@ class BuilderPlugin implements Plugin<Project> {
             it.classifier 'sources'
             from project.sourceSets.main.allJava
         }
+        //still need TODO this.
 /*
         project.javadoc {
             def srcmain = project.file("src/main");

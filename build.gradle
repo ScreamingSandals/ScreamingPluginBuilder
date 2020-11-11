@@ -8,7 +8,7 @@ plugins {
 
 defaultTasks 'clean', 'build', 'publishToMavenLocal'
 
-if (project.hasProperty('nexus')) {
+if (project.hasProperty('gitlab-repo')) {
     defaultTasks.add('publish')
 }
 
@@ -29,7 +29,7 @@ dependencies {
 }
 
 group = 'org.screamingsandals.gradle.builder'
-version = '1.0.24'
+version = '1.0.25'
 
 publishing {
     publications {
@@ -51,20 +51,17 @@ publishing {
         }
     }
 
-    if (project.hasProperty("nexus")) {
+    if (project.hasProperty('gitlab-repo')) {
         repositories {
             maven {
-                credentials {
-                    username = System.getenv("NEXUS_USERNAME")
-                    password = System.getenv("NEXUS_PASSWORD")
+                url project.property("gitlab-repo")
+                name "GitLab"
+                credentials(HttpHeaderCredentials) {
+                    name = 'Private-Token'
+                    value = System.getenv("GITLAB_TOKEN")
                 }
-
-                name = 'nexus'
-
-                if (((String) project.version).contains("SNAPSHOT")) {
-                    url = System.getenv("NEXUS_URL_SNAPSHOT")
-                } else {
-                    url = System.getenv("NEXUS_URL_RELEASE")
+                authentication {
+                    header(HttpHeaderAuthentication)
                 }
             }
         }

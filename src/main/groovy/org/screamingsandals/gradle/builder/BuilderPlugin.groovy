@@ -16,6 +16,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.credentials.HttpHeaderCredentials
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
@@ -23,6 +24,7 @@ import io.franzbecker.gradle.lombok.task.DelombokTask
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.authentication.http.HttpHeaderAuthentication
 
 class BuilderPlugin implements Plugin<Project> {
 
@@ -182,7 +184,7 @@ class BuilderPlugin implements Plugin<Project> {
             from project.javadoc
         }
 
-        if (project.hasProperty("nexus")) {
+        if (project.hasProperty("gitlab-repo")) {
             def srcmain = project.file("src/main");
             def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
             if (processDelombok) {
@@ -229,23 +231,25 @@ class BuilderPlugin implements Plugin<Project> {
             }
         }
 
-        if (project.hasProperty("nexus")) {
+        if (project.hasProperty('gitlab-repo')) {
             publishing.repositories {
-                it.maven({ MavenArtifactRepository repository ->
-                    if (((String) project.version).contains("SNAPSHOT")) {
-                        repository.url = System.getenv("NEXUS_URL_SNAPSHOT")
-                    } else {
-                        repository.url = System.getenv("NEXUS_URL_RELEASE")
+                it.maven { MavenArtifactRepository repository ->
+                    repository.url project.property("gitlab-repo")
+                    repository.name "GitLab"
+                    repository.credentials(HttpHeaderCredentials) {
+                        name = 'Private-Token'
+                        value = System.getenv("GITLAB_TOKEN")
                     }
-                    repository.credentials.username = System.getenv("NEXUS_USERNAME")
-                    repository.credentials.password = System.getenv("NEXUS_PASSWORD")
-                })
+                    repository.authentication {
+                        header(HttpHeaderAuthentication)
+                    }
+                }
             }
         }
 
         List tasks = ["shadowJar", "publishToMavenLocal"]
 
-        if (project.hasProperty("nexus")) {
+        if (project.hasProperty("gitlab-repo")) {
             tasks.add("publish")
             tasks.add("javadoc")
         }

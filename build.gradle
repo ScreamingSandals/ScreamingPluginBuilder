@@ -8,7 +8,7 @@ plugins {
 
 defaultTasks 'clean', 'build', 'publishToMavenLocal'
 
-if (project.hasProperty('gitlab-repo')) {
+if (System.getenv("GITLAB_REPO") != null) {
     defaultTasks.add('publish')
 }
 
@@ -29,7 +29,7 @@ dependencies {
 }
 
 group = 'org.screamingsandals.gradle.builder'
-version = '1.0.29'
+version = '1.0.30'
 
 publishing {
     publications {
@@ -51,10 +51,10 @@ publishing {
         }
     }
 
-    if (project.hasProperty('gitlab-repo')) {
+    if (System.getenv("GITLAB_REPO") != null) {
         repositories {
             maven {
-                url project.property("gitlab-repo")
+                url System.getenv("GITLAB_REPO")
                 name "GitLab"
                 credentials(HttpHeaderCredentials) {
                     name = 'Private-Token'

@@ -169,7 +169,7 @@ class BuilderPlugin implements Plugin<Project> {
             def remapShadowJar = project.tasks.getByName("remapShadowJar")
             project.tasks.getByName("screamCompile").dependsOn(remapShadowJar);
             project.tasks.getByName("publishToMavenLocal").dependsOn(remapShadowJar);
-            if (project.hasProperty("nexus")) {
+            if (System.getenv("GITLAB_REPO") != null) {
                 project.tasks.getByName("publish").dependsOn(remapShadowJar);
             }
             if (project.hasProperty("screamingDocs")) {
@@ -211,7 +211,7 @@ class BuilderPlugin implements Plugin<Project> {
             from project.javadoc
         }
 
-        if (project.hasProperty("gitlab-repo")) {
+        if (System.getenv("GITLAB_REPO") != null) {
             def srcmain = project.file("src/main");
             def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
             if (processDelombok) {
@@ -258,10 +258,10 @@ class BuilderPlugin implements Plugin<Project> {
             }
         }
 
-        if (project.hasProperty('gitlab-repo')) {
+        if (System.getenv("GITLAB_REPO") != null) {
             publishing.repositories {
                 it.maven { MavenArtifactRepository repository ->
-                    repository.url project.property("gitlab-repo")
+                    repository.url System.getenv("GITLAB_REPO")
                     repository.name "GitLab"
                     repository.credentials(HttpHeaderCredentials) {
                         name = 'Private-Token'
@@ -276,7 +276,7 @@ class BuilderPlugin implements Plugin<Project> {
 
         List tasks = ["shadowJar", "publishToMavenLocal"]
 
-        if (project.hasProperty("gitlab-repo")) {
+        if (System.getenv("GITLAB_REPO") != null) {
             tasks.add("publish")
             tasks.add("javadoc")
         }

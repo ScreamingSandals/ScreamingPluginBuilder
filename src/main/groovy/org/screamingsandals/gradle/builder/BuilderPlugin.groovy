@@ -171,8 +171,6 @@ class BuilderPlugin implements Plugin<Project> {
             project.tasks.getByName("publishToMavenLocal").dependsOn(remapShadowJar);
             if (System.getenv("GITLAB_REPO") != null) {
                 project.tasks.getByName("publish").dependsOn(remapShadowJar);
-            }
-            if (project.hasProperty("screamingDocs")) {
                 project.tasks.getByName("javadoc").dependsOn(remapShadowJar);
             }
 
@@ -188,27 +186,6 @@ class BuilderPlugin implements Plugin<Project> {
             project.apply {
                 plugin BungeePlugin.class
             }
-        }
-
-        project.task('sourceJar', type: Jar) {
-            it.classifier 'sources'
-            from project.sourceSets.main.allJava
-        }
-        //still need TODO this.
-/*
-        project.javadoc {
-            def srcmain = project.file("src/main");
-            def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
-            if (processDelombok) {
-                dependsOn 'delombokForJavadoc'
-                source = project.tasks.getByName('delombokForJavadoc').outputDir
-            }
-            options.addBooleanOption('html5', true)
-        } // Ceph's assigned this job to himself. Good luck boi
-*/
-        project.task('javadocJar', type: Jar, dependsOn: project.javadoc) {
-            it.classifier = 'javadoc'
-            from project.javadoc
         }
 
         if (System.getenv("GITLAB_REPO") != null) {
@@ -227,6 +204,23 @@ class BuilderPlugin implements Plugin<Project> {
                     }
                 }
             }
+
+            project.task('sourceJar', type: Jar) {
+                it.classifier 'sources'
+                from project.sourceSets.main.allJava
+            }
+
+            project.javadoc {
+                if (processDelombok) {
+                    dependsOn 'delombokForJavadoc'
+                    source = project.tasks.getByName('delombokForJavadoc').outputDir
+                }
+                options.addBooleanOption('html5', true)
+            }
+            project.task('javadocJar', type: Jar, dependsOn: project.javadoc) {
+                it.classifier = 'javadoc'
+                from project.javadoc
+            }
         }
 
         PublishingExtension publishing = project.extensions.getByName("publishing")
@@ -234,7 +228,10 @@ class BuilderPlugin implements Plugin<Project> {
             ShadowExtension shadow = project.extensions.getByName("shadow")
             shadow.component(it)
 
-            it.artifact(project.tasks.sourceJar)
+            if (System.getenv("GITLAB_REPO") != null) {
+                it.artifact(project.tasks.sourceJar)
+                it.artifact(project.tasks.javadocJar)
+            }
 
             it.artifacts.every {
                 it.classifier = ""

@@ -80,7 +80,6 @@ class BuilderPlugin implements Plugin<Project> {
             maven { url SpigotRepositories.PAPER_MC }
             maven { url SpigotRepositories.SPIGOT_MC }
             maven { url 'https://repo.screamingsandals.org/public/' }
-            maven { url 'https://repo.hoz.network/repository/maven-public/' }
             maven { url 'https://repo.velocitypowered.com/snapshots/' }
             maven { url 'https://maven.fabricmc.net/' }
             maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }

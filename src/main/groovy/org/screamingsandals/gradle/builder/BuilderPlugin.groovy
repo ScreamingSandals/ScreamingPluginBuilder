@@ -3,6 +3,7 @@ package org.screamingsandals.gradle.builder
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import io.franzbecker.gradle.lombok.LombokPlugin
+import io.franzbecker.gradle.lombok.task.DelombokTask
 import kr.entree.spigradle.data.Dependency
 import kr.entree.spigradle.data.Repositories
 import kr.entree.spigradle.data.SpigotRepositories

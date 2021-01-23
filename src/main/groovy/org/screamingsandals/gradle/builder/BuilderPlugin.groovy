@@ -165,10 +165,10 @@ class BuilderPlugin implements Plugin<Project> {
             ShadowExtension shadow = project.extensions.findByName("shadow")
             if (shadow != null) {
                 shadow.component(it)
-            }
 
-            it.artifacts.every {
-                it.classifier = ""
+                it.artifacts.every {
+                    it.classifier = ""
+                }
             }
 
             it.pom.withXml {

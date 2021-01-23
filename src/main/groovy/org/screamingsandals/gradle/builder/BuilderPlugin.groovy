@@ -3,25 +3,20 @@ package org.screamingsandals.gradle.builder
 import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import io.franzbecker.gradle.lombok.LombokPlugin
-import io.franzbecker.gradle.lombok.task.DelombokTask
 import kr.entree.spigradle.data.Dependency
 import kr.entree.spigradle.data.Repositories
 import kr.entree.spigradle.data.SpigotRepositories
 import kr.entree.spigradle.data.VersionModifier
-import kr.entree.spigradle.module.bungee.BungeePlugin
 import kr.entree.spigradle.module.common.SpigradlePlugin
-import kr.entree.spigradle.module.spigot.SpigotPlugin
-import net.fabricmc.loom.LoomGradlePlugin
-import net.fabricmc.loom.task.RemapJarTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.credentials.HttpHeaderCredentials
+import org.gradle.api.plugins.JavaLibraryPlugin
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import org.gradle.api.tasks.bundling.Jar
 import org.gradle.authentication.http.HttpHeaderAuthentication
 
 class BuilderPlugin implements Plugin<Project> {
@@ -65,10 +60,10 @@ class BuilderPlugin implements Plugin<Project> {
         this.project = project
 
         project.apply {
-            plugin ShadowPlugin.class
             plugin SpigradlePlugin.class
             plugin MavenPublishPlugin.class
             plugin LombokPlugin.class
+            plugin JavaLibraryPlugin.class
         }
 
         project.repositories {
@@ -81,7 +76,6 @@ class BuilderPlugin implements Plugin<Project> {
             maven { url SpigotRepositories.SPIGOT_MC }
             maven { url 'https://repo.screamingsandals.org/public/' }
             maven { url 'https://repo.velocitypowered.com/snapshots/' }
-            maven { url 'https://maven.fabricmc.net/' }
             maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
         }
 
@@ -109,81 +103,18 @@ class BuilderPlugin implements Plugin<Project> {
             return "org.screamingsandals.lib:$lib:$version"
         }
 
-        project.configurations {
-            def shade = it.maybeCreate("shade")
-            project.configurations.runtimeClasspath.extendsFrom(shade)
-            project.configurations.compileClasspath.extendsFrom(shade)
-            project.configurations.runtimeElements.extendsFrom(shade)
-        }
-
-        project.shadowJar {
-            configurations = [project.configurations.shade]
-        }
-
-        project.ext['prepareFabric'] = { String minecraftVersion, String mappingsVersion, String loaderVersion, String apiVersion = null ->
+        project.ext['enableShadowPlugin'] = {
             project.apply {
-                plugin LoomGradlePlugin
-            }
+                plugin ShadowPlugin.class
 
-            project.dependencies {
-                minecraft "com.mojang:minecraft:${minecraftVersion}"
-                mappings "net.fabricmc:yarn:${mappingsVersion}"
-                modImplementation "net.fabricmc:fabric-loader:${loaderVersion}"
+                List tasks = ["shadowJar", "publishToMavenLocal"]
 
-                if (apiVersion != null) {
-                    modImplementation "net.fabricmc:fabric-api:${apiVersion}"
-                }
-            }
-
-            project.processResources {
-                inputs.property "version", project.version
-
-                from(project.sourceSets.main.resources.srcDirs) {
-                    include "fabric.mod.json"
-                    expand "version": project.version
+                if (System.getenv("GITLAB_REPO") != null) {
+                    tasks.add("publish")
+                    tasks.add("javadoc")
                 }
 
-                from(project.sourceSets.main.resources.srcDirs) {
-                    exclude "fabric.mod.json"
-                }
-            }
-
-            project.jar {
-                from "LICENSE"
-            }
-
-            project.shadowJar {
-                classifier = "dev"
-            }
-
-            project.tasks.register("remapShadowJar", RemapJarTask) {
-                def shadowJar = project.tasks.getByName("shadowJar")
-                dependsOn(shadowJar)
-                input.set(shadowJar.archiveFile)
-                archiveFileName.set(shadowJar.archiveFileName.get().replaceAll('-dev\\.jar$', '-all.jar'))
-                addNestedDependencies.set(true)
-                remapAccessWidener.set(true)
-            }
-
-            def remapShadowJar = project.tasks.getByName("remapShadowJar")
-            project.tasks.getByName("screamCompile").dependsOn(remapShadowJar);
-            project.tasks.getByName("publishToMavenLocal").dependsOn(remapShadowJar);
-            if (System.getenv("GITLAB_REPO") != null) {
-                project.tasks.getByName("publish").dependsOn(remapShadowJar);
-                project.tasks.getByName("javadoc").dependsOn(remapShadowJar);
-            }
-
-        }
-
-        project.ext['enableSpigradleSpigot'] = {
-            project.apply {
-                plugin SpigotPlugin.class
-            }
-        }
-
-        project.ext['enableSpigradleBungee'] = {
-            project.apply {
-                plugin BungeePlugin.class
+                project.tasks.getByName("screamCompile").dependsOn = tasks
             }
         }
 
@@ -224,12 +155,14 @@ class BuilderPlugin implements Plugin<Project> {
 
         PublishingExtension publishing = project.extensions.getByName("publishing")
         publishing.publications.create("maven", MavenPublication) {
-            ShadowExtension shadow = project.extensions.getByName("shadow")
-            shadow.component(it)
-
             if (System.getenv("GITLAB_REPO") != null) {
                 it.artifact(project.tasks.sourceJar)
                 it.artifact(project.tasks.javadocJar)
+            }
+
+            ShadowExtension shadow = project.extensions.findByName("shadow")
+            if (shadow != null) {
+                shadow.component(it)
             }
 
             it.artifacts.every {
@@ -237,7 +170,7 @@ class BuilderPlugin implements Plugin<Project> {
             }
 
             it.pom.withXml {
-                if (asNode().get("dependencies") != null) {
+                if (asNode().children().stream().anyMatch {it.name() == "dependencies"}) {
                     asNode().remove(asNode().get("dependencies"))
                 }
 
@@ -250,6 +183,13 @@ class BuilderPlugin implements Plugin<Project> {
                         dependencyNode.appendNode('version', it.version)
                         dependencyNode.appendNode('scope', 'provided')
                     }
+                }
+                project.configurations.api.dependencies.each {
+                    def dependencyNode = dependenciesNode.appendNode('dependency')
+                    dependencyNode.appendNode('groupId', it.group)
+                    dependencyNode.appendNode('artifactId', it.name)
+                    dependencyNode.appendNode('version', it.version)
+                    dependencyNode.appendNode('scope', 'compile')
                 }
             }
         }
@@ -270,7 +210,7 @@ class BuilderPlugin implements Plugin<Project> {
             }
         }
 
-        List tasks = ["shadowJar", "publishToMavenLocal"]
+        List tasks = ["build", "publishToMavenLocal"]
 
         if (System.getenv("GITLAB_REPO") != null) {
             tasks.add("publish")

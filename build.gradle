@@ -16,20 +16,18 @@ if (System.getenv("GITLAB_REPO") != null) {
 repositories {
     jcenter()
     maven { url "https://plugins.gradle.org/m2/" }
-    maven { url 'https://maven.fabricmc.net/' }
 }
 
 dependencies {
     compileOnly gradleApi()
     compileOnly localGroovy()
     implementation 'com.github.jengelman.gradle.plugins:shadow:6.0.0'
-    implementation 'kr.entree:spigradle:2.2.3'
+    implementation 'kr.entree:spigradle:2.2.3' // for removal
     implementation 'io.franzbecker:gradle-lombok:4.0.0'
-    implementation 'net.fabricmc:fabric-loom:0.4-SNAPSHOT'
 }
 
 group = 'org.screamingsandals.gradle.builder'
-version = '1.0.32'
+version = '1.0.33'
 
 publishing {
     publications {
@@ -68,4 +66,4 @@ publishing {
     }
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = 11

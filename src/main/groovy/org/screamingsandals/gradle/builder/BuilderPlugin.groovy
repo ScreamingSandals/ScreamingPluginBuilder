@@ -18,6 +18,7 @@ import org.gradle.api.plugins.JavaLibraryPlugin
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.authentication.http.HttpHeaderAuthentication
 
 class BuilderPlugin implements Plugin<Project> {

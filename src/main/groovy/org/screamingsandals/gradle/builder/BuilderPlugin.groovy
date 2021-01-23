@@ -157,18 +157,21 @@ class BuilderPlugin implements Plugin<Project> {
 
         PublishingExtension publishing = project.extensions.getByName("publishing")
         publishing.publications.create("maven", MavenPublication) {
-            if (System.getenv("GITLAB_REPO") != null) {
-                it.artifact(project.tasks.sourceJar)
-                it.artifact(project.tasks.javadocJar)
-            }
-
             ShadowExtension shadow = project.extensions.findByName("shadow")
             if (shadow != null) {
                 shadow.component(it)
+            } else {
+                it.artifact(project.tasks.jar)
+            }
 
-                it.artifacts.every {
-                    it.classifier = ""
-                }
+            it.artifacts.every {
+                it.classifier = ""
+            }
+
+
+            if (System.getenv("GITLAB_REPO") != null) {
+                it.artifact(project.tasks.sourceJar)
+                it.artifact(project.tasks.javadocJar)
             }
 
             it.pom.withXml {

@@ -105,21 +105,6 @@ class BuilderPlugin implements Plugin<Project> {
             return "org.screamingsandals.lib:$lib:$version"
         }
 
-        project.ext['enableShadowPlugin'] = {
-            project.apply {
-                plugin ShadowPlugin.class
-
-                List tasks = ["shadowJar", "publishToMavenLocal"]
-
-                if (System.getenv("GITLAB_REPO") != null) {
-                    tasks.add("publish")
-                    tasks.add("javadoc")
-                }
-
-                project.tasks.getByName("screamCompile").dependsOn = tasks
-            }
-        }
-
         if (System.getenv("GITLAB_REPO") != null) {
             def srcmain = project.file("src/main");
             def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
@@ -156,13 +141,8 @@ class BuilderPlugin implements Plugin<Project> {
         }
 
         PublishingExtension publishing = project.extensions.getByName("publishing")
-        publishing.publications.create("maven", MavenPublication) {
-            ShadowExtension shadow = project.extensions.findByName("shadow")
-            if (shadow != null) {
-                shadow.component(it)
-            } else {
-                it.artifact(project.tasks.jar)
-            }
+        def maven = publishing.publications.create("maven", MavenPublication) {
+            it.artifact(project.tasks.jar)
 
             it.artifacts.every {
                 it.classifier = ""
@@ -175,10 +155,6 @@ class BuilderPlugin implements Plugin<Project> {
             }
 
             it.pom.withXml {
-                if (asNode().children().stream().anyMatch {it.name() == "dependencies"}) {
-                    asNode().remove(asNode().get("dependencies"))
-                }
-
                 def dependenciesNode = asNode().appendNode("dependencies")
                 project.configurations.compileOnly.dependencies.each {
                     if (!(it instanceof SelfResolvingDependency) && it.name != "spigradle") {
@@ -195,6 +171,24 @@ class BuilderPlugin implements Plugin<Project> {
                     dependencyNode.appendNode('artifactId', it.name)
                     dependencyNode.appendNode('version', it.version)
                     dependencyNode.appendNode('scope', 'compile')
+                }
+            }
+        }
+
+        project.ext['enableShadowPlugin'] = {
+            project.apply {
+                plugin ShadowPlugin.class
+            }
+
+            project.tasks.getByName("screamCompile").dependsOn -= "build"
+            project.tasks.getByName("screamCompile").dependsOn += "shadowJar"
+
+            maven.each {
+                it.getArtifacts().removeIf {
+                    it.getBuildDependencies().getDependencies().contains(project.tasks.jar)
+                }
+                it.artifact(project.tasks.shadowJar) {
+                    it.classifier = ""
                 }
             }
         }

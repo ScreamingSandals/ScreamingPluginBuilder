@@ -154,6 +154,7 @@ class BuilderPlugin implements Plugin<Project> {
 
                         def jsch = new JSch()
                         def jschSession = jsch.getSession(System.getenv('JAVADOC_USER'), System.getenv('JAVADOC_HOST'))
+                        jschSession.setConfig("StrictHostKeyChecking", "no");
                         jschSession.setPassword(System.getenv('JAVADOC_SECRET'))
                         jschSession.connect()
                         def sftpChannel = jschSession.openChannel("sftp") as ChannelSftp

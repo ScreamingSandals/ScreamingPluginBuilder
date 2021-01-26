@@ -145,34 +145,43 @@ class BuilderPlugin implements Plugin<Project> {
             if (System.getenv('JAVADOC_HOST') != null && System.getenv('JAVADOC_USER') != null && System.getenv('JAVADOC_SECRET') != null) {
                 project.tasks.register("uploadJavadoc") {
                     doLast {
-                        def projectJavadocDirectories
-                        if (project.getRootProject() == project) {
-                            projectJavadocDirectories = [project.getName()]
-                        } else {
-                            projectJavadocDirectories = [project.getRootProject().getName(), project.getName()]
-                        }
-
-                        def jsch = new JSch()
-                        def jschSession = jsch.getSession(System.getenv('JAVADOC_USER'), System.getenv('JAVADOC_HOST'))
-                        jschSession.setConfig("StrictHostKeyChecking", "no");
-                        jschSession.setPassword(System.getenv('JAVADOC_SECRET'))
-                        jschSession.connect()
-                        def sftpChannel = jschSession.openChannel("sftp") as ChannelSftp
-                        sftpChannel.connect()
-
-                        sftpChannel.cd("www")
-
-                        projectJavadocDirectories.forEach {
-                            try {
-                                sftpChannel.cd(it)
-                            } catch (SftpException ignored) {
-                                sftpChannel.mkdir(it)
+                        try {
+                            def projectJavadocDirectories
+                            if (project.getRootProject() == project) {
+                                projectJavadocDirectories = [project.getName()]
+                            } else {
+                                projectJavadocDirectories = [project.getRootProject().getName(), project.getName()]
                             }
+
+                            def jsch = new JSch()
+                            def jschSession = jsch.getSession(System.getenv('JAVADOC_USER'), System.getenv('JAVADOC_HOST'))
+                            jschSession.setConfig("StrictHostKeyChecking", "no");
+                            jschSession.setPassword(System.getenv('JAVADOC_SECRET'))
+                            jschSession.connect()
+                            def sftpChannel = jschSession.openChannel("sftp") as ChannelSftp
+                            sftpChannel.connect()
+
+                            sftpChannel.cd("www")
+
+                            projectJavadocDirectories.forEach {
+                                try {
+                                    sftpChannel.cd(it)
+                                } catch (SftpException ignored) {
+                                    sftpChannel.mkdir(it)
+                                    sftpChannel.cd(it)
+                                }
+                            }
+
+                            recursiveClear(sftpChannel)
+
+                            recursiveFolderUpload(sftpChannel, project.file('build/docs/javadoc'))
+
+                            sftpChannel.disconnect()
+
+                            jschSession.disconnect()
+                        } catch (SftpException exception) {
+                            exception.printStackTrace()
                         }
-
-                        recursiveClear(sftpChannel, ".")
-
-                        recursiveFolderUpload(sftpChannel, project.file('build/docs/javadoc'), '.')
                     }
                     dependsOn('javadoc')
                 }
@@ -267,48 +276,30 @@ class BuilderPlugin implements Plugin<Project> {
 
 
 
-    def static recursiveClear(ChannelSftp sftpChannel, String path) {
-        sftpChannel.ls(path) {
+    def static recursiveClear(ChannelSftp sftpChannel) {
+        sftpChannel.ls(".").forEach {
             if (it.filename == "." || it.filename == "..")
-                return;
+                return
             if (it.attrs.dir) {
-                recursiveClear(sftpChannel, it.longname)
-                sftpChannel.rmdir(it.longname)
+                sftpChannel.cd(it.filename)
+                recursiveClear(sftpChannel)
+                sftpChannel.cd("..")
+                sftpChannel.rmdir(it.filename)
             } else {
-                sftpChannel.rm(it.longname)
+                sftpChannel.rm(it.filename)
             }
         }
     }
 
-    // somewhere from internet xdd
-    def static recursiveFolderUpload(ChannelSftp channelSftp, File sourceFile, String destinationPath)
-            throws SftpException, FileNotFoundException {
-        if (sourceFile.isFile()) {
-            channelSftp.cd(destinationPath);
-            if (!sourceFile.getName().startsWith("."))
-                channelSftp.put(new FileInputStream(sourceFile), sourceFile.getName(), ChannelSftp.OVERWRITE);
-        } else {
-            System.out.println("inside else " + sourceFile.getName());
-            File[] files = sourceFile.listFiles();
-            if (files != null && !sourceFile.getName().startsWith(".")) {
-                channelSftp.cd(destinationPath);
-                SftpATTRS attrs = null;
-                // check if the directory is already existing
-                try {
-                    attrs = channelSftp.stat(destinationPath + "/" + sourceFile.getName());
-                } catch (Exception e) {
-                    System.out.println(destinationPath + "/" + sourceFile.getName() + " not found");
-                }
-                // else create a directory
-                if (attrs != null) {
-                    System.out.println("Directory exists IsDir=" + attrs.isDir());
-                } else {
-                    System.out.println("Creating dir " + sourceFile.getName());
-                    channelSftp.mkdir(sourceFile.getName());
-                }
-                for (File f : files) {
-                    recursiveFolderUpload(channelSftp, f, destinationPath + "/" + sourceFile.getName());
-                }
+    def static recursiveFolderUpload(ChannelSftp channelSftp, File sourceFolder) {
+        sourceFolder.listFiles().each {
+            if (it.isDirectory()) {
+                channelSftp.mkdir(it.getName())
+                channelSftp.cd(it.getName())
+                recursiveFolderUpload(channelSftp, it)
+                channelSftp.cd("..")
+            } else {
+                channelSftp.put(it.getAbsolutePath(), it.getName())
             }
         }
     }

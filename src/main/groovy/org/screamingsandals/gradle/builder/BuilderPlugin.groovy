@@ -173,6 +173,7 @@ class BuilderPlugin implements Plugin<Project> {
 
                         recursiveFolderUpload(sftpChannel, project.file('build/docs/javadoc'), '.')
                     }
+                    dependsOn('javadoc')
                 }
             }
         }
@@ -254,6 +255,10 @@ class BuilderPlugin implements Plugin<Project> {
 
         if (System.getenv("GITLAB_REPO") != null || System.getenv('JAVADOC_HOST') != null) {
             tasks.add("javadoc")
+        }
+
+        if (System.getenv('JAVADOC_HOST') != null) {
+            tasks.add("uploadJavadoc")
         }
 
         project.tasks.create("screamCompile").dependsOn = tasks

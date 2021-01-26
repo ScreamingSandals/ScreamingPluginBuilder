@@ -3,15 +3,9 @@ package org.screamingsandals.gradle.builder
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.JSch
-import com.jcraft.jsch.SftpATTRS
 import com.jcraft.jsch.SftpException
 import io.franzbecker.gradle.lombok.LombokPlugin
 import io.franzbecker.gradle.lombok.task.DelombokTask
-import kr.entree.spigradle.data.Dependency
-import kr.entree.spigradle.data.Repositories
-import kr.entree.spigradle.data.SpigotRepositories
-import kr.entree.spigradle.data.VersionModifier
-import kr.entree.spigradle.module.common.SpigradlePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
@@ -23,40 +17,10 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.authentication.http.HttpHeaderAuthentication
+import org.screamingsandals.gradle.builder.dependencies.Dependencies
+import org.screamingsandals.gradle.builder.repositories.Repositories
 
 class BuilderPlugin implements Plugin<Project> {
-
-    public static Dependency WATERFALL = new Dependency(
-            "io.github.waterfallmc",
-            "waterfall-api",
-            "1.16-R0.4-SNAPSHOT",
-            false,
-            VersionModifier.INSTANCE.createAdjuster("R0.4", "SNAPSHOT")
-    )
-
-    public static Dependency VELOCITY = new Dependency(
-            "com.velocitypowered",
-            "velocity-api",
-            "1.1.2-SNAPSHOT",
-            false,
-            VersionModifier.INSTANCE.getSNAPSHOT_APPENDER()
-    )
-
-    public static Dependency PAPERLIB = new Dependency(
-            "io.papermc",
-            "paperlib",
-            "1.0.6-SNAPSHOT",
-            false,
-            VersionModifier.INSTANCE.getSNAPSHOT_APPENDER()
-    )
-
-    public static Dependency PLACEHOLDERAPI = new Dependency(
-            "me.clip",
-            "placeholderapi",
-            "2.10.9",
-            false,
-            VersionModifier.INSTANCE.createAdjuster("")
-    )
 
     private Project project
 
@@ -65,43 +29,29 @@ class BuilderPlugin implements Plugin<Project> {
         this.project = project
 
         project.apply {
-            plugin SpigradlePlugin.class
             plugin MavenPublishPlugin.class
             plugin LombokPlugin.class
             plugin JavaLibraryPlugin.class
         }
+
+        Repositories.registerRepositoriesMethods(project)
+        Dependencies.registerDependenciesMethods(project)
 
         project.repositories {
             jcenter()
             mavenCentral()
             //mavenLocal()
 
-            maven { url Repositories.SONATYPE }
-            maven { url SpigotRepositories.PAPER_MC }
-            maven { url SpigotRepositories.SPIGOT_MC }
-            maven { url 'https://repo.screamingsandals.org/public/' }
-            maven { url 'https://repo.velocitypowered.com/snapshots/' }
-            maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
+            screaming()
+            sonatype()
+            papermc()
+            spigotmc()
+            velocity()
+            placeholderApi()
         }
 
         project.dependencies {
             compileOnly 'org.jetbrains:annotations:20.1.0'
-        }
-
-        project.dependencies.ext['waterfall'] = { String version = null ->
-            WATERFALL.format(version)
-        }
-
-        project.dependencies.ext['velocity'] = { String version = null ->
-            VELOCITY.format(version)
-        }
-
-        project.dependencies.ext['paperlib'] = { String version = null ->
-            PAPERLIB.format(version)
-        }
-
-        project.dependencies.ext['placeholder_api'] = { String version = null ->
-            PLACEHOLDERAPI.format(version)
         }
 
         project.dependencies.ext['screaming'] = { String lib, String version ->
@@ -263,15 +213,17 @@ class BuilderPlugin implements Plugin<Project> {
             tasks.add("publish")
         }
 
-        if (System.getenv("GITLAB_REPO") != null || System.getenv('JAVADOC_HOST') != null) {
+        if (System.getenv("GITLAB_REPO") != null) {
             tasks.add("javadoc")
         }
 
-        if (System.getenv('JAVADOC_HOST') != null) {
-            tasks.add("uploadJavadoc")
-        }
-
         project.tasks.create("screamCompile").dependsOn = tasks
+
+        project.tasks.create("allowJavadocUpload") {
+            if (project.tasks.findByName("uploadJavadoc") != null) {
+                dependsOn("uploadJavadoc")
+            }
+        }
     }
 
 

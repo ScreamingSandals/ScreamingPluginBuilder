@@ -16,12 +16,6 @@ There is one way for apply the plugin.
 ```groovy
 buildscript {
     repositories {
-        /* these repos are needed because there are saved dependencies for our plugin */
-        jcenter() 
-        maven { 
-          url = "https://plugins.gradle.org/m2/"
-        }
-        /* in this repository is our plugin */
         maven {
           url = 'https://repo.screamingsandals.org'
         }
@@ -87,15 +81,17 @@ subprojects {
       // add some provided dependencies
       compileOnly paper()
       
-      // add some compiled dependencies (due to fabric loom compatibility we need to use custom scope)
-      shade 'org.screamingsandals.simpleinventories:SimpleInventories-Core:1.0.0'
+      // add some compiled dependencies
+      implementation 'org.screamingsandals.simpleinventories:SimpleInventories-Core:1.0.0'
     }
+  
+    enableShadowPlugin() // enable shading
 
     shadowJar {
        relocate 'org.screamingsandals.simpleinventories', 'org.screamingsandals.simpleinventories2' // add some relocation if you shade something inside
     }
     
-    sourceCompatibility = '1.8' // now add here your favourite java version (at least 1.8, recommended 11)
+    sourceCompatibility = 11
 }
 
 

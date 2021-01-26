@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 plugins {
     id 'groovy'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 defaultTasks 'clean', 'build', 'publishToMavenLocal'
@@ -21,14 +21,13 @@ repositories {
 dependencies {
     compileOnly gradleApi()
     compileOnly localGroovy()
-    implementation 'com.github.jengelman.gradle.plugins:shadow:6.0.0'
-    implementation 'kr.entree:spigradle:2.2.3' // for removal
+    implementation 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
     implementation 'io.franzbecker:gradle-lombok:4.0.0'
     implementation 'com.jcraft:jsch:0.1.55'
 }
 
 group = 'org.screamingsandals.gradle.builder'
-version = '1.0.36'
+version = '1.0.37'
 
 publishing {
     publications {

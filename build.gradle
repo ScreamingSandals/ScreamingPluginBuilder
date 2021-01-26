@@ -24,10 +24,11 @@ dependencies {
     implementation 'com.github.jengelman.gradle.plugins:shadow:6.0.0'
     implementation 'kr.entree:spigradle:2.2.3' // for removal
     implementation 'io.franzbecker:gradle-lombok:4.0.0'
+    implementation 'com.jcraft:jsch:0.1.55'
 }
 
 group = 'org.screamingsandals.gradle.builder'
-version = '1.0.34'
+version = '1.0.35'
 
 publishing {
     publications {

@@ -1,7 +1,10 @@
 package org.screamingsandals.gradle.builder
 
-import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
+import com.jcraft.jsch.ChannelSftp
+import com.jcraft.jsch.JSch
+import com.jcraft.jsch.SftpATTRS
+import com.jcraft.jsch.SftpException
 import io.franzbecker.gradle.lombok.LombokPlugin
 import io.franzbecker.gradle.lombok.task.DelombokTask
 import kr.entree.spigradle.data.Dependency
@@ -105,7 +108,7 @@ class BuilderPlugin implements Plugin<Project> {
             return "org.screamingsandals.lib:$lib:$version"
         }
 
-        if (System.getenv("GITLAB_REPO") != null) {
+        if (System.getenv("GITLAB_REPO") != null || System.getenv('JAVADOC_HOST') != null) {
             def srcmain = project.file("src/main");
             def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
             if (processDelombok) {
@@ -137,6 +140,40 @@ class BuilderPlugin implements Plugin<Project> {
             project.task('javadocJar', type: Jar, dependsOn: project.javadoc) {
                 it.classifier = 'javadoc'
                 from project.javadoc
+            }
+
+            if (System.getenv('JAVADOC_HOST') != null && System.getenv('JAVADOC_USER') != null && System.getenv('JAVADOC_SECRET') != null) {
+                project.tasks.register("uploadJavadoc") {
+                    doLast {
+                        def projectJavadocDirectories
+                        if (project.getRootProject() == project) {
+                            projectJavadocDirectories = [project.getName()]
+                        } else {
+                            projectJavadocDirectories = [project.getRootProject().getName(), project.getName()]
+                        }
+
+                        def jsch = new JSch()
+                        def jschSession = jsch.getSession(System.getenv('JAVADOC_USER'), System.getenv('JAVADOC_HOST'))
+                        jschSession.setPassword(System.getenv('JAVADOC_SECRET'))
+                        jschSession.connect()
+                        def sftpChannel = jschSession.openChannel("sftp") as ChannelSftp
+                        sftpChannel.connect()
+
+                        sftpChannel.cd("www")
+
+                        projectJavadocDirectories.forEach {
+                            try {
+                                sftpChannel.cd(it)
+                            } catch (SftpException ignored) {
+                                sftpChannel.mkdir(it)
+                            }
+                        }
+
+                        recursiveClear(sftpChannel, ".")
+
+                        recursiveFolderUpload(sftpChannel, project.file('build/docs/javadoc'), '.')
+                    }
+                }
             }
         }
 
@@ -213,10 +250,61 @@ class BuilderPlugin implements Plugin<Project> {
 
         if (System.getenv("GITLAB_REPO") != null) {
             tasks.add("publish")
+        }
+
+        if (System.getenv("GITLAB_REPO") != null || System.getenv('JAVADOC_HOST') != null) {
             tasks.add("javadoc")
         }
 
         project.tasks.create("screamCompile").dependsOn = tasks
+    }
+
+
+
+    def static recursiveClear(ChannelSftp sftpChannel, String path) {
+        sftpChannel.ls(path) {
+            if (it.filename == "." || it.filename == "..")
+                return;
+            if (it.attrs.dir) {
+                recursiveClear(sftpChannel, it.longname)
+                sftpChannel.rmdir(it.longname)
+            } else {
+                sftpChannel.rm(it.longname)
+            }
+        }
+    }
+
+    // somewhere from internet xdd
+    def static recursiveFolderUpload(ChannelSftp channelSftp, File sourceFile, String destinationPath)
+            throws SftpException, FileNotFoundException {
+        if (sourceFile.isFile()) {
+            channelSftp.cd(destinationPath);
+            if (!sourceFile.getName().startsWith("."))
+                channelSftp.put(new FileInputStream(sourceFile), sourceFile.getName(), ChannelSftp.OVERWRITE);
+        } else {
+            System.out.println("inside else " + sourceFile.getName());
+            File[] files = sourceFile.listFiles();
+            if (files != null && !sourceFile.getName().startsWith(".")) {
+                channelSftp.cd(destinationPath);
+                SftpATTRS attrs = null;
+                // check if the directory is already existing
+                try {
+                    attrs = channelSftp.stat(destinationPath + "/" + sourceFile.getName());
+                } catch (Exception e) {
+                    System.out.println(destinationPath + "/" + sourceFile.getName() + " not found");
+                }
+                // else create a directory
+                if (attrs != null) {
+                    System.out.println("Directory exists IsDir=" + attrs.isDir());
+                } else {
+                    System.out.println("Creating dir " + sourceFile.getName());
+                    channelSftp.mkdir(sourceFile.getName());
+                }
+                for (File f : files) {
+                    recursiveFolderUpload(channelSftp, f, destinationPath + "/" + sourceFile.getName());
+                }
+            }
+        }
     }
 
 }

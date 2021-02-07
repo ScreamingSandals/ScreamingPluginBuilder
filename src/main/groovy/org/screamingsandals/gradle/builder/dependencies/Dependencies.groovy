@@ -102,6 +102,24 @@ class Dependencies {
         it.version = "2.10.9"
     }
 
+    public static CLOUD = new Dependency().each {
+        it.group = "cloud.commandframework"
+        it.name = "cloud-core"
+        it.version = "1.4.0"
+    }
+
+    public static CLOUD_PAPER = new Dependency(CLOUD).each {
+        it.name = "cloud-paper"
+    }
+
+    public static CLOUD_BUNGEE = new Dependency(CLOUD).each {
+        it.name = "cloud-bungee"
+    }
+
+    public static CLOUD_VELOCITY = new Dependency(CLOUD).each {
+        it.name = "cloud-velocity"
+    }
+
     static final NUKKIT_X = NUKKIT
 
     def static registerDependenciesMethods(Project project) {

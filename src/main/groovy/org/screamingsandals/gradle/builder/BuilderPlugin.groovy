@@ -22,12 +22,8 @@ import org.screamingsandals.gradle.builder.repositories.Repositories
 
 class BuilderPlugin implements Plugin<Project> {
 
-    private Project project
-
     @Override
     void apply(Project project) {
-        this.project = project
-
         project.apply {
             plugin MavenPublishPlugin.class
             plugin LombokPlugin.class
@@ -155,7 +151,7 @@ class BuilderPlugin implements Plugin<Project> {
             it.pom.withXml {
                 def dependenciesNode = asNode().appendNode("dependencies")
                 project.configurations.compileOnly.dependencies.each {
-                    if (!(it instanceof SelfResolvingDependency) && it.name != "spigradle") {
+                    if (!(it instanceof SelfResolvingDependency)) {
                         def dependencyNode = dependenciesNode.appendNode('dependency')
                         dependencyNode.appendNode('groupId', it.group)
                         dependencyNode.appendNode('artifactId', it.name)
@@ -163,12 +159,14 @@ class BuilderPlugin implements Plugin<Project> {
                         dependencyNode.appendNode('scope', 'provided')
                     }
                 }
-                project.configurations.api.dependencies.each {
-                    def dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', it.group)
-                    dependencyNode.appendNode('artifactId', it.name)
-                    dependencyNode.appendNode('version', it.version)
-                    dependencyNode.appendNode('scope', 'compile')
+                if (!project.tasks.findByName("shadowJar")) {
+                    project.configurations.api.dependencies.each {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                        dependencyNode.appendNode('scope', 'compile')
+                    }
                 }
             }
         }
@@ -183,7 +181,7 @@ class BuilderPlugin implements Plugin<Project> {
 
             maven.each {
                 it.getArtifacts().removeIf {
-                    it.getBuildDependencies().getDependencies().contains(project.tasks.jar)
+                    it.buildDependencies.getDependencies().contains(project.tasks.jar)
                 }
                 it.artifact(project.tasks.shadowJar) {
                     it.classifier = ""

@@ -19,6 +19,7 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.authentication.http.HttpHeaderAuthentication
 import org.screamingsandals.gradle.builder.dependencies.Dependencies
 import org.screamingsandals.gradle.builder.repositories.Repositories
+import org.screamingsandals.gradle.builder.utils.ScreamingLibBuilder
 
 class BuilderPlugin implements Plugin<Project> {
 
@@ -52,6 +53,10 @@ class BuilderPlugin implements Plugin<Project> {
 
         project.dependencies.ext['screaming'] = { String lib, String version ->
             return "org.screamingsandals.lib:$lib:$version"
+        }
+
+        project.ext['ScreamingLibBuilder'] = {
+            return new ScreamingLibBuilder(project)
         }
 
         if (System.getenv("GITLAB_REPO") != null || System.getenv('JAVADOC_HOST') != null) {

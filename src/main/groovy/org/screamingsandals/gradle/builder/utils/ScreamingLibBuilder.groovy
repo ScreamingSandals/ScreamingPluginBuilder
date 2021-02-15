@@ -48,7 +48,7 @@ class ScreamingLibBuilder {
         }
 
         project.dependencies {
-            api "org.screamingsandals.lib:utils:$version"
+            api "org.screamingsandals.lib:utils-common:$version"
 
             if (annotationProcessor) {
                 it.annotationProcessor "org.screamingsandals.lib:screaming-annotation:$version"

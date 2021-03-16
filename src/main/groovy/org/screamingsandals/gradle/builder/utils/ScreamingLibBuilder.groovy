@@ -7,7 +7,9 @@ class ScreamingLibBuilder {
 
     private List<String> platforms = []
     private List<String> modules = ["plugin"]
+    private List<String> universalModules = []
     private String version
+    private String simpleInventories = null
     private boolean annotationProcessor = false
 
     ScreamingLibBuilder(Project project) {
@@ -42,6 +44,20 @@ class ScreamingLibBuilder {
         return this
     }
 
+    ScreamingLibBuilder universalModules(String...newModules) {
+        newModules.each {
+            if (!universalModules.contains(it)) {
+                universalModules += it
+            }
+        }
+        return this
+    }
+
+    ScreamingLibBuilder simpleInventories(String version) {
+        simpleInventories = version
+        return this
+    }
+
     void build() {
         if (version == null) {
             throw new RuntimeException("Version of ScreamingLib can't be null")
@@ -52,6 +68,29 @@ class ScreamingLibBuilder {
 
             if (annotationProcessor) {
                 it.annotationProcessor "org.screamingsandals.lib:screaming-annotation:$version"
+            }
+        }
+
+        if (simpleInventories) {
+            if (!modules.contains("material")) {
+                modules += "material"
+            }
+            if (!modules.contains("player")) {
+                modules += "player"
+            }
+
+            platforms.each { platform ->
+                project.dependencies {
+                    api "org.screamingsandals.simpleinventories:core-${platform.toLowerCase()}:$version", {
+                        exclude group: 'org.screamingsandals.lib' // causes problems
+                    }
+                }
+            }
+        }
+
+        universalModules.each {module ->
+            project.dependencies {
+                api "org.screamingsandals.lib:${module.toLowerCase()}:$version"
             }
         }
 

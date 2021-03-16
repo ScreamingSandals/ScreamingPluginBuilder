@@ -96,28 +96,40 @@ class Dependencies {
         it.versionModifier = VersionModifier.SNAPSHOT_MODIFIER
     }
 
-    public static PLACEHOLDERAPI = new Dependency().each {
+    static final PLACEHOLDERAPI = new Dependency().each {
         it.group = "me.clip"
         it.name = "placeholderapi"
         it.version = "2.10.9"
     }
 
-    public static CLOUD = new Dependency().each {
+    static final CLOUD = new Dependency().each {
         it.group = "cloud.commandframework"
         it.name = "cloud-core"
         it.version = "1.4.0"
     }
 
-    public static CLOUD_PAPER = new Dependency(CLOUD).each {
+    static final CLOUD_PAPER = new Dependency(CLOUD).each {
         it.name = "cloud-paper"
     }
 
-    public static CLOUD_BUNGEE = new Dependency(CLOUD).each {
+    static final CLOUD_BUNGEE = new Dependency(CLOUD).each {
         it.name = "cloud-bungee"
     }
 
-    public static CLOUD_VELOCITY = new Dependency(CLOUD).each {
+    static final CLOUD_VELOCITY = new Dependency(CLOUD).each {
         it.name = "cloud-velocity"
+    }
+
+    static final MINESTOM = new Dependency().each {
+        it.group = "com.github.Minestom"
+        it.name = "Minestom"
+        it.version = "-SNAPSHOT"
+    }
+
+    static final SPONGE = new Dependency().each {
+        it.group = "org.spongepowered"
+        it.name = "spongeapi"
+        it.version = "8.0.0-SNAPSHOT"
     }
 
     static final NUKKIT_X = NUKKIT

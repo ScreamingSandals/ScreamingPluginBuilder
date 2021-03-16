@@ -9,15 +9,14 @@ import io.franzbecker.gradle.lombok.task.DelombokTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository
-import org.gradle.api.credentials.HttpHeaderCredentials
 import org.gradle.api.plugins.JavaLibraryPlugin
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.authentication.http.HttpHeaderAuthentication
 import org.screamingsandals.gradle.builder.dependencies.Dependencies
+import org.screamingsandals.gradle.builder.maven.GitlabRepository
+import org.screamingsandals.gradle.builder.maven.NexusRepository
 import org.screamingsandals.gradle.builder.repositories.Repositories
 import org.screamingsandals.gradle.builder.utils.ScreamingLibBuilder
 
@@ -59,7 +58,7 @@ class BuilderPlugin implements Plugin<Project> {
             return new ScreamingLibBuilder(project)
         }
 
-        if (System.getenv("GITLAB_REPO") != null || System.getenv('JAVADOC_HOST') != null) {
+        if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) || System.getenv('JAVADOC_HOST') != null) {
             def srcmain = project.file("src/main");
             def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
             if (processDelombok) {
@@ -147,8 +146,7 @@ class BuilderPlugin implements Plugin<Project> {
                 it.classifier = ""
             }
 
-
-            if (System.getenv("GITLAB_REPO") != null) {
+            if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
                 it.artifact(project.tasks.sourceJar)
                 it.artifact(project.tasks.javadocJar)
             }
@@ -195,28 +193,20 @@ class BuilderPlugin implements Plugin<Project> {
         }
 
         if (System.getenv("GITLAB_REPO") != null) {
-            publishing.repositories {
-                it.maven { MavenArtifactRepository repository ->
-                    repository.url System.getenv("GITLAB_REPO")
-                    repository.name "GitLab"
-                    repository.credentials(HttpHeaderCredentials) {
-                        name = 'Private-Token'
-                        value = System.getenv("GITLAB_TOKEN")
-                    }
-                    repository.authentication {
-                        header(HttpHeaderAuthentication)
-                    }
-                }
-            }
+            new GitlabRepository().setup(project, publishing)
+        }
+
+        if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
+            new NexusRepository().setup(project, publishing)
         }
 
         List tasks = ["build", "publishToMavenLocal"]
 
-        if (System.getenv("GITLAB_REPO") != null) {
+        if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
             tasks.add("publish")
         }
 
-        if (System.getenv("GITLAB_REPO") != null) {
+        if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
             tasks.add("javadoc")
         }
 

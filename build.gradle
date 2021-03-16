@@ -21,13 +21,13 @@ repositories {
 dependencies {
     compileOnly gradleApi()
     compileOnly localGroovy()
-    implementation 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
-    implementation 'io.franzbecker:gradle-lombok:4.0.0'
-    implementation 'com.jcraft:jsch:0.1.55'
+    implementation 'com.github.jengelman.gradle.plugins:shadow:' + SHADOW_PLUGIN
+    implementation 'io.franzbecker:gradle-lombok:' + LOMBOK_PLUGIN
+    implementation 'com.jcraft:jsch:' + JSCH_PLUGIN
 }
 
 group = 'org.screamingsandals.gradle.builder'
-version = '1.0.39'
+version = PLUGIN_VERSION
 
 publishing {
     publications {
@@ -61,6 +61,20 @@ publishing {
                 authentication {
                     header(HttpHeaderAuthentication)
                 }
+            }
+        }
+    }
+
+    if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
+        repositories {
+            maven {
+                if (((String) project.version).contains("SNAPSHOT")) {
+                    it.url = System.getenv("NEXUS_URL_SNAPSHOT")
+                } else {
+                    it.url = System.getenv("NEXUS_URL_RELEASE")
+                }
+                it.credentials.username = System.getenv("NEXUS_USERNAME")
+                it.credentials.password = System.getenv("NEXUS_PASSWORD")
             }
         }
     }

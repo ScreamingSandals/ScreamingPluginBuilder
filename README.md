@@ -1,6 +1,5 @@
 # screaming-plugin-builder
-Gradle plugin for making your build.gradle smaller and prepared for minecraft plugins!
-This plugin extends Spigradle gradle plugin and combine it with shadow plugin. 
+Gradle plugin for making your build.gradle smaller and prepared for ScreamingLib plugins!
 
 **This gradle plugin requires Gradle >= 6.0**
 
@@ -95,4 +94,21 @@ subprojects {
 }
 
 
+```
+
+## Repository uploading
+For uploading artifacts to repository, only few environment variables are needed.
+
+### Gitlab Repository
+```
+GITLAB_REPO -> address of gitlab repository
+GITLAB_TOKEN -> private token
+```
+
+### Nexus Repository
+```
+NEXUS_URL_SNAPSHOT -> nexus snapshot repository
+NEXUS_URL_RELEASE -> nexus release repository
+NEXUS_USERNAME -> nexus username
+NEXUS_PASSWORD -> nexus password
 ```

@@ -81,7 +81,7 @@ class ScreamingLibBuilder {
 
             platforms.each { platform ->
                 project.dependencies {
-                    api "org.screamingsandals.simpleinventories:core-${platform.toLowerCase()}:$version", {
+                    api "org.screamingsandals.simpleinventories:core-${platform.toLowerCase()}:$simpleInventories", {
                         exclude group: 'org.screamingsandals.lib' // causes problems
                     }
                 }

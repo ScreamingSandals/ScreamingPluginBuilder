@@ -8,7 +8,7 @@ plugins {
 
 defaultTasks 'clean', 'build', 'publishToMavenLocal'
 
-if (System.getenv("GITLAB_REPO") != null) {
+if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
     defaultTasks.add('publish')
 }
 

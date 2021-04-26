@@ -6,7 +6,13 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
-defaultTasks 'clean', 'build', 'publishToMavenLocal'
+defaultTasks 'clean', 'build'
+
+def ciCdOptimized = System.getenv("OPTIMIZE_FOR_CI_CD") == "1"
+
+if (!ciCdOptimized) {
+    defaultTasks.add('publishToMavenLocal')
+}
 
 if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
     defaultTasks.add('publish')

@@ -14,6 +14,7 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.bundling.Jar
+import org.screamingsandals.gradle.builder.debug.TestTaskBuilder
 import org.screamingsandals.gradle.builder.dependencies.Dependencies
 import org.screamingsandals.gradle.builder.maven.GitlabRepository
 import org.screamingsandals.gradle.builder.maven.NexusRepository
@@ -24,6 +25,8 @@ class BuilderPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        def ciCdOptimized = System.getenv("OPTIMIZE_FOR_CI_CD") == "1"
+
         project.apply {
             plugin MavenPublishPlugin.class
             plugin LombokPlugin.class
@@ -58,7 +61,18 @@ class BuilderPlugin implements Plugin<Project> {
             return new ScreamingLibBuilder(project)
         }
 
-        if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) || System.getenv('JAVADOC_HOST') != null) {
+        project.ext['prepareTestTask'] = {
+            return new TestTaskBuilder(project)
+        }
+
+        if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
+            project.task('sourceJar', type: Jar) {
+                it.classifier 'sources'
+                from project.sourceSets.main.allJava
+            }
+        }
+
+        if (System.getenv('JAVADOC_HOST') != null) {
             def srcmain = project.file("src/main");
             def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
             if (processDelombok) {
@@ -73,11 +87,6 @@ class BuilderPlugin implements Plugin<Project> {
                         outputDir.deleteDir()
                     }
                 }
-            }
-
-            project.task('sourceJar', type: Jar) {
-                it.classifier 'sources'
-                from project.sourceSets.main.allJava
             }
 
             project.javadoc {
@@ -148,7 +157,6 @@ class BuilderPlugin implements Plugin<Project> {
 
             if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
                 it.artifact(project.tasks.sourceJar)
-                it.artifact(project.tasks.javadocJar)
             }
 
             it.pom.withXml {
@@ -200,14 +208,14 @@ class BuilderPlugin implements Plugin<Project> {
             new NexusRepository().setup(project, publishing)
         }
 
-        List tasks = ["build", "publishToMavenLocal"]
+        List tasks = ["build"]
 
-        if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
-            tasks.add("publish")
+        if (!ciCdOptimized) {
+            tasks.add("publishToMavenLocal")
         }
 
         if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
-            tasks.add("javadoc")
+            tasks.add("publish")
         }
 
         project.tasks.create("screamCompile").dependsOn = tasks

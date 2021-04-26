@@ -17,6 +17,8 @@ class LiteBuilderPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        def ciCdOptimized = System.getenv("OPTIMIZE_FOR_CI_CD") == "1"
+
         project.apply {
             plugin MavenPublishPlugin.class
             plugin JavaLibraryPlugin.class
@@ -91,7 +93,11 @@ class LiteBuilderPlugin implements Plugin<Project> {
             new NexusRepository().setup(project, publishing)
         }
 
-        List tasks = ["build", "publishToMavenLocal"]
+        List tasks = ["build"]
+
+        if (!ciCdOptimized) {
+            tasks.add("publishToMavenLocal")
+        }
 
         if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
             tasks.add("publish")

@@ -5,6 +5,7 @@ import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.SftpException
 import io.franzbecker.gradle.lombok.LombokPlugin
+import io.franzbecker.gradle.lombok.LombokPluginExtension
 import io.franzbecker.gradle.lombok.task.DelombokTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -49,8 +50,13 @@ class BuilderPlugin implements Plugin<Project> {
             placeholderApi()
         }
 
+        project.extensions.getByName(LombokPluginExtension.NAME).each { LombokPluginExtension it ->
+            it.version = "1.18.20"
+            it.sha256 = "ce947be6c2fbe759fbbe8ef3b42b6825f814c98c8853f1013f2d9630cedf74b0"
+        }
+
         project.dependencies {
-            compileOnly 'org.jetbrains:annotations:20.1.0'
+            compileOnly 'org.jetbrains:annotations:21.0.1'
         }
 
         project.dependencies.ext['screaming'] = { String lib, String version ->

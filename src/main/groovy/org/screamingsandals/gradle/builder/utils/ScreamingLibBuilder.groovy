@@ -72,11 +72,8 @@ class ScreamingLibBuilder {
         }
 
         if (simpleInventories) {
-            if (!modules.contains("material")) {
-                modules += "material"
-            }
-            if (!modules.contains("player")) {
-                modules += "player"
+            if (!modules.contains("core")) {
+                modules += "core"
             }
 
             platforms.each { platform ->

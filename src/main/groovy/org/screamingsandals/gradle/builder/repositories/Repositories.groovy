@@ -10,7 +10,8 @@ class Repositories {
     static final JITPACK = "https://jitpack.io"
     static final VELOCITY = "https://repo.velocitypowered.com/snapshots/"
     static final SPIGOTMC = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
-    static final PAPERMC = "https://papermc.io/repo/repository/maven-public/"
+    static final PAPERMC_RELEASES = "https://papermc.io/repo/repository/maven-releases/"
+    static final PAPERMC_SNAPSHOTS = "https://papermc.io/repo/repository/maven-snapshots/"
     static final PROTOCOL_LIB = "https://repo.dmulloy2.net/nexus/repository/public/"
     static final ENGINEHUB = "https://maven.enginehub.org/repo/"
     static final CODEMC = "https://repo.codemc.org/repository/maven-public/"
@@ -24,7 +25,7 @@ class Repositories {
     static final BUNGEECORD = SONATYPE
     static final VAULT = JITPACK
     static final SPIGOT = SPIGOTMC
-    static final PAPER = PAPERMC
+    static final PAPER = PAPERMC_SNAPSHOTS
     static final B_STATS = CODEMC
     static final ESSENTIALS_X = ENDER_ZONE
 

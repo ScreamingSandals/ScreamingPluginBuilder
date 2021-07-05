@@ -12,9 +12,15 @@ class Dependencies {
         it.versionModifier = VersionModifier.SPIGOT_MODIFIER
     }
 
-    static final PAPER = new Dependency(SPIGOT).each {
+    static final PAPER_LEGACY = new Dependency(SPIGOT).each {
         it.group = "com.destroystokyo.paper"
         it.name = "paper-api"
+    }
+
+    static final PAPER = new Dependency(SPIGOT).each {
+        it.group = "io.papermc.paper"
+        it.name = "paper-api"
+        it.version = "1.17-R0.1-SNAPSHOT"
     }
 
     static final PROTOCOL_LIB = new Dependency().each {

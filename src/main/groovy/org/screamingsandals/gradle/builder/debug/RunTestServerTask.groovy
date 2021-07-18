@@ -1,5 +1,6 @@
 package org.screamingsandals.gradle.builder.debug
 
+import com.google.gson.Gson
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.JavaExec
 
@@ -9,13 +10,13 @@ import java.nio.file.StandardCopyOption
 
 class RunTestServerTask extends JavaExec {
     @Internal
-    int port = 25565
-    @Internal
     String version
     @Internal
-    boolean onlineMode = true
-    @Internal
     Path pluginJar
+    @Internal
+    Map<String, String> properties
+    @Internal
+    String subDirectory
 
     RunTestServerTask() {
         super()
@@ -23,25 +24,25 @@ class RunTestServerTask extends JavaExec {
         standardInput = System.in
     }
 
-    def setPort(int port) {
-        this.port = port
-    }
-
     def setVersion(String version) {
         this.version = version
-    }
-
-    def setOnlineMode(boolean onlineMode) {
-        this.onlineMode = onlineMode
     }
 
     def setPluginJar(Path pluginJar) {
         this.pluginJar = pluginJar
     }
 
+    def setProperties(Map<String, String> map) {
+        this.properties = map
+    }
+
+    def setSubDirectory(String subDirectory) {
+        this.subDirectory = subDirectory
+    }
+
     @Override
     void exec() {
-        def testServerDirectory = project.file("test-environment/paper/$version")
+        def testServerDirectory = project.file("test-environment/$subDirectory/$version")
         if (!testServerDirectory.exists()) {
             testServerDirectory.mkdirs()
         }
@@ -49,7 +50,27 @@ class RunTestServerTask extends JavaExec {
         println 'Preparing server.jar'
         def serverJar = new File(testServerDirectory, "server.jar")
         if (!serverJar.exists()) {
-            serverJar.withOutputStream { it << new URL("https://papermc.io/api/v1/paper/$version/latest/download").newInputStream() }
+            def latestBuild = 0
+            new URL("https://papermc.io/api/v2/projects/paper/versions/$version").newInputStream().withReader {
+                def map = new Gson().fromJson(it, Map.class)
+                latestBuild = Collections.max(map.get("builds") as List) as int
+            }
+
+            if (latestBuild == 0) {
+                throw new RuntimeException("Can't obtain build number for version $version")
+            }
+
+            def downloadName = ""
+            new URL("https://papermc.io/api/v2/projects/paper/versions/$version/builds/$latestBuild").newInputStream().withReader {
+                def map = new Gson().fromJson(it, Map.class)
+                downloadName = ((map.get("downloads") as Map).get("application") as Map).get("name") as String
+            }
+
+            if (downloadName == "") {
+                throw new RuntimeException("Can't obtain download for version $version build $latestBuild")
+            }
+
+            serverJar.withOutputStream { it << new URL("https://papermc.io/api/v2/projects/paper/versions/$version/builds/$latestBuild/downloads/$downloadName").newInputStream() }
         }
 
         def eulaTxt = new File(testServerDirectory, "eula.txt")
@@ -64,14 +85,15 @@ class RunTestServerTask extends JavaExec {
         if (serverProperties.exists()) {
             props.load(serverProperties.newDataInputStream())
         }
-        def needsToBeSaved = false
-        if (props.hasProperty('port') || props.getProperty('port') != String.valueOf(port)) {
-            props.setProperty('port', String.valueOf(port))
-            needsToBeSaved = true
+        if (version.matches("1\\.(\\d|10|11)\\..*")) {
+            properties['use-native-transport'] = "false"
         }
-        if (props.hasProperty('onlineMode') || props.getProperty('onlineMode') != String.valueOf(onlineMode)) {
-            props.setProperty('onlineMode', String.valueOf(onlineMode))
-            needsToBeSaved = true
+        def needsToBeSaved = false
+        properties.each {
+            if (props.hasProperty(it.key) || props.getProperty(it.key) != it.value) {
+                props.setProperty(it.key, it.value)
+                needsToBeSaved = true
+            }
         }
         if (needsToBeSaved) {
             props.store(serverProperties.newDataOutputStream(), null)

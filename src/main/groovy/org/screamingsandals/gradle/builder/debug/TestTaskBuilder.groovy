@@ -8,11 +8,11 @@ class TestTaskBuilder {
     private final Project project
 
     private List<String> versions
-    private int port = 25565
-    private boolean onlineMode = true
     private Path pluginJar
     private List<String> args = ['nogui']
     private List<String> jvmArgs = []
+    private Map<String, String> serverProperties = [:]
+    private String subdirectory = "paper"
 
     TestTaskBuilder(Project project) {
         this.project = project
@@ -24,12 +24,12 @@ class TestTaskBuilder {
     }
 
     def port(int port) {
-        this.port = port
+        serverProperties['port'] = port as String
         return this
     }
 
     def onlineMode(boolean onlineMode) {
-        this.onlineMode = onlineMode
+        serverProperties['online-mode'] = onlineMode as String
         return this
     }
 
@@ -48,6 +48,16 @@ class TestTaskBuilder {
         return this
     }
 
+    def addToServerProperties(String name, String value) {
+        serverProperties[name] = value
+        return this
+    }
+
+    def setSubdirectory(String subdirectory) {
+        this.subdirectory = subdirectory
+        return this
+    }
+
     def build() {
         if (System.getenv("OPTIMIZE_FOR_CI_CD") != "1") {
             versions.each { version ->
@@ -55,9 +65,9 @@ class TestTaskBuilder {
                     args(this.args)
                     jvmArgs(this.jvmArgs)
                     it.version = version
-                    it.port = this.port
                     it.pluginJar = this.pluginJar
-                    it.onlineMode = this.onlineMode
+                    it.properties = this.serverProperties
+                    it.subDirectory = this.subdirectory
                 }
             }
         }

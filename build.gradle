@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
 plugins {
     id 'groovy'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 defaultTasks 'clean', 'build'
@@ -20,16 +20,16 @@ if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT")
 
 
 repositories {
-    jcenter()
     maven { url "https://plugins.gradle.org/m2/" }
 }
 
 dependencies {
     compileOnly gradleApi()
     compileOnly localGroovy()
-    implementation 'com.github.jengelman.gradle.plugins:shadow:' + SHADOW_PLUGIN
+    implementation 'com.github.johnrengelman.shadow:com.github.johnrengelman.shadow.gradle.plugin:' + SHADOW_PLUGIN
     implementation 'io.franzbecker:gradle-lombok:' + LOMBOK_PLUGIN
     implementation 'com.jcraft:jsch:' + JSCH_PLUGIN
+    implementation 'com.google.code.gson:gson:' + GSON_PLUGIN
 }
 
 group = 'org.screamingsandals.gradle.builder'

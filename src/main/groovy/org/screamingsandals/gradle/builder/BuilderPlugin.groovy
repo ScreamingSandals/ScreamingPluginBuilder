@@ -38,7 +38,6 @@ class BuilderPlugin implements Plugin<Project> {
         Dependencies.registerDependenciesMethods(project)
 
         project.repositories {
-            jcenter()
             mavenCentral()
             //mavenLocal()
 

@@ -1,6 +1,8 @@
 package org.screamingsandals.gradle.builder
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
+import io.franzbecker.gradle.lombok.LombokPlugin
+import io.franzbecker.gradle.lombok.LombokPluginExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
@@ -28,7 +30,6 @@ class LiteBuilderPlugin implements Plugin<Project> {
         Dependencies.registerDependenciesMethods(project)
 
         project.repositories {
-            jcenter()
             mavenCentral()
         }
 
@@ -82,6 +83,17 @@ class LiteBuilderPlugin implements Plugin<Project> {
                 it.artifact(project.tasks.shadowJar) {
                     it.classifier = ""
                 }
+            }
+        }
+
+        project.ext['configureLombok'] = { iit ->
+            project.apply {
+                plugin LombokPlugin.class
+            }
+
+            project.extensions.getByName(LombokPluginExtension.NAME).each { LombokPluginExtension it ->
+                it.version = "1.18.20"
+                it.sha256 = "ce947be6c2fbe759fbbe8ef3b42b6825f814c98c8853f1013f2d9630cedf74b0"
             }
         }
 

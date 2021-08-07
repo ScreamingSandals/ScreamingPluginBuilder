@@ -46,8 +46,6 @@ class BuilderPlugin implements Plugin<Project> {
             papermcReleases()
             papermcSnapshots()
             spigotmc()
-            velocity()
-            placeholderApi()
         }
 
         project.extensions.getByName(LombokPluginExtension.NAME).each { LombokPluginExtension it ->

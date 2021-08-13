@@ -23,6 +23,12 @@ class Dependencies {
         it.version = "1.17-R0.1-SNAPSHOT"
     }
 
+    static final PURPUR = new Dependency(SPIGOT).each {
+        it.group = "net.pl3x.purpur"
+        it.name = "purpur-api"
+        it.version = "1.17-R0.1-SNAPSHOT"
+    }
+
     static final PROTOCOL_LIB = new Dependency().each {
         it.group = "com.comphenix.protocol"
         it.name = "ProtocolLib"

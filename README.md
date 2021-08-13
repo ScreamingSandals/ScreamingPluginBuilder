@@ -10,22 +10,29 @@ Gradle plugin for making your build.gradle smaller and prepared for ScreamingLib
 
 ## Apply plugin
 
-There is one way for apply the plugin.
+You need to modify 2 files in your project, it's simple!
 
+
+First, go to your `settings.gradle` and add this ad the **TOP**:
 ```groovy
-buildscript {
-    repositories {
-        maven {
-          url = 'https://repo.screamingsandals.org'
-        }
+pluginManagement {
+  repositories {
+    maven {
+      url = "https://repo.screamingsandals.org/public/"
     }
-    dependencies {
-        classpath 'org.screamingsandals.gradle.builder:screaming-plugin-builder:LATEST_VERSION_HERE'
-    }
+    gradlePluginPortal()
+  }
+}
+```
+
+Then go to your build.gradle:
+```groovy
+plugins {
+  id 'org.screamingsandals.plugin-builder' version '1.0.49'
 }
 
 // Spigradle and Shadow will be imported automatically
-apply plugin: 'org.screamingsandals.gradle.builder'
+apply plugin: 'org.screamingsandals.plugin-builder'
 ```
 
 ## Use our task
@@ -43,30 +50,18 @@ This task will:
 ```groovy
 defaultTasks 'clean', 'screamCompile' // use our task as default
 
+plugins {
+  id 'org.screamingsandals.plugin-builder' version '1.0.49'
+}
+
 allprojects {
     group = 'com.example.plugin'
     version = '1.0.0'
 }
 
-buildscript {
-    repositories { // apply these repositories
-        jcenter()
-        maven { 
-          url = "https://plugins.gradle.org/m2/"
-        }
-        maven {
-          url = 'https://repo.screamingsandals.org'
-        }
-    }
-    dependencies { // apply this dependency
-        classpath 'org.screamingsandals.gradle.builder:screaming-plugin-builder:LATEST_VERSION_HERE'
-    }
-}
-
 subprojects {
-
     apply plugin: 'java' // apply plugin with your favourite language 'java', 'groovy', 'kotlin' etc.
-    apply plugin: 'org.screamingsandals.gradle.builder' // then apply our plugin
+    apply plugin: 'org.screamingsandals.plugin-builder' // then apply our plugin
 
     repositories { // add some custom dependencies
         maven {

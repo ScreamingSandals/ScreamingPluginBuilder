@@ -7,6 +7,7 @@ import com.jcraft.jsch.SftpException
 import io.franzbecker.gradle.lombok.LombokPlugin
 import io.franzbecker.gradle.lombok.LombokPluginExtension
 import io.franzbecker.gradle.lombok.task.DelombokTask
+import io.freefair.gradle.plugins.lombok.tasks.Delombok
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
@@ -20,7 +21,7 @@ import org.screamingsandals.gradle.builder.dependencies.Dependencies
 import org.screamingsandals.gradle.builder.maven.GitlabRepository
 import org.screamingsandals.gradle.builder.maven.NexusRepository
 import org.screamingsandals.gradle.builder.repositories.Repositories
-import org.screamingsandals.gradle.builder.utils.ScreamingLibBuilder
+import org.screamingsandals.gradle.builder.builder.ScreamingLibBuilder
 
 class BuilderPlugin implements Plugin<Project> {
 
@@ -28,14 +29,6 @@ class BuilderPlugin implements Plugin<Project> {
     void apply(Project project) {
         def ciCdOptimized = System.getenv("OPTIMIZE_FOR_CI_CD") == "1"
 
-        project.apply {
-            plugin MavenPublishPlugin.class
-            plugin LombokPlugin.class
-            plugin JavaLibraryPlugin.class
-        }
-
-        Repositories.registerRepositoriesMethods(project)
-        Dependencies.registerDependenciesMethods(project)
 
         project.repositories {
             mavenCentral()
@@ -49,26 +42,6 @@ class BuilderPlugin implements Plugin<Project> {
             purpur()
         }
 
-        project.extensions.getByName(LombokPluginExtension.NAME).each { LombokPluginExtension it ->
-            it.version = "1.18.20"
-            it.sha256 = "ce947be6c2fbe759fbbe8ef3b42b6825f814c98c8853f1013f2d9630cedf74b0"
-        }
-
-        project.dependencies {
-            compileOnly 'org.jetbrains:annotations:21.0.1'
-        }
-
-        project.dependencies.ext['screaming'] = { String lib, String version ->
-            return "org.screamingsandals.lib:$lib:$version"
-        }
-
-        project.ext['ScreamingLibBuilder'] = {
-            return new ScreamingLibBuilder(project)
-        }
-
-        project.ext['prepareTestTask'] = {
-            return new TestTaskBuilder(project)
-        }
 
         if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
             project.task('sourceJar', type: Jar) {
@@ -81,7 +54,7 @@ class BuilderPlugin implements Plugin<Project> {
             def srcmain = project.file("src/main");
             def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
             if (processDelombok) {
-                project.task('delombokForJavadoc', type: DelombokTask, dependsOn: 'compileJava') {
+                project.task('delombok', type: Delombok, dependsOn: 'compileJava') {
                     ext.outputDir = project.file("$project.buildDir/delombok")
                     outputs.dir(outputDir)
                     project.sourceSets.main.java.srcDirs.each {

@@ -1,10 +1,8 @@
-import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
-
 plugins {
     id 'groovy'
+    id 'java-library'
     id 'java-gradle-plugin'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 defaultTasks 'clean', 'build'
@@ -28,10 +26,14 @@ dependencies {
     compileOnly gradleApi()
     compileOnly localGroovy()
 
-    implementation 'gradle.plugin.com.github.jengelman.gradle.plugins:shadow:' + SHADOW_PLUGIN
-    implementation 'io.franzbecker:gradle-lombok:' + LOMBOK_PLUGIN //switch to freefair, this one is old
-    implementation 'com.jcraft:jsch:' + JSCH_PLUGIN
-    implementation 'com.google.code.gson:gson:' + GSON_PLUGIN
+    //shadow
+    api group: 'gradle.plugin.com.github.jengelman.gradle.plugins', name: 'shadow', version: SHADOW_PLUGIN
+
+    //lombok
+    api group: 'io.freefair.gradle', name: 'lombok-plugin', version: LOMBOK_PLUGIN
+
+    api group: 'com.jcraft', name:  'jsch', version: JSCH_PLUGIN
+    api group: 'com.google.code.gson', name: 'gson', version: GSON_PLUGIN
 }
 
 group = 'org.screamingsandals.gradle.builder'
@@ -39,13 +41,9 @@ version = PLUGIN_VERSION
 
 gradlePlugin {
     plugins {
-        pluginBuilder {
+        screamingPlugin {
             id = 'org.screamingsandals.plugin-builder'
-            implementationClass = 'org.screamingsandals.gradle.builder.BuilderPlugin'
-        }
-        pluginBuilderLite {
-            id = 'org.screamingsandals.plugin-builder-lite'
-            implementationClass = 'org.screamingsandals.gradle.builder.LiteBuilderPlugin'
+            implementationClass = 'org.screamingsandals.gradle.builder.ScreamingPlugin'
         }
     }
 }
@@ -53,9 +51,6 @@ gradlePlugin {
 publishing {
     publications {
         maven(MavenPublication) {
-            ShadowExtension shadow = project.extensions.getByName("shadow")
-            shadow.component(it)
-
             it.artifacts.every {
                 it.classifier = ""
             }

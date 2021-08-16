@@ -1,4 +1,4 @@
-package org.screamingsandals.gradle.builder.debug
+package org.screamingsandals.gradle.builder.builder.debug
 
 import com.google.gson.Gson
 import org.gradle.api.tasks.Internal

@@ -1,4 +1,4 @@
-package org.screamingsandals.gradle.builder.debug
+package org.screamingsandals.gradle.builder.builder.debug
 
 import org.gradle.api.Project
 

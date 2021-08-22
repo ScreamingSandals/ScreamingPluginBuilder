@@ -1,10 +1,7 @@
-import com.github.jengelman.gradle.plugins.shadow.ShadowExtension
-
 plugins {
     id 'groovy'
     id 'java-gradle-plugin'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 defaultTasks 'clean', 'build'
@@ -51,25 +48,6 @@ gradlePlugin {
 }
 
 publishing {
-    publications {
-        maven(MavenPublication) {
-            ShadowExtension shadow = project.extensions.getByName("shadow")
-            shadow.component(it)
-
-            it.artifacts.every {
-                it.classifier = ""
-            }
-
-            pom.withXml {
-                if (asNode().get("dependencies") != null) {
-                    asNode().get("dependencies").each {
-                        it.parent().remove(it)
-                    }
-                }
-            }
-        }
-    }
-
     if (System.getenv("GITLAB_REPO") != null) {
         repositories {
             maven {

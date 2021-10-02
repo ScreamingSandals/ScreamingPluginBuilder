@@ -38,50 +38,52 @@ class LiteBuilderPlugin implements Plugin<Project> {
         }
 
         PublishingExtension publishing = project.extensions.getByName("publishing")
-        def maven = publishing.publications.create("maven", MavenPublication) {
-            it.artifact(project.tasks.jar)
+        if (System.getProperty("LITE_SKIP_PUBLICATION_CREATION") != "yes") {
+            def maven = publishing.publications.create("maven", MavenPublication) {
+                it.artifact(project.tasks.jar)
 
-            it.artifacts.every {
-                it.classifier = ""
-            }
-
-            it.pom.withXml {
-                def dependenciesNode = asNode().appendNode("dependencies")
-                project.configurations.compileOnly.dependencies.each {
-                    if (!(it instanceof SelfResolvingDependency)) {
-                        def dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', it.group)
-                        dependencyNode.appendNode('artifactId', it.name)
-                        dependencyNode.appendNode('version', it.version)
-                        dependencyNode.appendNode('scope', 'provided')
-                    }
-                }
-                if (!project.tasks.findByName("shadowJar")) {
-                    project.configurations.api.dependencies.each {
-                        def dependencyNode = dependenciesNode.appendNode('dependency')
-                        dependencyNode.appendNode('groupId', it.group)
-                        dependencyNode.appendNode('artifactId', it.name)
-                        dependencyNode.appendNode('version', it.version)
-                        dependencyNode.appendNode('scope', 'compile')
-                    }
-                }
-            }
-        }
-
-        project.ext['enableShadowPlugin'] = {
-            project.apply {
-                plugin ShadowPlugin.class
-            }
-
-            project.tasks.getByName("screamCompile").dependsOn -= "build"
-            project.tasks.getByName("screamCompile").dependsOn += "shadowJar"
-
-            maven.each {
-                it.getArtifacts().removeIf {
-                    it.buildDependencies.getDependencies().contains(project.tasks.jar)
-                }
-                it.artifact(project.tasks.shadowJar) {
+                it.artifacts.every {
                     it.classifier = ""
+                }
+
+                it.pom.withXml {
+                    def dependenciesNode = asNode().appendNode("dependencies")
+                    project.configurations.compileOnly.dependencies.each {
+                        if (!(it instanceof SelfResolvingDependency)) {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', it.group)
+                            dependencyNode.appendNode('artifactId', it.name)
+                            dependencyNode.appendNode('version', it.version)
+                            dependencyNode.appendNode('scope', 'provided')
+                        }
+                    }
+                    if (!project.tasks.findByName("shadowJar")) {
+                        project.configurations.api.dependencies.each {
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', it.group)
+                            dependencyNode.appendNode('artifactId', it.name)
+                            dependencyNode.appendNode('version', it.version)
+                            dependencyNode.appendNode('scope', 'compile')
+                        }
+                    }
+                }
+            }
+
+            project.ext['enableShadowPlugin'] = {
+                project.apply {
+                    plugin ShadowPlugin.class
+                }
+
+                project.tasks.getByName("screamCompile").dependsOn -= "build"
+                project.tasks.getByName("screamCompile").dependsOn += "shadowJar"
+
+                maven.each {
+                    it.getArtifacts().removeIf {
+                        it.buildDependencies.getDependencies().contains(project.tasks.jar)
+                    }
+                    it.artifact(project.tasks.shadowJar) {
+                        it.classifier = ""
+                    }
                 }
             }
         }

@@ -111,10 +111,19 @@ class BuilderPlugin implements Plugin<Project> {
                     doLast {
                         try {
                             def projectJavadocDirectories
-                            if (project.getRootProject() == project) {
-                                projectJavadocDirectories = [project.getName()]
+                            def custom = System.getProperty("JavadocUploadCustomDirectoryPath")
+                            if (custom != null && !custom.isEmpty()) {
+                                if (project.getRootProject() == project) {
+                                    projectJavadocDirectories = [custom]
+                                } else {
+                                    projectJavadocDirectories = [custom, project.getName()]
+                                }
                             } else {
-                                projectJavadocDirectories = [project.getRootProject().getName(), project.getName()]
+                                if (project.getRootProject() == project) {
+                                    projectJavadocDirectories = [project.getName()]
+                                } else {
+                                    projectJavadocDirectories = [project.getRootProject().getName(), project.getName()]
+                                }
                             }
 
                             def jsch = new JSch()

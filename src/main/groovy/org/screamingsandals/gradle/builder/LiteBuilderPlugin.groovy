@@ -40,7 +40,9 @@ class LiteBuilderPlugin implements Plugin<Project> {
         PublishingExtension publishing = project.extensions.getByName("publishing")
         if (System.getProperty("LITE_SKIP_PUBLICATION_CREATION") != "yes") {
             def maven = publishing.publications.create("maven", MavenPublication) {
-                it.artifact(project.tasks.jar)
+                if (!project.ext.has('onlyPomArtifact') || !project.ext['onlyPomArtifact']) {
+                    it.artifact(project.tasks.jar)
+                }
 
                 it.artifacts.every {
                     it.classifier = ""

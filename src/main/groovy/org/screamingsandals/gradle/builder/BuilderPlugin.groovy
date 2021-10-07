@@ -50,8 +50,8 @@ class BuilderPlugin implements Plugin<Project> {
         }
 
         project.extensions.getByName(LombokPluginExtension.NAME).each { LombokPluginExtension it ->
-            it.version = "1.18.20"
-            it.sha256 = "ce947be6c2fbe759fbbe8ef3b42b6825f814c98c8853f1013f2d9630cedf74b0"
+            it.version = "1.18.22"
+            it.sha256 = "ecef1581411d7a82cc04281667ee0bac5d7c0a5aae74cfc38430396c91c31831"
         }
 
         project.dependencies {

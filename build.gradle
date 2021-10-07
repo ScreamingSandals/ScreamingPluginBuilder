@@ -25,7 +25,7 @@ dependencies {
     compileOnly gradleApi()
     compileOnly localGroovy()
 
-    implementation 'gradle.plugin.com.github.jengelman.gradle.plugins:shadow:' + SHADOW_PLUGIN
+    implementation 'gradle.plugin.com.github.johnrengelman:shadow:' + SHADOW_PLUGIN
     implementation 'io.franzbecker:gradle-lombok:' + LOMBOK_PLUGIN //switch to freefair, this one is old
     implementation 'com.jcraft:jsch:' + JSCH_PLUGIN
     implementation 'com.google.code.gson:gson:' + GSON_PLUGIN

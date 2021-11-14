@@ -18,6 +18,7 @@ if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT")
 
 
 repositories {
+    mavenCentral()
     maven { url "https://plugins.gradle.org/m2/" }
 }
 

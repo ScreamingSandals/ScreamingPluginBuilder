@@ -77,7 +77,7 @@ class DiscordWebhookTask extends DefaultTask {
             if (extension.allowedClassifiersAndExtensions.contains((it.classifier?:'') + '.' + it.extension)) {
                 var realname = it.file.getName()
                 var uploadedUrl = baseUrl + realname.replace('SNAPSHOT', snapshotReplace)
-                fieldValue += "[${realname}](${uploadedUrl})\n"
+                fieldValue += "[${realname}](${uploadedUrl}) "
             }
         }
 

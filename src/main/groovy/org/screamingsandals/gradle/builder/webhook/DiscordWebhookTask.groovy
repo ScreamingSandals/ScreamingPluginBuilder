@@ -52,7 +52,7 @@ class DiscordWebhookTask extends DefaultTask {
 
         String baseUrl = ""
         if (this.storage.repository != null) {
-            baseUrl += this.storage.repository.url + '/'
+            baseUrl += this.storage.repository.url.toString() + '/'
         }
         baseUrl += this.storage.publication.groupId.replace('.', '/') + '/'
         baseUrl += this.storage.publication.artifactId + '/' + this.storage.publication.version + '/'
@@ -77,7 +77,7 @@ class DiscordWebhookTask extends DefaultTask {
             if (extension.allowedClassifiersAndExtensions.contains((it.classifier?:'') + '.' + it.extension)) {
                 var realname = it.file.getName()
                 var uploadedUrl = baseUrl + realname.replace('SNAPSHOT', snapshotReplace)
-                fieldValue += "[${realname}](${uploadedUrl})"
+                fieldValue += "[${realname}](${uploadedUrl})\n"
             }
         }
 

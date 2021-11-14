@@ -21,6 +21,7 @@ import org.screamingsandals.gradle.builder.maven.GitlabRepository
 import org.screamingsandals.gradle.builder.maven.NexusRepository
 import org.screamingsandals.gradle.builder.repositories.Repositories
 import org.screamingsandals.gradle.builder.utils.ScreamingLibBuilder
+import org.screamingsandals.gradle.builder.webhook.DiscordWebhookExtension
 
 class BuilderPlugin implements Plugin<Project> {
 
@@ -231,6 +232,8 @@ class BuilderPlugin implements Plugin<Project> {
         if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
             tasks.add("publish")
         }
+
+        project.getExtensions().create("discord", DiscordWebhookExtension)
 
         project.tasks.create("screamCompile").dependsOn = tasks
 

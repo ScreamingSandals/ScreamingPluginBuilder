@@ -24,6 +24,8 @@ repositories {
 dependencies {
     compileOnly gradleApi()
     compileOnly localGroovy()
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
     implementation 'gradle.plugin.com.github.johnrengelman:shadow:' + SHADOW_PLUGIN
     implementation 'io.franzbecker:gradle-lombok:' + LOMBOK_PLUGIN //switch to freefair, this one is old

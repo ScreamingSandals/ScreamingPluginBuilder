@@ -1,5 +1,6 @@
 package org.screamingsandals.gradle.builder.webhook
 
+import groovy.json.JsonSlurper
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.maven.MavenPublication
@@ -77,7 +78,23 @@ class DiscordWebhookTask extends DefaultTask {
             if (extension.allowedClassifiersAndExtensions.contains((it.classifier?:'') + '.' + it.extension)) {
                 var realname = it.file.getName()
                 var uploadedUrl = baseUrl + realname.replace('SNAPSHOT', snapshotReplace)
-                fieldValue += "[${realname}](${uploadedUrl}) "
+                if (System.getenv('NEXUS_BASE_URL')) {
+                    var jsonSlurper = new JsonSlurper()
+                    var result = jsonSlurper.parse("${System.getenv('NEXUS_BASE_URL')}service/rest/v1/search/assets?sort=&direction=desc&q=${snapshotReplace}&maven.groupId=${this.storage.publication.groupId}&maven.artifactId=${this.storage.publication.artifactId}&maven.baseVersion=${this.storage.publication.version}&maven.extension=${it.extension}".toURL())
+                    var arti = it
+                    var r = (result.items as List).find {
+                        var map = (it.maven2 as Map)
+                        if (map.containsKey('classifier')) {
+                            return arti.classifier == map.classifier
+                        } else if (!arti.classifier) {
+                            return true
+                        }
+                    }
+                    if (r != null) {
+                        uploadedUrl = r.downloadUrl
+                    }
+                }
+                fieldValue += "[${realname}](${uploadedUrl})\\n"
             }
         }
 

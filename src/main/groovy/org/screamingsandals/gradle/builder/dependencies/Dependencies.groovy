@@ -104,8 +104,7 @@ class Dependencies {
     static final PAPERLIB =  new Dependency().each {
         it.group = "io.papermc"
         it.name = "paperlib"
-        it.version = "1.0.6-SNAPSHOT"
-        it.versionModifier = VersionModifier.SNAPSHOT_MODIFIER
+        it.version = "1.0.7"
     }
 
     static final PLACEHOLDERAPI = new Dependency().each {

@@ -44,8 +44,7 @@ class BuilderPlugin implements Plugin<Project> {
 
             screaming()
             sonatype()
-            papermcReleases()
-            papermcSnapshots()
+            paper()
             spigotmc()
             purpur()
         }

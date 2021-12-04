@@ -78,7 +78,22 @@ class DiscordWebhookTask extends DefaultTask {
             if (extension.allowedClassifiersAndExtensions.contains((it.classifier?:'') + '.' + it.extension)) {
                 var realname = it.file.getName()
                 var uploadedUrl = baseUrl + realname.replace('SNAPSHOT', snapshotReplace)
-                if (System.getenv('NEXUS_BASE_URL')) {
+                if (System.getenv('REPOSILITE_BASE_URL')) {
+                    var jsonSlurper = new JsonSlurper()
+                    var result = jsonSlurper.parse("${System.getenv('REPOSILITE_BASE_URL')}/api/maven/details/${this.storage.repository.url.toString().substring(this.storage.repository.url.toString().lastIndexOf('/', this.storage.repository.url.toString().length() - 1) + 1)}/${this.storage.publication.groupId.replace('.', '/')}/${this.storage.publication.artifactId}/${this.storage.publication.version}".toURL())
+                    var startingString = "${this.storage.publication.artifactId}-${this.storage.publication.version}-${snapshotReplace}-"
+                    var arti = it
+                    var r = (result.files as List).find {
+                        var map = it as Map
+                        if (map.get("contentType") == "APPLICATION_JAR") {
+                            return (map.get("name") as String).startsWith(startingString) && (map.get("name") as String).substring(startingString.length()).matches(/\d+${arti.classifier}.${arti.extension}/)
+                        }
+                        return false
+                    }
+                    if (r != null) {
+                        uploadedUrl = baseUrl + r.get("name")
+                    }
+                } else if (System.getenv('NEXUS_BASE_URL')) {
                     var jsonSlurper = new JsonSlurper()
                     var result = jsonSlurper.parse("${System.getenv('NEXUS_BASE_URL')}service/rest/v1/search/assets?sort=&direction=desc&q=${snapshotReplace}&maven.groupId=${this.storage.publication.groupId}&maven.artifactId=${this.storage.publication.artifactId}&maven.baseVersion=${this.storage.publication.version}&maven.extension=${it.extension}".toURL())
                     var arti = it
@@ -89,6 +104,7 @@ class DiscordWebhookTask extends DefaultTask {
                         } else if (!arti.classifier) {
                             return true
                         }
+                        return false
                     }
                     if (r != null) {
                         uploadedUrl = r.downloadUrl

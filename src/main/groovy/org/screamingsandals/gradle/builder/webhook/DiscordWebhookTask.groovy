@@ -80,13 +80,19 @@ class DiscordWebhookTask extends DefaultTask {
                 var uploadedUrl = baseUrl + realname.replace('SNAPSHOT', snapshotReplace)
                 if (System.getenv('REPOSILITE_BASE_URL')) {
                     var jsonSlurper = new JsonSlurper()
-                    var result = jsonSlurper.parse("${System.getenv('REPOSILITE_BASE_URL')}/api/maven/details/${this.storage.repository.url.toString().substring(this.storage.repository.url.toString().lastIndexOf('/', this.storage.repository.url.toString().length() - 1) + 1)}/${this.storage.publication.groupId.replace('.', '/')}/${this.storage.publication.artifactId}/${this.storage.publication.version}".toURL())
+                    var shortRepositoryName = this.storage.repository.url.toString()
+                    if (shortRepositoryName.endsWith('/')) {
+                        shortRepositoryName = shortRepositoryName.substring(0, shortRepositoryName.length() - 1)
+                    }
+                    var split = shortRepositoryName.split("/")
+                    shortRepositoryName = split[split.length - 1]
+                    var result = jsonSlurper.parse("${System.getenv('REPOSILITE_BASE_URL')}/api/maven/details/${shortRepositoryName}/${this.storage.publication.artifactId}/${this.storage.publication.version}".toURL())
                     var startingString = "${this.storage.publication.artifactId}-${this.storage.publication.version.replace('SNAPSHOT', snapshotReplace)}-"
                     var arti = it
                     var r = (result.files as List).find {
                         var map = it as Map
                         if (map.get("contentType") == "APPLICATION_JAR") {
-                            return (map.get("name") as String).startsWith(startingString) && (map.get("name") as String).substring(startingString.length()).matches(/\d+${arti.classifier}.${arti.extension}/)
+                            return (map.get("name") as String).startsWith(startingString) && (map.get("name") as String).substring(startingString.length()).matches("\\d+${arti.classifier ? '\\-' + arti.classifier : ''}\\.${arti.extension}")
                         }
                         return false
                     }

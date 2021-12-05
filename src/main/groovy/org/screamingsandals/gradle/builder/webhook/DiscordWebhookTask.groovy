@@ -86,7 +86,7 @@ class DiscordWebhookTask extends DefaultTask {
                     }
                     var split = shortRepositoryName.split("/")
                     shortRepositoryName = split[split.length - 1]
-                    var result = jsonSlurper.parse("${System.getenv('REPOSILITE_BASE_URL')}/api/maven/details/${shortRepositoryName}/${this.storage.publication.artifactId}/${this.storage.publication.version}".toURL())
+                    var result = jsonSlurper.parse("${System.getenv('REPOSILITE_BASE_URL')}/api/maven/details/${shortRepositoryName}/${this.storage.publication.groupId.replace('.', '/')}/${this.storage.publication.artifactId}/${this.storage.publication.version}".toURL())
                     var startingString = "${this.storage.publication.artifactId}-${this.storage.publication.version.replace('SNAPSHOT', snapshotReplace)}-"
                     var arti = it
                     var r = (result.files as List).find {

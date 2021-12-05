@@ -61,6 +61,10 @@ class TestTaskBuilder {
     def build() {
         if (System.getenv("OPTIMIZE_FOR_CI_CD") != "1") {
             versions.each { version ->
+                this.project.task("updatePaperServer$version", type: UpdateTestServerTask) {
+                    it.version = version
+                    it.subDirectory = this.subdirectory
+                }
                 this.project.task("runPaperServer$version", type: RunTestServerTask) {
                     args(this.args)
                     jvmArgs(this.jvmArgs)

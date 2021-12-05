@@ -1,6 +1,5 @@
 package org.screamingsandals.gradle.builder.debug
 
-import com.google.gson.Gson
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.JavaExec
 
@@ -43,35 +42,8 @@ class RunTestServerTask extends JavaExec {
     @Override
     void exec() {
         def testServerDirectory = project.file("test-environment/$subDirectory/$version")
-        if (!testServerDirectory.exists()) {
-            testServerDirectory.mkdirs()
-        }
 
-        println 'Preparing server.jar'
-        def serverJar = new File(testServerDirectory, "server.jar")
-        if (!serverJar.exists()) {
-            def latestBuild = 0
-            new URL("https://papermc.io/api/v2/projects/paper/versions/$version").newInputStream().withReader {
-                def map = new Gson().fromJson(it, Map.class)
-                latestBuild = Collections.max(map.get("builds") as List) as int
-            }
-
-            if (latestBuild == 0) {
-                throw new RuntimeException("Can't obtain build number for version $version")
-            }
-
-            def downloadName = ""
-            new URL("https://papermc.io/api/v2/projects/paper/versions/$version/builds/$latestBuild").newInputStream().withReader {
-                def map = new Gson().fromJson(it, Map.class)
-                downloadName = ((map.get("downloads") as Map).get("application") as Map).get("name") as String
-            }
-
-            if (downloadName == "") {
-                throw new RuntimeException("Can't obtain download for version $version build $latestBuild")
-            }
-
-            serverJar.withOutputStream { it << new URL("https://papermc.io/api/v2/projects/paper/versions/$version/builds/$latestBuild/downloads/$downloadName").newInputStream() }
-        }
+        def serverJar = TestServerUtils.prepareServer(testServerDirectory, version, false)
 
         def eulaTxt = new File(testServerDirectory, "eula.txt")
         if (!eulaTxt.exists()) {
@@ -105,7 +77,16 @@ class RunTestServerTask extends JavaExec {
             plugins.mkdirs()
         }
 
-        Files.copy(pluginJar, testServerDirectory.toPath().resolve("plugins/debugPlugin.jar"), StandardCopyOption.REPLACE_EXISTING)
+        if (version.matches(/1\.(([0-9]|1[0-5])(\..*)?$|16(\.[0-4])?$)/)) { // old versions
+            Files.copy(pluginJar, testServerDirectory.toPath().resolve("plugins/debugPlugin.jar"), StandardCopyOption.REPLACE_EXISTING)
+        } else {
+            // make sure plugins/debugPlugin.jar doesn't exist anymore
+            if (Files.exists(testServerDirectory.toPath().resolve("plugins/debugPlugin.jar"))) {
+                Files.delete(testServerDirectory.toPath().resolve("plugins/debugPlugin.jar"))
+            }
+
+            args("-add-plugin=${pluginJar.toAbsolutePath().toString()}")
+        }
 
         classpath(serverJar)
         setWorkingDir(testServerDirectory)

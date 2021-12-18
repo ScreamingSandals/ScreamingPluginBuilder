@@ -19,7 +19,7 @@ class Repositories {
     static final PLACEHOLDER_API = "https://repo.extendedclip.com/content/repositories/placeholderapi/"
     static final MINECRAFT_LIBRARIES = "https://libraries.minecraft.net"
     static final SPONGE = "https://repo-new.spongepowered.org/repository/maven-public/"
-    static final PURPURMC = "https://repo.pl3x.net/"
+    static final PURPURMC = "https://repo.purpurmc.org/snapshots/"
     static final PAPERMC = "https://papermc.io/repo/repository/maven-public/"
 
     static final BUNGEECORD = SONATYPE

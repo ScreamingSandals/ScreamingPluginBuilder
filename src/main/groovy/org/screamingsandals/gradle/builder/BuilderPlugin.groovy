@@ -46,7 +46,6 @@ class BuilderPlugin implements Plugin<Project> {
             sonatype()
             paper()
             spigotmc()
-            purpur()
         }
 
         project.extensions.getByName(LombokPluginExtension.NAME).each { LombokPluginExtension it ->

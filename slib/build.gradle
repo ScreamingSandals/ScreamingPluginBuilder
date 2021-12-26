@@ -1,0 +1,8 @@
+gradlePlugin {
+    plugins {
+        pluginBuilder {
+            id = 'org.screamingsandals.plugin-slib'
+            implementationClass = 'org.screamingsandals.gradle.slib.SLibPlugin'
+        }
+    }
+}

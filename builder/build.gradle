@@ -1,0 +1,24 @@
+plugins {
+    id 'groovy'
+}
+
+dependencies {
+    compileOnly localGroovy()
+
+    implementation 'io.franzbecker:gradle-lombok:' + LOMBOK_PLUGIN //switch to freefair, this one is old
+    implementation 'com.jcraft:jsch:' + JSCH_PLUGIN
+    implementation 'com.google.code.gson:gson:' + GSON_PLUGIN
+}
+
+gradlePlugin {
+    plugins {
+        pluginBuilder {
+            id = 'org.screamingsandals.plugin-builder'
+            implementationClass = 'org.screamingsandals.gradle.builder.BuilderPlugin'
+        }
+        pluginBuilderLite {
+            id = 'org.screamingsandals.plugin-builder-lite'
+            implementationClass = 'org.screamingsandals.gradle.builder.LiteBuilderPlugin'
+        }
+    }
+}

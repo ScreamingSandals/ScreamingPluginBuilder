@@ -35,7 +35,15 @@ class Repositories {
             isStatic(it.modifiers)
         }.each {field ->
             project.repositories.ext[toCamelCase(field.name)] = {
-                project.repositories.maven { it.url Repositories[field.name] }
+                project.repositories.maven {
+                    if (field.name == "SCREAMING") {
+                        it.name = "sandals-repo"
+                    }
+                    if (field.name == "PAPERMC" || field.name == "PAPER") {
+                        it.name = "paper-repo"
+                    }
+                    it.url Repositories[field.name]
+                }
             }
         }
     }

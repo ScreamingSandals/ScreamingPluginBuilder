@@ -2,6 +2,7 @@ package org.screamingsandals.gradle.builder.utils
 
 import org.gradle.api.Project
 
+// TODO: get rid of this shit and use the new one for internal projects too
 class ScreamingLibBuilder {
     private final Project project
 
@@ -67,7 +68,7 @@ class ScreamingLibBuilder {
             api "org.screamingsandals.lib:utils-common:$version"
 
             if (annotationProcessor) {
-                it.annotationProcessor "org.screamingsandals.lib:screaming-annotation:$version"
+                it.annotationProcessor "org.screamingsandals.lib:annotation:$version"
             }
         }
 

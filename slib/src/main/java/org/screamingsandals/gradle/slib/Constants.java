@@ -16,4 +16,5 @@ public class Constants {
 
     public final String IMPLEMENTATION_CONFIGURATION = "implementation";
     public final String ANNOTATION_PROCESSOR = "annotationProcessor";
+    public final String KAPT = "kapt";
 }

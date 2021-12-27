@@ -65,7 +65,11 @@ public class SLibPlugin implements Plugin<Project> {
             extension.getAdditionalContent().forEach(additionalContent -> {
                 additionalContent.apply(dependencies, extension.getVersion(), extension.getPlatforms());
             });
-            dependencies.add(Constants.ANNOTATION_PROCESSOR, Constants.SCREAMING_LIB_GROUP_ID + ":annotation:" + extension.getVersion());
+            if (project.getPlugins().hasPlugin("kotlin-kapt")) {
+                dependencies.add(Constants.KAPT, Constants.SCREAMING_LIB_GROUP_ID + ":annotation:" + extension.getVersion());
+            } else {
+                dependencies.add(Constants.ANNOTATION_PROCESSOR, Constants.SCREAMING_LIB_GROUP_ID + ":annotation:" + extension.getVersion());
+            }
 
             /**
              * This allows us to build the final product without depending on Bukkit api.

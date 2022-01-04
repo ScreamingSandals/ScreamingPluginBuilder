@@ -8,6 +8,7 @@ dependencies {
     implementation 'io.franzbecker:gradle-lombok:' + LOMBOK_PLUGIN //switch to freefair, this one is old
     implementation 'com.jcraft:jsch:' + JSCH_PLUGIN
     implementation 'com.google.code.gson:gson:' + GSON_PLUGIN
+    implementation 'gradle.plugin.org.cadixdev.gradle:licenser:' + LICENSER_VERSION
 }
 
 gradlePlugin {

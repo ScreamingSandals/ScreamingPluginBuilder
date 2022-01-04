@@ -7,6 +7,7 @@ import com.jcraft.jsch.SftpException
 import io.franzbecker.gradle.lombok.LombokPlugin
 import io.franzbecker.gradle.lombok.LombokPluginExtension
 import io.franzbecker.gradle.lombok.task.DelombokTask
+import org.cadixdev.gradle.licenser.Licenser
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
@@ -67,6 +68,21 @@ class BuilderPlugin implements Plugin<Project> {
 
         project.ext['prepareTestTask'] = {
             return new TestTaskBuilder(project)
+        }
+
+        var headerFile = project.getRootProject().file("license_header.txt")
+
+        if (headerFile.exists()) {
+            project.apply {
+                plugin Licenser.class
+            }
+
+            project.license {
+                header = headerFile
+                properties {
+                    year = Calendar.getInstance().get(Calendar.YEAR)
+                }
+            }
         }
 
         if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {

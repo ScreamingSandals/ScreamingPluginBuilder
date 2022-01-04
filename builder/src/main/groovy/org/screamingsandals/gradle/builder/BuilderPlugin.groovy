@@ -79,6 +79,7 @@ class BuilderPlugin implements Plugin<Project> {
 
             project.license {
                 header = headerFile
+                ignoreFailures = true
                 properties {
                     year = Calendar.getInstance().get(Calendar.YEAR)
                 }

@@ -4,6 +4,7 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.SftpException
+import io.freefair.gradle.plugins.lombok.tasks.Delombok
 import org.cadixdev.gradle.licenser.Licenser
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -90,7 +91,7 @@ class BuilderPlugin implements Plugin<Project> {
             def srcmain = project.file("src/main");
             def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
             if (processDelombok) {
-                project.task('delombokForJavadoc', type: DelombokTask, dependsOn: 'compileJava') {
+                project.task('delombokForJavadoc', type: Delombok, dependsOn: 'compileJava') {
                     ext.outputDir = project.file("$project.buildDir/delombok")
                     outputs.dir(outputDir)
                     project.sourceSets.main.java.srcDirs.each {
@@ -251,8 +252,6 @@ class BuilderPlugin implements Plugin<Project> {
             }
         }
     }
-
-
 
     def static recursiveClear(ChannelSftp sftpChannel) {
         sftpChannel.ls(".").forEach {

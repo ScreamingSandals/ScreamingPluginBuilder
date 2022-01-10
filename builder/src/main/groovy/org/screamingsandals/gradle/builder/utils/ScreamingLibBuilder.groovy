@@ -7,7 +7,7 @@ class ScreamingLibBuilder {
     private final Project project
 
     private List<String> platforms = []
-    private List<String> modules = ["plugin"]
+    private List<String> modules = []
     private List<String> universalModules = []
     private String version
     private String simpleInventories = null

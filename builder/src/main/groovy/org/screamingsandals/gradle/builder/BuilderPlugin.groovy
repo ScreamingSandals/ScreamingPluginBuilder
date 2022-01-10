@@ -4,7 +4,6 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.SftpException
-import io.freefair.gradle.plugins.lombok.tasks.Delombok
 import org.cadixdev.gradle.licenser.Licenser
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -89,28 +88,11 @@ class BuilderPlugin implements Plugin<Project> {
 
         if (System.getenv('JAVADOC_HOST') != null) {
             def srcmain = project.file("src/main");
-            def processDelombok = srcmain.exists() && srcmain.listFiles().length > 0
-            if (processDelombok) {
-                project.task('delombokForJavadoc', type: Delombok, dependsOn: 'compileJava') {
-                    ext.outputDir = project.file("$project.buildDir/delombok")
-                    outputs.dir(outputDir)
-                    project.sourceSets.main.java.srcDirs.each {
-                        inputs.dir(it)
-                        args(it, "-d", outputDir)
-                    }
-                    doFirst {
-                        outputDir.deleteDir()
-                    }
-                }
-            }
 
             project.javadoc {
-                if (processDelombok) {
-                    dependsOn 'delombokForJavadoc'
-                    source = project.tasks.getByName('delombokForJavadoc').outputDir
-                }
                 options.addBooleanOption('html5', true)
             }
+
             project.task('javadocJar', type: Jar, dependsOn: project.javadoc) {
                 it.classifier = 'javadoc'
                 from project.javadoc

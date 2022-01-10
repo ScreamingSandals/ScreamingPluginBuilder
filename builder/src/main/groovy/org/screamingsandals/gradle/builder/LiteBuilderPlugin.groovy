@@ -1,8 +1,6 @@
 package org.screamingsandals.gradle.builder
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
-import io.franzbecker.gradle.lombok.LombokPlugin
-import io.franzbecker.gradle.lombok.LombokPluginExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
@@ -14,6 +12,7 @@ import org.screamingsandals.gradle.builder.dependencies.Dependencies
 import org.screamingsandals.gradle.builder.maven.GitlabRepository
 import org.screamingsandals.gradle.builder.maven.NexusRepository
 import org.screamingsandals.gradle.builder.repositories.Repositories
+import io.freefair.gradle.plugins.lombok.LombokPlugin
 
 class LiteBuilderPlugin implements Plugin<Project> {
 
@@ -93,11 +92,6 @@ class LiteBuilderPlugin implements Plugin<Project> {
         project.ext['configureLombok'] = { iit ->
             project.apply {
                 plugin LombokPlugin.class
-            }
-
-            project.extensions.getByName(LombokPluginExtension.NAME).each { LombokPluginExtension it ->
-                it.version = "1.18.22"
-                it.sha256 = "ecef1581411d7a82cc04281667ee0bac5d7c0a5aae74cfc38430396c91c31831"
             }
         }
 

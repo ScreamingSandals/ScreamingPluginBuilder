@@ -4,9 +4,6 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.SftpException
-import io.franzbecker.gradle.lombok.LombokPlugin
-import io.franzbecker.gradle.lombok.LombokPluginExtension
-import io.franzbecker.gradle.lombok.task.DelombokTask
 import org.cadixdev.gradle.licenser.Licenser
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -23,6 +20,7 @@ import org.screamingsandals.gradle.builder.maven.NexusRepository
 import org.screamingsandals.gradle.builder.repositories.Repositories
 import org.screamingsandals.gradle.builder.utils.ScreamingLibBuilder
 import org.screamingsandals.gradle.builder.webhook.DiscordWebhookExtension
+import io.freefair.gradle.plugins.lombok.LombokPlugin
 
 class BuilderPlugin implements Plugin<Project> {
 
@@ -47,11 +45,6 @@ class BuilderPlugin implements Plugin<Project> {
             sonatype()
             paper()
             spigotmc()
-        }
-
-        project.extensions.getByName(LombokPluginExtension.NAME).each { LombokPluginExtension it ->
-            it.version = "1.18.22"
-            it.sha256 = "ecef1581411d7a82cc04281667ee0bac5d7c0a5aae74cfc38430396c91c31831"
         }
 
         project.dependencies {

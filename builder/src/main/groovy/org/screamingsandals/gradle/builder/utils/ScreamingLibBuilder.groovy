@@ -3,6 +3,7 @@ package org.screamingsandals.gradle.builder.utils
 import org.gradle.api.Project
 
 // TODO: get rid of this shit and use the new one for internal projects too
+@Deprecated
 class ScreamingLibBuilder {
     private final Project project
 

@@ -9,6 +9,7 @@ dependencies {
     implementation 'com.jcraft:jsch:' + JSCH_PLUGIN
     implementation 'com.google.code.gson:gson:' + GSON_PLUGIN
     implementation 'gradle.plugin.org.cadixdev.gradle:licenser:' + LICENSER_VERSION
+    implementation project(':slib')
 }
 
 gradlePlugin {

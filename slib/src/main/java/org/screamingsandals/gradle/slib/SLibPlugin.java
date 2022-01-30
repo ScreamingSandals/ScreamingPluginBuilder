@@ -4,6 +4,7 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin;
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.jetbrains.kotlin.samWithReceiver.gradle.SamWithReceiverExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +46,16 @@ public class SLibPlugin implements Plugin<Project> {
                 throw new UnsupportedOperationException("ScreamingLib version can't be null!");
             }
 
+            if (project.getPlugins().hasPlugin("org.jetbrains.kotlin.jvm")) {
+                if (!extension.isDisableAutoKaptApplicationForKotlin() && !project.getPlugins().hasPlugin("org.jetbrains.kotlin.kapt")){
+                    project.getPlugins().apply("org.jetbrains.kotlin.kapt");
+                    System.out.println("Kapt was automatically added to your classpath. You may now see some warnings about version mismatch, to fix that, add kapt plugin yourself (the plugin must be applied after the slib plugin)");
+                }
+                if (!extension.isDisableAutoSAMWithReceiverConfigurationForKotlin() && project.getPlugins().hasPlugin("kotlin-sam-with-receiver")) {
+                    project.getExtensions().getByType(SamWithReceiverExtension.class).annotation("org.screamingsandals.lib.utils.annotations.ImplicitReceiver");
+                }
+            }
+
             var dependencies = project1.getDependencies();
             if (extension.getPlatforms().stream().allMatch(s -> s.equals("bungee") || s.equals("velocity"))) {
                 // Proxy
@@ -62,19 +73,21 @@ public class SLibPlugin implements Plugin<Project> {
                 throw new UnsupportedOperationException("Can't mix Proxy and Core modules together! Please create separated projects or subprojects for proxy and for core!");
             }
 
-            extension.getAdditionalContent().forEach(additionalContent -> {
-                additionalContent.apply(dependencies, extension.getVersion(), extension.getPlatforms());
-            });
-            if (project.getPlugins().hasPlugin("kotlin-kapt")) {
-                dependencies.add(Constants.KAPT, Constants.SCREAMING_LIB_GROUP_ID + ":annotation:" + extension.getVersion());
-            } else {
-                dependencies.add(Constants.ANNOTATION_PROCESSOR, Constants.SCREAMING_LIB_GROUP_ID + ":annotation:" + extension.getVersion());
+            extension.getAdditionalContent().forEach(additionalContent ->
+                    additionalContent.apply(dependencies, extension.getVersion(), extension.getPlatforms())
+            );
+            if (!extension.isDisableAnnotationProcessor()) {
+                if (project.getPlugins().hasPlugin("kotlin-kapt")) {
+                    dependencies.add(Constants.KAPT, Constants.SCREAMING_LIB_GROUP_ID + ":annotation:" + extension.getVersion());
+                } else {
+                    dependencies.add(Constants.ANNOTATION_PROCESSOR, Constants.SCREAMING_LIB_GROUP_ID + ":annotation:" + extension.getVersion());
+                }
             }
 
             /**
              * This allows us to build the final product without depending on Bukkit api.
              */
-            if (!extension.isDontTryToTrickTheCompiler() && extension.getPlatforms().contains("bukkit")) { // TODO: check if there's no bukkit in classpath
+            if (!extension.isDisableCompilerTricks() && extension.getPlatforms().contains("bukkit")) { // TODO: check if there's no bukkit in classpath
                 try {
                     var slibCompilationTricks = Files.createTempDirectory("slibCompilationTricks").toFile().getAbsoluteFile();
 
@@ -105,7 +118,7 @@ public class SLibPlugin implements Plugin<Project> {
             // TODO: minestom
             // TODO: sponge
 
-            if (!extension.isDontRelocate()) {
+            if (!extension.isDisableRelocate()) {
                 var path = extension.getCustomRelocatePath() != null ? extension.getCustomRelocatePath() : (project1.getGroup() + ".lib");
                 var shadowJar = project1.getTasks().withType(ShadowJar.class).getByName("shadowJar");
                 shadowJar.relocate("org.screamingsandals.lib", path);

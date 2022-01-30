@@ -1,3 +1,8 @@
+dependencies {
+    compileOnly "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.0"
+    compileOnly "org.jetbrains.kotlin:kotlin-sam-with-receiver:1.6.0"
+}
+
 gradlePlugin {
     plugins {
         pluginBuilder {

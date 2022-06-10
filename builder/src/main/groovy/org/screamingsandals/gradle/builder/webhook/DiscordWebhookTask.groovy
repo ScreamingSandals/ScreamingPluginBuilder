@@ -87,17 +87,33 @@ class DiscordWebhookTask extends DefaultTask {
                     var split = shortRepositoryName.split("/")
                     shortRepositoryName = split[split.length - 1]
                     var result = jsonSlurper.parse("${System.getenv('REPOSILITE_BASE_URL')}/api/maven/details/${shortRepositoryName}/${this.storage.publication.groupId.replace('.', '/')}/${this.storage.publication.artifactId}/${this.storage.publication.version}".toURL())
-                    var startingString = "${this.storage.publication.artifactId}-${this.storage.publication.version.replace('SNAPSHOT', snapshotReplace)}-"
-                    var arti = it
-                    var r = (result.files as List).find {
-                        var map = it as Map
-                        if (map.get("contentType") == "APPLICATION_JAR") {
-                            return (map.get("name") as String).startsWith(startingString) && (map.get("name") as String).substring(startingString.length()).matches("\\d+${arti.classifier ? '\\-' + arti.classifier : ''}\\.${arti.extension}")
+                    if (realname.contains('SNAPSHOT')) {
+                        // this is snapshot
+                        var startingString = "${this.storage.publication.artifactId}-${this.storage.publication.version.replace('SNAPSHOT', snapshotReplace)}-"
+                        var arti = it
+                        var r = (result.files as List).find {
+                            var map = it as Map
+                            if (map.get("contentType") == "application/java-archive") {
+                                return (map.get("name") as String).startsWith(startingString) && (map.get("name") as String).substring(startingString.length()).matches("\\d+${arti.classifier ? '\\-' + arti.classifier : ''}\\.${arti.extension}")
+                            }
+                            return false
                         }
-                        return false
-                    }
-                    if (r != null) {
-                        uploadedUrl = baseUrl + r.get("name")
+                        if (r != null) {
+                            uploadedUrl = baseUrl + r.get("name")
+                        }
+                    } else {
+                        // this is not snapshot
+                        var theArtifactName = "${this.storage.publication.artifactId}-${this.storage.publication.version}.${it.classifier ? '\\\\-' + it.classifier : ''}\\\\.${it.extension}"
+                        var r = (result.files as List).find {
+                            var map = it as Map
+                            if (map.get("contentType") == "application/java-archive") {
+                                return (map.get("name") as String) == theArtifactName
+                            }
+                            return false
+                        }
+                        if (r != null) {
+                            uploadedUrl = baseUrl + r.get("name")
+                        }
                     }
                 } else if (System.getenv('NEXUS_BASE_URL')) {
                     var jsonSlurper = new JsonSlurper()

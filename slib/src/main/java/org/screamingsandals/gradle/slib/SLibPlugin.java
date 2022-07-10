@@ -13,7 +13,6 @@ import java.nio.file.Files;
 import java.util.Map;
 
 public class SLibPlugin implements Plugin<Project> {
-    // TODO: multi-module projects (now this supports just single-module projects)
     @Override
     public void apply(Project project) {
         project.apply(it -> {
@@ -44,7 +43,7 @@ public class SLibPlugin implements Plugin<Project> {
 
         project.afterEvaluate(project1 -> {
             if (extension.getVersion() == null) {
-                throw new UnsupportedOperationException("ScreamingLib version can't be null!");
+                return; // Not configured
             }
 
             if (project.getPlugins().hasPlugin("org.jetbrains.kotlin.jvm")) {
@@ -149,9 +148,9 @@ public class SLibPlugin implements Plugin<Project> {
                     var compileJava = project1.getTasks().withType(JavaCompile.class).getByName("compileJava");
                     var file = project.project(":" + extension.getMultiModuleCommonSubproject()).getBuildDir().toPath().resolve("/slib/pluginName.txt").toAbsolutePath().toString();
                     if (extension.getMultiModuleCommonSubproject().equals(project1.getName())) {
-                        compileJava.getOptions().getCompilerArgs().add("-A.lookForPluginAndSaveFullClassNameTo=" + file);
+                        compileJava.getOptions().getCompilerArgs().add("-AlookForPluginAndSaveFullClassNameTo=" + file);
                     } else {
-                        compileJava.getOptions().getCompilerArgs().add("-A.usePluginClass=" + file);
+                        compileJava.getOptions().getCompilerArgs().add("-AusePluginClass=" + file);
                     }
                 }
             }

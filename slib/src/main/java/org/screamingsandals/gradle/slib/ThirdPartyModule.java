@@ -66,9 +66,9 @@ public class ThirdPartyModule implements AdditionalContent {
     @Override
     @ApiStatus.Internal
     @ApiStatus.OverrideOnly
-    public void apply(DependencyHandler dependencies, String slibVersion, List<String> platforms) {
+    public void apply(String configuration, DependencyHandler dependencies, String slibVersion, List<String> platforms) {
         {
-            var dependency = dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, groupId + ":" + module + "-common:" + version);
+            var dependency = dependencies.add(configuration, groupId + ":" + module + "-common:" + version);
             if (dependency instanceof ModuleDependency) {
                 ((ModuleDependency) dependency).exclude(Map.of("group", Constants.SCREAMING_LIB_GROUP_ID));
             }
@@ -82,8 +82,8 @@ public class ThirdPartyModule implements AdditionalContent {
     }
 
     @Override
-    public void applyMultiModule(DependencyHandler dependencies, String slibVersion, String platformName) {
-        var dependency = dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, groupId + ":" + module + "-" + platformName + ":" + version);
+    public void applyMultiModule(String configuration, DependencyHandler dependencies, String slibVersion, String platformName) {
+        var dependency = dependencies.add(configuration, groupId + ":" + module + "-" + platformName + ":" + version);
         if (dependency instanceof ModuleDependency) {
             ((ModuleDependency) dependency).exclude(Map.of("group", Constants.SCREAMING_LIB_GROUP_ID));
         }

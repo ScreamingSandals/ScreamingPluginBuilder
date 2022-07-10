@@ -56,16 +56,17 @@ public class SLibPlugin implements Plugin<Project> {
                 }
             }
             var multiModuleProject = extension.getMultiModuleConfiguration() != null && extension.getMultiModuleCommonSubproject() != null && extension.getMultiModuleUniversalSubproject() != null;
+            var implConfig = extension.isUseApiConfigurationInsteadOfImplementation() ? Constants.API_CONFIGURATION : Constants.IMPLEMENTATION_CONFIGURATION;
 
             var dependencies = project1.getDependencies();
             if (multiModuleProject && project1.getName().equals(extension.getMultiModuleApiSubproject())) {
-                dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":api-utils:" + extension.getVersion());
+                dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":api-utils:" + extension.getVersion());
                 return;
             }
             if (multiModuleProject && extension.getMultiModuleUniversalSubproject().equals(project1.getName())) {
-                dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, project1.project(":" + extension.getMultiModuleCommonSubproject()));
+                dependencies.add(implConfig, project1.project(":" + extension.getMultiModuleCommonSubproject()));
                 for (var pr : extension.getMultiModuleConfiguration().keySet()) {
-                    dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, project1.project(":" + pr));
+                    dependencies.add(implConfig, project1.project(":" + pr));
                 }
                 relocate(project1, extension);
                 return;
@@ -75,42 +76,48 @@ public class SLibPlugin implements Plugin<Project> {
                 // Proxy
                 if (multiModuleProject) {
                     if (extension.getMultiModuleCommonSubproject().equals(project1.getName())) {
-                        dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":proxy-common:" + extension.getVersion());
+                        dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":proxy-common:" + extension.getVersion());
+                        if (extension.getMultiModuleApiSubproject() != null) {
+                            dependencies.add(implConfig, project1.project(":" + extension.getMultiModuleApiSubproject()));
+                        }
                     } else if (extension.getMultiModuleConfiguration().containsKey(project1.getName())) {
                         var platform = extension.getMultiModuleConfiguration().get(project1.getName());
                         if (!extension.getPlatforms().contains(platform)) {
                             throw new UnsupportedOperationException("Malformed multi module project configuration: Platform " + platform + " is not configured, but is in multiModuleConfiguration map!");
                         }
-                        dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, project1.project(":" + extension.getMultiModuleCommonSubproject()));
-                        dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":proxy-" + platform + ":" + extension.getVersion());
+                        dependencies.add(implConfig, project1.project(":" + extension.getMultiModuleCommonSubproject()));
+                        dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":proxy-" + platform + ":" + extension.getVersion());
                     } else {
                         throw new UnsupportedOperationException("Can't determine what is this subproject for: " + project1.getName());
                     }
                 } else {
-                    dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":proxy-common:" + extension.getVersion());
+                    dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":proxy-common:" + extension.getVersion());
                     extension.getPlatforms().forEach(s -> {
-                        dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":proxy-" + s + ":" + extension.getVersion());
+                        dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":proxy-" + s + ":" + extension.getVersion());
                     });
                 }
             } else if (extension.getPlatforms().stream().noneMatch(s -> s.equals("bungee") || s.equals("velocity"))) {
                 // Core
                 if (multiModuleProject) {
                     if (extension.getMultiModuleCommonSubproject().equals(project1.getName())) {
-                        dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":core-common:" + extension.getVersion());
+                        dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":core-common:" + extension.getVersion());
+                        if (extension.getMultiModuleApiSubproject() != null) {
+                            dependencies.add(implConfig, project1.project(":" + extension.getMultiModuleApiSubproject()));
+                        }
                     } else if (extension.getMultiModuleConfiguration().containsKey(project1.getName())) {
                         var platform = extension.getMultiModuleConfiguration().get(project1.getName());
                         if (!extension.getPlatforms().contains(platform)) {
                             throw new UnsupportedOperationException("Malformed multi module project configuration: Platform " + platform + " is not configured, but is in multiModuleConfiguration map!");
                         }
-                        dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, project1.project(":" + extension.getMultiModuleCommonSubproject()));
-                        dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":core-" + platform + ":" + extension.getVersion());
+                        dependencies.add(implConfig, project1.project(":" + extension.getMultiModuleCommonSubproject()));
+                        dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":core-" + platform + ":" + extension.getVersion());
                     } else {
                         throw new UnsupportedOperationException("Can't determine what is this subproject for: " + project1.getName());
                     }
                 } else {
-                    dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":core-common:" + extension.getVersion());
+                    dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":core-common:" + extension.getVersion());
                     extension.getPlatforms().forEach(s -> {
-                        dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":core-" + s + ":" + extension.getVersion());
+                        dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":core-" + s + ":" + extension.getVersion());
                     });
                 }
             } else {
@@ -120,7 +127,7 @@ public class SLibPlugin implements Plugin<Project> {
             if (multiModuleProject) {
                 if (extension.getMultiModuleCommonSubproject().equals(project1.getName())) {
                     extension.getAdditionalContent().forEach(additionalContent ->
-                            additionalContent.applyMultiModule(dependencies, extension.getVersion(), "common")
+                            additionalContent.applyMultiModule(implConfig, dependencies, extension.getVersion(), "common")
                     );
                 } else if (extension.getMultiModuleConfiguration().containsKey(project1.getName())) {
                     var platform = extension.getMultiModuleConfiguration().get(project1.getName());
@@ -128,14 +135,14 @@ public class SLibPlugin implements Plugin<Project> {
                         throw new UnsupportedOperationException("Malformed multi module project configuration: Platform " + platform + " is not configured, but is in multiModuleConfiguration map!");
                     }
                     extension.getAdditionalContent().forEach(additionalContent ->
-                            additionalContent.applyMultiModule(dependencies, extension.getVersion(), platform)
+                            additionalContent.applyMultiModule(implConfig, dependencies, extension.getVersion(), platform)
                     );
                 } else {
                     throw new UnsupportedOperationException("Can't determine what is this subproject for: " + project1.getName());
                 }
             } else {
                 extension.getAdditionalContent().forEach(additionalContent ->
-                        additionalContent.apply(dependencies, extension.getVersion(), extension.getPlatforms())
+                        additionalContent.apply(implConfig, dependencies, extension.getVersion(), extension.getPlatforms())
                 );
             }
             if (!extension.isDisableAnnotationProcessor()) {
@@ -146,7 +153,7 @@ public class SLibPlugin implements Plugin<Project> {
                 }
                 if (multiModuleProject) {
                     var compileJava = project1.getTasks().withType(JavaCompile.class).getByName("compileJava");
-                    var file = project.project(":" + extension.getMultiModuleCommonSubproject()).getBuildDir().toPath().resolve("/slib/pluginName.txt").toAbsolutePath().toString();
+                    var file = project.project(":" + extension.getMultiModuleCommonSubproject()).getBuildDir().toPath().resolve("slib/pluginName.txt").toAbsolutePath().toString();
                     if (extension.getMultiModuleCommonSubproject().equals(project1.getName())) {
                         compileJava.getOptions().getCompilerArgs().add("-AlookForPluginAndSaveFullClassNameTo=" + file);
                     } else {

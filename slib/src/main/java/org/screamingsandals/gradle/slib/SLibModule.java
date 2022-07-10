@@ -18,15 +18,15 @@ public class SLibModule implements AdditionalContent {
     @Override
     @ApiStatus.Internal
     @ApiStatus.OverrideOnly
-    public void apply(DependencyHandler dependencies, String slibVersion, List<String> platforms) {
-        dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":" + name + "-common:" + slibVersion);
+    public void apply(String configuration, DependencyHandler dependencies, String slibVersion, List<String> platforms) {
+        dependencies.add(configuration, Constants.SCREAMING_LIB_GROUP_ID + ":" + name + "-common:" + slibVersion);
         platforms.forEach(s ->
-                dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":" + name + "-" + s + ":" + slibVersion)
+                dependencies.add(configuration, Constants.SCREAMING_LIB_GROUP_ID + ":" + name + "-" + s + ":" + slibVersion)
         );
     }
 
     @Override
-    public void applyMultiModule(DependencyHandler dependencies, String slibVersion, String platformName) {
-        dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":" + name + "-" + platformName + ":" + slibVersion);
+    public void applyMultiModule(String configuration, DependencyHandler dependencies, String slibVersion, String platformName) {
+        dependencies.add(configuration, Constants.SCREAMING_LIB_GROUP_ID + ":" + name + "-" + platformName + ":" + slibVersion);
     }
 }

@@ -8,9 +8,9 @@ import java.util.List;
 public interface AdditionalContent {
     @ApiStatus.Internal
     @ApiStatus.OverrideOnly
-    void apply(DependencyHandler dependencies, String slibVersion, List<String> platforms);
+    void apply(String configuration, DependencyHandler dependencies, String slibVersion, List<String> platforms);
 
     @ApiStatus.Internal
     @ApiStatus.OverrideOnly
-    void applyMultiModule(DependencyHandler dependencies, String slibVersion, String platformName);
+    void applyMultiModule(String configuration, DependencyHandler dependencies, String slibVersion, String platformName);
 }

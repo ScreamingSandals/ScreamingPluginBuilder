@@ -51,6 +51,10 @@ public class SLibExtension {
     @Nullable
     private String multiModuleApiSubprojectApiUtilsWrapperRelocation;
     /**
+     * Whether `api` configuration should be used instead of `implementation` (sometimes it's better for gradle)
+     */
+    private boolean useApiConfigurationInsteadOfImplementation;
+    /**
      * Supported platforms
      */
     private final List<String> platforms = new ArrayList<>();
@@ -202,6 +206,15 @@ public class SLibExtension {
     public void multiModuleApiSubproject(@NotNull String api, @Nullable String wrapperClassName) {
         this.multiModuleApiSubproject = api;
         this.multiModuleApiSubprojectApiUtilsWrapperRelocation = wrapperClassName;
+    }
+
+    /**
+     * Whether `api` configuration should be used instead of `implementation` (sometimes it's better for gradle)
+     *
+     * @param useApiConfigurationInsteadOfImplementation true if `api` should be used
+     */
+    public void useApiConfigurationInsteadOfImplementation(boolean useApiConfigurationInsteadOfImplementation) {
+        this.useApiConfigurationInsteadOfImplementation = useApiConfigurationInsteadOfImplementation;
     }
 
     /**

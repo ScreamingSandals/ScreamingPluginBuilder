@@ -18,7 +18,6 @@ import org.screamingsandals.gradle.builder.dependencies.Dependencies
 import org.screamingsandals.gradle.builder.maven.GitlabRepository
 import org.screamingsandals.gradle.builder.maven.NexusRepository
 import org.screamingsandals.gradle.builder.repositories.Repositories
-import org.screamingsandals.gradle.builder.utils.ScreamingLibBuilder
 import org.screamingsandals.gradle.builder.webhook.DiscordWebhookExtension
 import io.freefair.gradle.plugins.lombok.LombokPlugin
 
@@ -53,10 +52,6 @@ class BuilderPlugin implements Plugin<Project> {
 
         project.dependencies.ext['screaming'] = { String lib, String version ->
             return "org.screamingsandals.lib:$lib:$version"
-        }
-
-        project.ext['ScreamingLibBuilder'] = {
-            return new ScreamingLibBuilder(project)
         }
 
         project.ext['prepareTestTask'] = {
@@ -206,22 +201,24 @@ class BuilderPlugin implements Plugin<Project> {
             }
         }
 
-        if (System.getenv("GITLAB_REPO") != null) {
-            new GitlabRepository().setup(project, publishing)
-        }
-
-        if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
-            new NexusRepository().setup(project, publishing)
-        }
-
         List tasks = ["build"]
 
-        if (!ciCdOptimized) {
-            tasks.add("publishToMavenLocal")
-        }
+        if (!project.hasProperty('disablePublishingToMaven') || !project.property('disablePublishingToMaven')) {
+            if (System.getenv("GITLAB_REPO") != null) {
+                new GitlabRepository().setup(project, publishing)
+            }
 
-        if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
-            tasks.add("publish")
+            if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
+                new NexusRepository().setup(project, publishing)
+            }
+
+            if (!ciCdOptimized) {
+                tasks.add("publishToMavenLocal")
+            }
+
+            if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
+                tasks.add("publish")
+            }
         }
 
         project.getExtensions().create("discord", DiscordWebhookExtension)

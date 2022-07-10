@@ -15,6 +15,7 @@ public class Constants {
     public final String PAPER_REPO_URL = "https://papermc.io/repo/repository/maven-public/";
 
     public final String IMPLEMENTATION_CONFIGURATION = "implementation";
+    public final String API_CONFIGURATION = "api";
     public final String ANNOTATION_PROCESSOR = "annotationProcessor";
     public final String KAPT = "kapt";
 }

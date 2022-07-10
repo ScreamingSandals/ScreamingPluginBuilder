@@ -61,6 +61,10 @@ public class SLibPlugin implements Plugin<Project> {
             var dependencies = project1.getDependencies();
             if (multiModuleProject && project1.getName().equals(extension.getMultiModuleApiSubproject())) {
                 dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":api-utils:" + extension.getVersion());
+                if (extension.getMultiModuleApiSubprojectApiUtilsWrapperRelocation() != null) {
+                    var shadowJar = project1.getTasks().withType(ShadowJar.class).getByName("shadowJar");
+                    shadowJar.relocate("org.screamingsandals.lib.utils.Wrapper", extension.getMultiModuleApiSubprojectApiUtilsWrapperRelocation());
+                }
                 return;
             }
             if (multiModuleProject && extension.getMultiModuleUniversalSubproject().equals(project1.getName())) {

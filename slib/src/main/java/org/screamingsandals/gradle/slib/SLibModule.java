@@ -24,4 +24,9 @@ public class SLibModule implements AdditionalContent {
                 dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":" + name + "-" + s + ":" + slibVersion)
         );
     }
+
+    @Override
+    public void applyMultiModule(DependencyHandler dependencies, String slibVersion, String platformName) {
+        dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, Constants.SCREAMING_LIB_GROUP_ID + ":" + name + "-" + platformName + ":" + slibVersion);
+    }
 }

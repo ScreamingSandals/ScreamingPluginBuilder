@@ -80,4 +80,12 @@ public class ThirdPartyModule implements AdditionalContent {
             }
         });
     }
+
+    @Override
+    public void applyMultiModule(DependencyHandler dependencies, String slibVersion, String platformName) {
+        var dependency = dependencies.add(Constants.IMPLEMENTATION_CONFIGURATION, groupId + ":" + module + "-" + platformName + ":" + version);
+        if (dependency instanceof ModuleDependency) {
+            ((ModuleDependency) dependency).exclude(Map.of("group", Constants.SCREAMING_LIB_GROUP_ID));
+        }
+    }
 }

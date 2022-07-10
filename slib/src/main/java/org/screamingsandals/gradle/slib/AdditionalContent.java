@@ -9,4 +9,8 @@ public interface AdditionalContent {
     @ApiStatus.Internal
     @ApiStatus.OverrideOnly
     void apply(DependencyHandler dependencies, String slibVersion, List<String> platforms);
+
+    @ApiStatus.Internal
+    @ApiStatus.OverrideOnly
+    void applyMultiModule(DependencyHandler dependencies, String slibVersion, String platformName);
 }

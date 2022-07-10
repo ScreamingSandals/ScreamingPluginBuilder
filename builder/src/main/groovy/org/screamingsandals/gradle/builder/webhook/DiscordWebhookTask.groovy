@@ -103,7 +103,7 @@ class DiscordWebhookTask extends DefaultTask {
                         }
                     } else {
                         // this is not snapshot
-                        var theArtifactName = "${this.storage.publication.artifactId}-${this.storage.publication.version}.${it.classifier ? '\\\\-' + it.classifier : ''}\\\\.${it.extension}"
+                        var theArtifactName = "${this.storage.publication.artifactId}-${this.storage.publication.version}${it.classifier ? '\\-' + it.classifier : ''}.${it.extension}"
                         var r = (result.files as List).find {
                             var map = it as Map
                             if (map.get("contentType") == "application/java-archive") {

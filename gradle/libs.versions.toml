@@ -1,0 +1,24 @@
+[versions]
+shadow = "7.1.2"
+lombok = "6.5.0.3"
+jsch = "0.1.55"
+gson = "2.8.7"
+licenser = "0.6.1"
+jetbrains-annotations = "23.0.0"
+
+# compile only
+projectlombok = "1.18.24"
+kotlin = "1.6.0"
+
+[libraries]
+shadow = { group = "gradle.plugin.com.github.johnrengelman", name = "shadow", version.ref = "shadow" }
+licenser = { group = "gradle.plugin.org.cadixdev.gradle", name = "licenser", version.ref = "licenser" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+jsch = { group = "com.jcraft", name = "jsch", version.ref = "jsch" }
+lombok = { group = "io.freefair.gradle", name = "lombok-plugin", version.ref = "lombok" }
+jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version.ref = "jetbrains-annotations" }
+projectlombok = { group = "org.projectlombok", name = "lombok", version.ref = "projectlombok" }
+kotlin-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-sam = { group = "org.jetbrains.kotlin", name = "kotlin-sam-with-receiver", version.ref = "kotlin" }
+
+[plugins]

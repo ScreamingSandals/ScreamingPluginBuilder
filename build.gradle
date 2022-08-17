@@ -10,11 +10,6 @@ if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT")
     defaultTasks.add('publish')
 }
 
-allprojects {
-    group = 'org.screamingsandals.gradle'
-    version = PLUGIN_VERSION
-}
-
 subprojects {
     apply plugin: 'java'
     apply plugin: 'java-gradle-plugin'
@@ -27,11 +22,11 @@ subprojects {
 
     dependencies {
         compileOnly gradleApi()
-        compileOnly 'org.projectlombok:lombok:1.18.22'
-        compileOnly 'org.jetbrains:annotations:23.0.0'
-        annotationProcessor 'org.projectlombok:lombok:1.18.22'
+        compileOnly libs.projectlombok
+        compileOnly libs.jetbrains.annotations
+        annotationProcessor libs.projectlombok
 
-        implementation 'gradle.plugin.com.github.johnrengelman:shadow:' + SHADOW_PLUGIN
+        implementation libs.shadow
     }
 
     publishing {

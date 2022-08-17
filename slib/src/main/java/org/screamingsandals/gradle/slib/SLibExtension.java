@@ -3,7 +3,9 @@ package org.screamingsandals.gradle.slib;
 import groovy.lang.Closure;
 import lombok.Data;
 import lombok.Setter;
+import lombok.experimental.Tolerate;
 import org.gradle.api.Action;
+import org.gradle.api.provider.Provider;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -111,6 +113,11 @@ public class SLibExtension {
     @ApiStatus.Experimental
     private boolean disableAutoSAMWithReceiverConfigurationForKotlin;
 
+    @Tolerate
+    public void setVersion(@NotNull Provider<@NotNull String> version) {
+        this.version = version.get();
+    }
+
     /**
      * Sets the ScreamingLib version and version for all internal modules
      *
@@ -119,6 +126,16 @@ public class SLibExtension {
     public void version(@NotNull String version) {
         this.version = version;
     }
+
+    /**
+     * Sets the ScreamingLib version and version for all internal modules
+     *
+     * @param version ScreamingLib version
+     */
+    public void version(@NotNull Provider<@NotNull String> version) {
+        this.version = version.get();
+    }
+
 
     /**
      * Sets the Custom relocate path. If the parameter is null, it defaults to your group id.

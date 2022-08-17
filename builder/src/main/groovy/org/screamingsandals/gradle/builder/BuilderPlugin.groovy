@@ -47,7 +47,7 @@ class BuilderPlugin implements Plugin<Project> {
         }
 
         project.dependencies {
-            compileOnly 'org.jetbrains:annotations:21.0.1'
+            compileOnly 'org.jetbrains:annotations:23.0.0'
         }
 
         project.dependencies.ext['screaming'] = { String lib, String version ->

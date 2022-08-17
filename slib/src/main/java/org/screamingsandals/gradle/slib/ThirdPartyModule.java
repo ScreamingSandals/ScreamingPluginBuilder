@@ -2,8 +2,10 @@ package org.screamingsandals.gradle.slib;
 
 import lombok.Data;
 import lombok.Setter;
+import lombok.experimental.Tolerate;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.gradle.api.provider.Provider;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,6 +33,11 @@ public class ThirdPartyModule implements AdditionalContent {
      */
     @Setter(onParam_ = @NotNull)
     private String version;
+
+    @Tolerate
+    public void setVersion(@NotNull Provider<@NotNull String> version) {
+        this.version = version.get();
+    }
 
     /**
      * Group id of the third party module.
@@ -61,6 +68,15 @@ public class ThirdPartyModule implements AdditionalContent {
      */
     public void version(@NotNull String version) {
         this.version = version;
+    }
+
+    /**
+     * Version of the third party module.
+     *
+     * @param version new version
+     */
+    public void version(@NotNull Provider<@NotNull String> version) {
+        this.version = version.get();
     }
 
     @Override

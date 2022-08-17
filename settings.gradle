@@ -1,4 +1,4 @@
 rootProject.name = 'screaming-gradle'
 
-include('builder')
+include(':builder')
 include(':slib')

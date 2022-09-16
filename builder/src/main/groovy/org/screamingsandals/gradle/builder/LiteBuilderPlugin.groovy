@@ -1,6 +1,7 @@
 package org.screamingsandals.gradle.builder
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
+import org.cadixdev.gradle.licenser.Licenser
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.SelfResolvingDependency
@@ -92,6 +93,24 @@ class LiteBuilderPlugin implements Plugin<Project> {
         project.ext['configureLombok'] = { iit ->
             project.apply {
                 plugin LombokPlugin.class
+            }
+        }
+
+        project.ext['configureLicenser'] = { iit ->
+            var headerFile = project.getRootProject().file("license_header.txt")
+
+            if (headerFile.exists()) {
+                project.apply {
+                    plugin Licenser.class
+                }
+
+                project.license {
+                    header = headerFile
+                    ignoreFailures = true
+                    properties {
+                        year = Calendar.getInstance().get(Calendar.YEAR)
+                    }
+                }
             }
         }
 

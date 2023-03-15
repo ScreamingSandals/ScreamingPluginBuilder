@@ -8,7 +8,6 @@ class Repositories {
     static final SCREAMING = "https://repo.screamingsandals.org/public/"
     static final SONATYPE = "https://oss.sonatype.org/content/repositories/snapshots/"
     static final JITPACK = "https://jitpack.io"
-    static final VELOCITY = "https://nexus.velocitypowered.com/repository/maven-public/"
     static final SPIGOTMC = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
     static final PROTOCOL_LIB = "https://repo.dmulloy2.net/nexus/repository/public/"
     static final ENGINEHUB = "https://maven.enginehub.org/repo/"
@@ -20,7 +19,7 @@ class Repositories {
     static final MINECRAFT_LIBRARIES = "https://libraries.minecraft.net"
     static final SPONGE = "https://repo-new.spongepowered.org/repository/maven-public/"
     static final PURPURMC = "https://repo.purpurmc.org/snapshots/"
-    static final PAPERMC = "https://papermc.io/repo/repository/maven-public/"
+    static final PAPERMC = "https://repo.papermc.io/repository/maven-public/"
 
     static final BUNGEECORD = SONATYPE
     static final VAULT = JITPACK

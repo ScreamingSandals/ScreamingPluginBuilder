@@ -12,7 +12,7 @@ public class Constants {
     public final String SANDALS_REPO_URL = "https://repo.screamingsandals.org/public/";
 
     public final String PAPER_REPO_NAME = "paper-repo";
-    public final String PAPER_REPO_URL = "https://papermc.io/repo/repository/maven-public/";
+    public final String PAPER_REPO_URL = "https://repo.papermc.io/repository/maven-public/";
 
     public final String IMPLEMENTATION_CONFIGURATION = "implementation";
     public final String API_CONFIGURATION = "api";

@@ -12,7 +12,7 @@ class TestServerUtils {
         def serverJar = new File(testServerDirectory, "server.jar")
         if (!serverJar.exists() || forceUpdate) {
             def latestBuild = 0
-            new URL("https://papermc.io/api/v2/projects/paper/versions/$version").newInputStream().withReader {
+            new URL("https://api.papermc.io/v2/projects/paper/versions/$version").newInputStream().withReader {
                 def map = new Gson().fromJson(it, Map.class)
                 latestBuild = Collections.max(map.get("builds") as List) as int
             }
@@ -22,7 +22,7 @@ class TestServerUtils {
             }
 
             def downloadName = ""
-            new URL("https://papermc.io/api/v2/projects/paper/versions/$version/builds/$latestBuild").newInputStream().withReader {
+            new URL("https://api.papermc.io/v2/projects/paper/versions/$version/builds/$latestBuild").newInputStream().withReader {
                 def map = new Gson().fromJson(it, Map.class)
                 downloadName = ((map.get("downloads") as Map).get("application") as Map).get("name") as String
             }
@@ -31,7 +31,7 @@ class TestServerUtils {
                 throw new RuntimeException("Can't obtain download for version $version build $latestBuild")
             }
 
-            serverJar.withOutputStream { it << new URL("https://papermc.io/api/v2/projects/paper/versions/$version/builds/$latestBuild/downloads/$downloadName").newInputStream() }
+            serverJar.withOutputStream { it << new URL("https://api.papermc.io/v2/projects/paper/versions/$version/builds/$latestBuild/downloads/$downloadName").newInputStream() }
         }
 
         return serverJar

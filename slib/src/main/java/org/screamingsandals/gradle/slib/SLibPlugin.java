@@ -212,7 +212,7 @@ public class SLibPlugin implements Plugin<Project> {
         var path = extension.getCustomRelocatePath() != null ? extension.getCustomRelocatePath() : (project1.getGroup() + ".lib");
         var shadowJar = project1.getTasks().withType(ShadowJar.class).getByName("shadowJar");
         if (extension.getMultiModuleApiSubprojectApiUtilsWrapperRelocation() != null) {
-            shadowJar.relocate("org.screamingsandals.lib.utils.Wrapper", extension.getMultiModuleApiSubprojectApiUtilsWrapperRelocation());
+            shadowJar.relocate("org.screamingsandals.lib.api", extension.getMultiModuleApiSubprojectApiUtilsWrapperRelocation());
         }
         shadowJar.relocate("org.screamingsandals.lib", path);
         if (extension.getAdditionalContent().stream().anyMatch(additionalContent -> additionalContent instanceof ThirdPartyModule && ((ThirdPartyModule) additionalContent).getGroupId().equals(Constants.SIMPLE_INVENTORIES_GROUP_ID))) {

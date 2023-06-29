@@ -48,7 +48,7 @@ public class SLibExtension {
     @Nullable
     private String multiModuleApiSubproject;
     /**
-     * Class name the wrapper class will be relocated to.
+     * Package name the wrapper class will be relocated to.
      */
     @Nullable
     private String multiModuleApiSubprojectApiUtilsWrapperRelocation;
@@ -215,14 +215,14 @@ public class SLibExtension {
     }
 
     /**
-     * Sets the name of the api subproject. This subproject is optional. Also sets the class name Wrapper class will be relocated to.
+     * Sets the name of the api subproject. This subproject is optional. Also sets the package name Wrapper class and other slib api classes will be relocated to.
      *
      * @param api api subproject name
-     * @param wrapperClassName the new wrapper class name
+     * @param slibApiPackage the new slib api package
      */
-    public void multiModuleApiSubproject(@NotNull String api, @Nullable String wrapperClassName) {
+    public void multiModuleApiSubproject(@NotNull String api, @Nullable String slibApiPackage) {
         this.multiModuleApiSubproject = api;
-        this.multiModuleApiSubprojectApiUtilsWrapperRelocation = wrapperClassName;
+        this.multiModuleApiSubprojectApiUtilsWrapperRelocation = slibApiPackage;
     }
 
     /**

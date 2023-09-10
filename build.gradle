@@ -6,7 +6,7 @@ if (!ciCdOptimized) {
     defaultTasks.add('publishToMavenLocal')
 }
 
-if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
+if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
     defaultTasks.add('publish')
 }
 
@@ -30,22 +30,6 @@ subprojects {
     }
 
     publishing {
-        if (System.getenv("GITLAB_REPO") != null) {
-            repositories {
-                maven {
-                    url System.getenv("GITLAB_REPO")
-                    name "GitLab"
-                    credentials(HttpHeaderCredentials) {
-                        name = 'Private-Token'
-                        value = System.getenv("GITLAB_TOKEN")
-                    }
-                    authentication {
-                        header(HttpHeaderAuthentication)
-                    }
-                }
-            }
-        }
-
         if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
             repositories {
                 maven {
@@ -61,6 +45,12 @@ subprojects {
         }
     }
 
-    sourceCompatibility = 11
+    java {
+        sourceCompatibility = 11
+    }
+
+    compileJava {
+        options.compilerArgs << '-Xlint:deprecation'
+    }
 }
 

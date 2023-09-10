@@ -157,7 +157,7 @@ public class SLibPlugin implements Plugin<Project> {
                 }
                 if (multiModuleProject) {
                     var compileJava = project1.getTasks().withType(JavaCompile.class).getByName("compileJava");
-                    var file = project.project(":" + extension.getMultiModuleCommonSubproject()).getBuildDir().toPath().resolve("slib/pluginName.txt").toAbsolutePath().toString();
+                    var file = project.project(":" + extension.getMultiModuleCommonSubproject()).getLayout().getBuildDirectory().file("slib/pluginName.txt").get().getAsFile().getAbsolutePath();
                     if (extension.getMultiModuleCommonSubproject().equals(project1.getName())) {
                         compileJava.getOptions().getCompilerArgs().add("-AlookForPluginAndSaveFullClassNameTo=" + file);
                     } else {

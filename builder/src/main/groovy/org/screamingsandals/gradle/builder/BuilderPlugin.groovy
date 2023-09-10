@@ -14,8 +14,6 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.bundling.Jar
 import org.screamingsandals.gradle.builder.debug.TestTaskBuilder
-import org.screamingsandals.gradle.builder.dependencies.Dependencies
-import org.screamingsandals.gradle.builder.maven.GitlabRepository
 import org.screamingsandals.gradle.builder.maven.NexusRepository
 import org.screamingsandals.gradle.builder.repositories.Repositories
 import org.screamingsandals.gradle.builder.webhook.DiscordWebhookExtension
@@ -34,7 +32,6 @@ class BuilderPlugin implements Plugin<Project> {
         }
 
         Repositories.registerRepositoriesMethods(project)
-        Dependencies.registerDependenciesMethods(project)
 
         project.repositories {
             mavenCentral()
@@ -74,7 +71,7 @@ class BuilderPlugin implements Plugin<Project> {
             }
         }
 
-        if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
+        if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
             project.task('sourceJar', type: Jar) {
                 it.classifier 'sources'
                 from project.sourceSets.main.allJava
@@ -156,7 +153,7 @@ class BuilderPlugin implements Plugin<Project> {
                 it.classifier = ""
             }
 
-            if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
+            if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
                 it.artifact(project.tasks.sourceJar)
             }
 
@@ -204,10 +201,6 @@ class BuilderPlugin implements Plugin<Project> {
         List tasks = ["build"]
 
         if (!project.hasProperty('disablePublishingToMaven') || !project.property('disablePublishingToMaven')) {
-            if (System.getenv("GITLAB_REPO") != null) {
-                new GitlabRepository().setup(project, publishing)
-            }
-
             if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
                 new NexusRepository().setup(project, publishing)
             }
@@ -216,7 +209,7 @@ class BuilderPlugin implements Plugin<Project> {
                 tasks.add("publishToMavenLocal")
             }
 
-            if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
+            if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
                 tasks.add("publish")
             }
         }

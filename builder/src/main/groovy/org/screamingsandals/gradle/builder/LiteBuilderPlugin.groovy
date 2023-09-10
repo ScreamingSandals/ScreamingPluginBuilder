@@ -9,8 +9,6 @@ import org.gradle.api.plugins.JavaLibraryPlugin
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import org.screamingsandals.gradle.builder.dependencies.Dependencies
-import org.screamingsandals.gradle.builder.maven.GitlabRepository
 import org.screamingsandals.gradle.builder.maven.NexusRepository
 import org.screamingsandals.gradle.builder.repositories.Repositories
 import io.freefair.gradle.plugins.lombok.LombokPlugin
@@ -27,7 +25,6 @@ class LiteBuilderPlugin implements Plugin<Project> {
         }
 
         Repositories.registerRepositoriesMethods(project)
-        Dependencies.registerDependenciesMethods(project)
 
         project.repositories {
             mavenCentral()
@@ -114,10 +111,6 @@ class LiteBuilderPlugin implements Plugin<Project> {
             }
         }
 
-        if (System.getenv("GITLAB_REPO") != null) {
-            new GitlabRepository().setup(project, publishing)
-        }
-
         if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
             new NexusRepository().setup(project, publishing)
         }
@@ -128,7 +121,7 @@ class LiteBuilderPlugin implements Plugin<Project> {
             tasks.add("publishToMavenLocal")
         }
 
-        if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
+        if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
             tasks.add("publish")
         }
 

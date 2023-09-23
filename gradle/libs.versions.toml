@@ -1,17 +1,17 @@
 [versions]
-shadow = "7.1.2"
-lombok = "6.5.0.3"
+shadow = "8.1.1"
+lombok = "8.3"
 jsch = "0.1.55"
-gson = "2.8.7"
+gson = "2.10.1"
 licenser = "0.6.1"
-jetbrains-annotations = "23.0.0"
+jetbrains-annotations = "24.0.1"
 
 # compile only
 projectlombok = "1.18.24"
 kotlin = "1.6.0"
 
 [libraries]
-shadow = { group = "gradle.plugin.com.github.johnrengelman", name = "shadow", version.ref = "shadow" }
+shadow = { group = "com.github.johnrengelman", name = "shadow", version.ref = "shadow" }
 licenser = { group = "gradle.plugin.org.cadixdev.gradle", name = "licenser", version.ref = "licenser" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 jsch = { group = "com.jcraft", name = "jsch", version.ref = "jsch" }

@@ -76,7 +76,7 @@ class BuilderPlugin implements Plugin<Project> {
 
         if (System.getenv("GITLAB_REPO") != null || (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null)) {
             project.task('sourceJar', type: Jar) {
-                it.classifier 'sources'
+                it.archiveClassifier = 'sources'
                 from project.sourceSets.main.allJava
             }
         }
@@ -89,7 +89,7 @@ class BuilderPlugin implements Plugin<Project> {
             }
 
             project.task('javadocJar', type: Jar, dependsOn: project.javadoc) {
-                it.classifier = 'javadoc'
+                it.archiveClassifier = 'javadoc'
                 from project.javadoc
             }
 

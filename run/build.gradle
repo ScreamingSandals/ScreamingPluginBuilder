@@ -1,0 +1,8 @@
+gradlePlugin {
+    plugins {
+        pluginRun {
+            id = 'org.screamingsandals.plugin-run'
+            implementationClass = 'org.screamingsandals.gradle.run.RunPlugin'
+        }
+    }
+}

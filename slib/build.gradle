@@ -5,7 +5,7 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        pluginBuilder {
+        pluginSlib {
             id = 'org.screamingsandals.plugin-slib'
             implementationClass = 'org.screamingsandals.gradle.slib.SLibPlugin'
         }

@@ -22,3 +22,4 @@ kotlin-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin",
 kotlin-sam = { group = "org.jetbrains.kotlin", name = "kotlin-sam-with-receiver", version.ref = "kotlin" }
 
 [plugins]
+licenser = { id = "org.cadixdev.licenser", version.ref = "licenser" }

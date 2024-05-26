@@ -1,3 +1,7 @@
+plugins {
+    alias libs.plugins.licenser apply false
+}
+
 defaultTasks 'clean', 'build'
 
 def ciCdOptimized = System.getenv("OPTIMIZE_FOR_CI_CD") == "1"
@@ -14,6 +18,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'java-gradle-plugin'
     apply plugin: 'maven-publish'
+    apply plugin: 'org.cadixdev.licenser'
 
     repositories {
         mavenCentral()
@@ -51,6 +56,14 @@ subprojects {
 
     compileJava {
         options.compilerArgs << '-Xlint:deprecation'
+    }
+
+    license {
+        header = rootProject.file("license_header.txt")
+        ignoreFailures = true
+        properties {
+            year = Calendar.getInstance().get(Calendar.YEAR)
+        }
     }
 }
 

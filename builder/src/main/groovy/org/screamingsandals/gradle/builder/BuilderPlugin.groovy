@@ -44,7 +44,7 @@ class BuilderPlugin implements Plugin<Project> {
         }
 
         project.dependencies {
-            compileOnly 'org.jetbrains:annotations:23.0.0'
+            compileOnly 'org.jetbrains:annotations:24.1.0'
         }
 
         project.dependencies.ext['screaming'] = { String lib, String version ->
@@ -73,7 +73,7 @@ class BuilderPlugin implements Plugin<Project> {
 
         if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
             project.task('sourceJar', type: Jar) {
-                it.classifier 'sources'
+                it.archiveClassifier = 'sources'
                 from project.sourceSets.main.allJava
             }
         }
@@ -86,7 +86,7 @@ class BuilderPlugin implements Plugin<Project> {
             }
 
             project.task('javadocJar', type: Jar, dependsOn: project.javadoc) {
-                it.classifier = 'javadoc'
+                it.archiveClassifier = 'javadoc'
                 from project.javadoc
             }
 

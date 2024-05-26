@@ -1,13 +1,13 @@
 [versions]
 shadow = "8.1.1"
-lombok = "8.3"
+lombok = "8.6"
 jsch = "0.1.55"
 gson = "2.10.1"
 licenser = "0.6.1"
-jetbrains-annotations = "24.0.1"
+jetbrains-annotations = "24.1.0"
 
 # compile only
-projectlombok = "1.18.28"
+projectlombok = "1.18.32"
 kotlin = "1.9.10"
 
 [libraries]

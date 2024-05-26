@@ -14,21 +14,8 @@
  * limitations under the License.
  */
 
-package org.screamingsandals.gradle.run;
+package org.screamingsandals.gradle.run.config;
 
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.jetbrains.annotations.NotNull;
-
-public class RunPlugin implements Plugin<Project> {
-    @Override
-    public void apply(@NotNull Project project) {
-        var extension = project.getExtensions().create("runTestServer", RunTestServerExtension.class);
-
-        project.afterEvaluate(p1 -> {
-            if (!extension.getVersions().isEmpty()) {
-                // TODO
-            }
-        });
-    }
+public enum Platform {
+    PAPER;
 }

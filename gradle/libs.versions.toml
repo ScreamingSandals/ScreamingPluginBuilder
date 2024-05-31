@@ -1,5 +1,5 @@
 [versions]
-shadow = "8.1.1"
+shadow = "8.1.7"
 lombok = "8.6"
 jsch = "0.1.55"
 gson = "2.10.1"
@@ -11,7 +11,7 @@ projectlombok = "1.18.32"
 kotlin = "1.6.0"
 
 [libraries]
-shadow = { group = "com.github.johnrengelman", name = "shadow", version.ref = "shadow" }
+shadow = { group = "io.github.goooler.shadow", name = "shadow-gradle-plugin", version.ref = "shadow" }
 licenser = { group = "gradle.plugin.org.cadixdev.gradle", name = "licenser", version.ref = "licenser" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 jsch = { group = "com.jcraft", name = "jsch", version.ref = "jsch" }

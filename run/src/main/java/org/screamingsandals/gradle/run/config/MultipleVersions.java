@@ -53,6 +53,11 @@ public class MultipleVersions implements Iterable<@NotNull Version> {
     }
 
     public void serverProperties(@NotNull Action<@NotNull ServerProperties> callback) {
+        for (var version : versions) {
+            if (!version.getPlatform().supportsServerProperties()) {
+                throw new UnsupportedOperationException("Platform of type " + version.getPlatform() + " does not support server.properties");
+            }
+        }
         callback.execute(new MultipleServerProperties(versions));
     }
 

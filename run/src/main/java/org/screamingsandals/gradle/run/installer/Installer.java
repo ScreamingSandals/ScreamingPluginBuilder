@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package org.screamingsandals.gradle.run.config;
+package org.screamingsandals.gradle.run.installer;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface ServerProperties {
-    void property(@NotNull String key, @NotNull String value);
+import java.io.File;
 
-    void port(int port);
-
-    void onlineMode(boolean onlineMode);
+public interface Installer {
+    @NotNull File install(@NotNull String version, @NotNull File folder, boolean forceUpdate) throws Exception;
 }

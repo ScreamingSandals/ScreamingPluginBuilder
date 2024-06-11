@@ -14,38 +14,39 @@
  * limitations under the License.
  */
 
-package org.screamingsandals.gradle.run.utils;
+package org.screamingsandals.gradle.run.installer;
 
-import lombok.experimental.UtilityClass;
+import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.screamingsandals.gradle.run.api.Bibliothek;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@UtilityClass
-public final class ServerPreparation {
-    public static File prepareServer(@NotNull File testServerDirectory, @NotNull String version, boolean forceUpdate) throws URISyntaxException, IOException {
-        if (!testServerDirectory.exists()) {
-            testServerDirectory.mkdirs();
+@RequiredArgsConstructor
+public class BibliothekInstaller implements Installer {
+    private final @NotNull String bibliothekApiUrl;
+    private final @NotNull String project;
+
+    @Override
+    public @NotNull File install(@NotNull String version, @NotNull File folder, boolean forceUpdate) throws Exception {
+        if (!folder.exists()) {
+            folder.mkdirs();
         }
 
-        // TODO: abstract following lines
-        Bibliothek api = new Bibliothek("https://api.papermc.io");
-
         System.out.println("Preparing server.jar");
-        var serverJar = new File(testServerDirectory, "server.jar");
+        var serverJar = new File(project, "server.jar"); // TODO: shared-cache?
         if (!serverJar.exists() || forceUpdate) {
-            var latestBuild = api.getLatestBuild("paper", version);
+            Bibliothek api = new Bibliothek(bibliothekApiUrl);
+
+            var latestBuild = api.getLatestBuild(project, version);
 
             if (latestBuild == 0) {
                 throw new RuntimeException("Can't obtain build number for version " + version);
             }
 
-            var downloadUrl = api.getDownloadUrl("paper", version, latestBuild);
+            var downloadUrl = api.getDownloadUrl(project, version, latestBuild);
 
             Files.copy(Path.of(downloadUrl), serverJar.toPath());
         }

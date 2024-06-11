@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.screamingsandals.gradle.run.config;
+package org.screamingsandals.gradle.run.utils;
 
+import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
-public interface ServerProperties {
-    void property(@NotNull String key, @NotNull String value);
+@UtilityClass
+public class Constants {
+    public static final @NotNull String TASK_GROUP = "Run Test Server";
 
-    void port(int port);
-
-    void onlineMode(boolean onlineMode);
+    public static final @NotNull String SHADOW_JAR_TASK = "shadowJar";
 }

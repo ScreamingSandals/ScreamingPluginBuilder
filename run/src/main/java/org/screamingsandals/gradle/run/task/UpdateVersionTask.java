@@ -16,28 +16,36 @@
 
 package org.screamingsandals.gradle.run.task;
 
-import lombok.Setter;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.Internal;
+import org.gradle.api.provider.Property;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
-import org.jetbrains.annotations.Nullable;
-import org.screamingsandals.gradle.run.utils.ServerPreparation;
+import org.jetbrains.annotations.NotNull;
+import org.screamingsandals.gradle.run.config.Platform;
+import org.screamingsandals.gradle.run.utils.Constants;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
+public abstract class UpdateVersionTask extends DefaultTask {
+    @Input
+    public abstract @NotNull Property<Platform> getPlatform();
 
-public class UpdateVersionTask extends DefaultTask {
-    @Internal
-    @Setter
-    private @Nullable String version;
-    @Internal
-    @Setter
-    private @Nullable String subDirectory;
+    @Input
+    public abstract @NotNull Property<String> getVersion();
+
+    @Input
+    public abstract @NotNull Property<String> getSubDirectory();
+
+    public UpdateVersionTask() {
+        setGroup(Constants.TASK_GROUP);
+    }
 
     @TaskAction
-    public void run() throws URISyntaxException, IOException {
-        var testServerDirectory = this.getProject().file("test-environment/" + subDirectory + "/" + version);
+    public void run() throws Exception {
+        var testServerDirectory = this.getProject().file(getSubDirectory().get());
 
-        ServerPreparation.prepareServer(testServerDirectory, version, true);
+        try {
+            getPlatform().get().obtainInstaller().install(getVersion().get(), testServerDirectory, true);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to update server " + getPlatform().get() + " version " + getVersion().get(), e);
+        }
     }
 }

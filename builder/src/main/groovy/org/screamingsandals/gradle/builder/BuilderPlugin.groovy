@@ -29,9 +29,7 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.api.tasks.bundling.Jar
-import org.screamingsandals.gradle.builder.debug.TestTaskBuilder
 import org.screamingsandals.gradle.builder.maven.NexusRepository
-import org.screamingsandals.gradle.builder.repositories.Repositories
 import org.screamingsandals.gradle.builder.webhook.DiscordWebhookExtension
 import io.freefair.gradle.plugins.lombok.LombokPlugin
 
@@ -45,30 +43,6 @@ class BuilderPlugin implements Plugin<Project> {
             plugin MavenPublishPlugin.class
             plugin LombokPlugin.class
             plugin JavaLibraryPlugin.class
-        }
-
-        Repositories.registerRepositoriesMethods(project)
-
-        project.repositories {
-            mavenCentral()
-            //mavenLocal()
-
-            screaming()
-            sonatype()
-            paper()
-            spigotmc()
-        }
-
-        project.dependencies {
-            compileOnly 'org.jetbrains:annotations:24.1.0'
-        }
-
-        project.dependencies.ext['screaming'] = { String lib, String version ->
-            return "org.screamingsandals.lib:$lib:$version"
-        }
-
-        project.ext['prepareTestTask'] = {
-            return new TestTaskBuilder(project)
         }
 
         var headerFile = project.getRootProject().file("license_header.txt")
@@ -95,8 +69,6 @@ class BuilderPlugin implements Plugin<Project> {
         }
 
         if (System.getenv('JAVADOC_HOST') != null) {
-            def srcmain = project.file("src/main");
-
             project.javadoc {
                 options.addBooleanOption('html5', true)
             }

@@ -16,23 +16,35 @@
 
 package org.screamingsandals.gradle.run;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.gradle.api.Action;
+import org.gradle.api.file.RegularFile;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.screamingsandals.gradle.run.config.MultipleVersions;
 import org.screamingsandals.gradle.run.config.Platform;
 import org.screamingsandals.gradle.run.config.Version;
 
-import java.nio.file.Path;
+import javax.inject.Inject;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 @Data
+@RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class RunTestServerExtension {
+    @Getter(AccessLevel.NONE)
+    private final @NotNull ProviderFactory providers;
     private @NotNull List<@NotNull Version> versions = new ArrayList<>();
-    private @Nullable Path pluginJar;
+    private @Nullable Provider<RegularFile> pluginJar;
+    private @NotNull String testingDirectory = "test-environment";
 
     public @NotNull Version version(@NotNull Version version) {
         this.versions.add(version);
@@ -97,7 +109,16 @@ public class RunTestServerExtension {
         return versions(Platform.PAPER, versions, callback);
     }
 
-    public void pluginJar(@NotNull Path pluginJar) {
+    public void pluginJar(@NotNull Provider<RegularFile> pluginJar) {
         this.pluginJar = pluginJar;
+    }
+
+    @ApiStatus.Obsolete
+    public void pluginJar(@NotNull File pluginJar) {
+        this.pluginJar = providers.provider(() -> () -> pluginJar);
+    }
+
+    public void testingDirectory(@NotNull String testingDirectory) {
+        this.testingDirectory = testingDirectory;
     }
 }

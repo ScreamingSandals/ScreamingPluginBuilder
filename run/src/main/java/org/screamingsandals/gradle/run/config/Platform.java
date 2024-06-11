@@ -16,6 +16,34 @@
 
 package org.screamingsandals.gradle.run.config;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
+import org.jetbrains.annotations.NotNull;
+import org.screamingsandals.gradle.run.installer.Installer;
+import org.screamingsandals.gradle.run.installer.BibliothekInstaller;
+
+@RequiredArgsConstructor
+@Getter
+@Accessors(fluent = true)
 public enum Platform {
-    PAPER;
+    PAPER(true, true, "plugins", true) {
+        @Override
+        public @NotNull Installer obtainInstaller() {
+            return new BibliothekInstaller("https://api.papermc.io", "paper");
+        }
+    },
+    FOLIA(true, true, "plugins", true) {
+        @Override
+        public @NotNull Installer obtainInstaller() {
+            return new BibliothekInstaller("https://api.papermc.io", "folia");
+        }
+    };
+
+    private final boolean supportsServerProperties;
+    private final boolean hasEula;
+    private final @NotNull String pluginDirName;
+    private final boolean supportsPluginAsParameter;
+
+    public abstract @NotNull Installer obtainInstaller();
 }

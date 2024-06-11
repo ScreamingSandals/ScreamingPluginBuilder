@@ -19,6 +19,7 @@ package org.screamingsandals.gradle.run.config;
 import lombok.Data;
 import org.gradle.api.Action;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,15 +30,32 @@ public class Version {
     private final @NotNull Platform platform;
     private final @NotNull String version;
     private @NotNull String subDirectory;
-    private final @NotNull SingleServerProperties serverProperties = new SingleServerProperties();
+    private final @Nullable SingleServerProperties serverProperties;
     private @NotNull List<@NotNull String> args = new ArrayList<>(List.of("nogui"));
     private @NotNull List<@NotNull String> jvmArgs = new ArrayList<>();
+
+    public Version(@NotNull Platform platform, @NotNull String version, @NotNull String subDirectory) {
+        this.platform = platform;
+        this.version = version;
+        this.subDirectory = subDirectory;
+        this.serverProperties = platform.supportsServerProperties() ? new SingleServerProperties() : null;
+    }
+
+    public @NotNull SingleServerProperties getServerProperties() {
+        if (serverProperties == null) {
+            throw new UnsupportedOperationException("Platform of type " + platform + " does not support server.properties");
+        }
+        return serverProperties;
+    }
 
     public void subDirectory(@NotNull String subDirectory) {
         this.subDirectory = subDirectory;
     }
 
     public void serverProperties(@NotNull Action<@NotNull ServerProperties> callback) {
+        if (serverProperties == null) {
+            throw new UnsupportedOperationException("Platform of type " + platform + " does not support server.properties");
+        }
         callback.execute(serverProperties);
     }
 

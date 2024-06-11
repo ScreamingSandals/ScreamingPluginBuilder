@@ -26,7 +26,6 @@ import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.screamingsandals.gradle.builder.maven.NexusRepository
-import org.screamingsandals.gradle.builder.repositories.Repositories
 import io.freefair.gradle.plugins.lombok.LombokPlugin
 
 class LiteBuilderPlugin implements Plugin<Project> {
@@ -38,16 +37,6 @@ class LiteBuilderPlugin implements Plugin<Project> {
         project.apply {
             plugin MavenPublishPlugin.class
             plugin JavaLibraryPlugin.class
-        }
-
-        Repositories.registerRepositoriesMethods(project)
-
-        project.repositories {
-            mavenCentral()
-        }
-
-        project.dependencies.ext['screaming'] = { String lib, String version ->
-            return "org.screamingsandals.lib:$lib:$version"
         }
 
         PublishingExtension publishing = project.extensions.getByName("publishing")

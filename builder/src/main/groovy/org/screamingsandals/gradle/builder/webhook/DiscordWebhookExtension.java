@@ -14,21 +14,27 @@
  * limitations under the License.
  */
 
-package org.screamingsandals.gradle.builder.webhook
+package org.screamingsandals.gradle.builder.webhook;
 
-import org.gradle.api.Project
+import lombok.Data;
+import org.gradle.api.Project;
+import org.jetbrains.annotations.NotNull;
 
-class DiscordWebhookExtension {
-    String url
-    String title
-    String content
-    String buildInformationUrl
-    List<String> allowedClassifiersAndExtensions = []
+import java.util.ArrayList;
+import java.util.List;
 
-    static def registerTask(Project project) {
-        if (System.getenv("OPTIMIZE_FOR_CI_CD") == "1") {
-            project.tasks.create("discord", DiscordWebhookTask)
-            project.tasks.getByName("screamCompile").dependsOn += "discord"
+@Data
+public class DiscordWebhookExtension {
+    private @NotNull String url;
+    private @NotNull String title;
+    private @NotNull String content;
+    private @NotNull String buildInformationUrl;
+    private @NotNull List<@NotNull String> allowedClassifiersAndExtensions = new ArrayList<>();
+
+    public static void registerTask(@NotNull Project project) {
+        if ("1".equals(System.getenv("OPTIMIZE_FOR_CI_CD"))) {
+            project.getTasks().create("discord", DiscordWebhookTask.class);
+            project.getTasks().getByName("screamCompile").dependsOn("discord");
         }
     }
 }

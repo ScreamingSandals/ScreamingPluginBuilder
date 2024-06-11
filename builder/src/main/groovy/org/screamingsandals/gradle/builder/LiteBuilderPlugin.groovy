@@ -16,17 +16,12 @@
 
 package org.screamingsandals.gradle.builder
 
-import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
-import org.cadixdev.gradle.licenser.Licenser
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.SelfResolvingDependency
 import org.gradle.api.plugins.JavaLibraryPlugin
 import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.screamingsandals.gradle.builder.maven.NexusRepository
-import io.freefair.gradle.plugins.lombok.LombokPlugin
 
 class LiteBuilderPlugin implements Plugin<Project> {
 
@@ -41,79 +36,19 @@ class LiteBuilderPlugin implements Plugin<Project> {
 
         PublishingExtension publishing = project.extensions.getByName("publishing")
         if (System.getProperty("LITE_SKIP_PUBLICATION_CREATION") != "yes") {
-            def maven = publishing.publications.create("maven", MavenPublication) {
-                if (!project.ext.has('onlyPomArtifact') || !project.ext['onlyPomArtifact']) {
-                    it.artifact(project.tasks.jar)
-                }
-
-                it.artifacts.every {
-                    it.classifier = ""
-                }
-
-                it.pom.withXml {
-                    def dependenciesNode = asNode().appendNode("dependencies")
-                    project.configurations.compileOnly.dependencies.each {
-                        if (!(it instanceof SelfResolvingDependency)) {
-                            def dependencyNode = dependenciesNode.appendNode('dependency')
-                            dependencyNode.appendNode('groupId', it.group)
-                            dependencyNode.appendNode('artifactId', it.name)
-                            dependencyNode.appendNode('version', it.version)
-                            dependencyNode.appendNode('scope', 'provided')
-                        }
-                    }
-                    if (!project.tasks.findByName("shadowJar")) {
-                        project.configurations.api.dependencies.each {
-                            def dependencyNode = dependenciesNode.appendNode('dependency')
-                            dependencyNode.appendNode('groupId', it.group)
-                            dependencyNode.appendNode('artifactId', it.name)
-                            dependencyNode.appendNode('version', it.version)
-                            dependencyNode.appendNode('scope', 'compile')
-                        }
-                    }
-                }
-            }
+            def pair = Utilities.setupPublishing(project, !project.ext.has('onlyPomArtifact') || !project.ext['onlyPomArtifact'], false, false).publication
 
             project.ext['enableShadowPlugin'] = {
-                project.apply {
-                    plugin ShadowPlugin.class
-                }
-
-                project.tasks.getByName("screamCompile").dependsOn -= "build"
-                project.tasks.getByName("screamCompile").dependsOn += "shadowJar"
-
-                maven.each {
-                    it.getArtifacts().removeIf {
-                        it.buildDependencies.getDependencies().contains(project.tasks.jar)
-                    }
-                    it.artifact(project.tasks.shadowJar) {
-                        it.classifier = ""
-                    }
-                }
+                Utilities.enableShadowPlugin(project, maven)
             }
         }
 
         project.ext['configureLombok'] = { iit ->
-            project.apply {
-                plugin LombokPlugin.class
-            }
+            Utilities.configureLombok(project)
         }
 
         project.ext['configureLicenser'] = { iit ->
-            var headerFile = project.getRootProject().file("license_header.txt")
-
-            if (headerFile.exists()) {
-                project.apply {
-                    plugin Licenser.class
-                }
-
-                project.license {
-                    header = headerFile
-                    ignoreFailures = true
-                    properties {
-                        year = Calendar.getInstance().get(Calendar.YEAR)
-                    }
-                }
-            }
+            Utilities.configureLicenser(project)
         }
 
         if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {

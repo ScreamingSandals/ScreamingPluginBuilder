@@ -3,8 +3,6 @@ plugins {
 }
 
 dependencies {
-    compileOnly localGroovy()
-
     implementation libs.lombok
     implementation libs.jsch
     implementation libs.gson
@@ -17,10 +15,6 @@ gradlePlugin {
         pluginBuilder {
             id = 'org.screamingsandals.plugin-builder'
             implementationClass = 'org.screamingsandals.gradle.builder.BuilderPlugin'
-        }
-        pluginBuilderLite {
-            id = 'org.screamingsandals.plugin-builder-lite'
-            implementationClass = 'org.screamingsandals.gradle.builder.LiteBuilderPlugin'
         }
     }
 }

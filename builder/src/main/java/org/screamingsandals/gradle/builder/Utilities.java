@@ -33,7 +33,9 @@ import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.screamingsandals.gradle.builder.maven.NexusRepository;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.function.Predicate;
 
@@ -87,11 +89,6 @@ public class Utilities {
 
     public static void configureShadowPlugin(@NotNull Project project, @Nullable MavenPublication maven) {
         project.apply(it -> it.plugin(ShadowPlugin.class));
-
-        var dependsOn = project.getTasks().getByName("screamCompile").getDependsOn();
-        dependsOn.remove("build");
-        dependsOn.add("shadowJar");
-        project.getTasks().getByName("screamCompile").setDependsOn(dependsOn);
 
         if (maven != null) {
             maven.getArtifacts().removeIf(it -> it.getBuildDependencies().getDependencies(null).contains(project.getTasks().getByName("jar")));
@@ -153,6 +150,47 @@ public class Utilities {
             } else {
                 it.from(sourceSets.getByName("main").getAllJava());
             }
+        });
+    }
+
+    public static void setupAllowJavadocUploadTask(@NotNull Project project) {
+        project.getTasks().create("allowJavadocUpload", it -> {
+            if (project.getTasks().findByName("uploadJavadoc") != null) {
+                it.dependsOn("uploadJavadoc");
+            }
+        });
+    }
+
+    public static void setupMavenRepositoriesFromProperties(@NotNull Project project) {
+        var publishing = (PublishingExtension) project.getExtensions().getByName("publishing");
+        if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
+            new NexusRepository().setup(project, publishing);
+        }
+    }
+
+    public static void configureScreamCompileTask(@NotNull Project project, boolean mavenPublishing, boolean disableMavenLocal) {
+        project.afterEvaluate(it -> {
+            var hasShadowPlugin = project.getTasks().findByName("shadowJar") != null;
+
+            var tasks = new ArrayList<String>();
+
+            if (hasShadowPlugin) {
+                tasks.add("shadowJar");
+            } else {
+                tasks.add("build");
+            }
+
+            if (mavenPublishing) {
+                if (!disableMavenLocal) {
+                    tasks.add("publishToMavenLocal");
+                }
+
+                var publishing = (PublishingExtension) project.getExtensions().findByName("publishing");
+                if (publishing != null && !publishing.getRepositories().isEmpty()) {
+                    tasks.add("publish");
+                }
+            }
+            project.getTasks().create("screamCompile").setDependsOn(tasks);
         });
     }
 

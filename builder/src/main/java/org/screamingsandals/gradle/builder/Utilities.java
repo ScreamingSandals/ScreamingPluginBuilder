@@ -24,12 +24,18 @@ import org.cadixdev.gradle.licenser.LicenseExtension;
 import org.cadixdev.gradle.licenser.Licenser;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.SelfResolvingDependency;
+import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
+import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.bundling.Jar;
+import org.gradle.api.tasks.javadoc.Javadoc;
+import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Calendar;
+import java.util.function.Predicate;
 
 @UtilityClass
 public class Utilities {
@@ -110,6 +116,44 @@ public class Utilities {
                 it.set("year", Calendar.getInstance().get(Calendar.YEAR));
             });
         }
+    }
+
+    public static void configureJavadocTasks(@NotNull Project project) {
+        var task = project.getTasks().getByName("javadoc", javadocTask -> {
+           if (!(javadocTask instanceof Javadoc)) {
+               throw new IllegalArgumentException("Expected javadoc task, got " + javadocTask);
+           }
+           var javadoc = (Javadoc) javadocTask;
+           javadoc.options(op -> {
+               ((CoreJavadocOptions) op).addBooleanOption("html5", true);
+           });
+        });
+
+        project.getTasks().create("javadocJar", Jar.class, it -> {
+            it.dependsOn(task);
+            it.getArchiveClassifier().set("javadoc");
+            it.from(task);
+        });
+    }
+
+    public static void configureSourceJarTasks(@NotNull Project project) {
+        configureSourceJarTasks(project, null);
+    }
+
+    public static void configureSourceJarTasks(@NotNull Project project, @Nullable Predicate<@NotNull SourceSet> sourceSetSelector) {
+        project.getTasks().create("sourceJar", Jar.class, it -> {
+            it.getArchiveClassifier().set("sources");
+            var sourceSets = project.getExtensions().getByType(JavaPluginExtension.class).getSourceSets();
+            if (sourceSetSelector != null) {
+                sourceSets.forEach(sourceSet -> {
+                    if (sourceSetSelector.test(sourceSet)) {
+                        it.from(sourceSet.getAllJava());
+                    }
+                });
+            } else {
+                it.from(sourceSets.getByName("main").getAllJava());
+            }
+        });
     }
 
     @Data

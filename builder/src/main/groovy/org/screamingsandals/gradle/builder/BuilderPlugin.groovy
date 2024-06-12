@@ -16,16 +16,12 @@
 
 package org.screamingsandals.gradle.builder
 
-import com.jcraft.jsch.ChannelSftp
-import com.jcraft.jsch.JSch
-import com.jcraft.jsch.SftpException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaLibraryPlugin
-import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import org.gradle.api.tasks.bundling.Jar
 import org.screamingsandals.gradle.builder.maven.NexusRepository
+import org.screamingsandals.gradle.builder.tasks.JavadocUploadTask
 import org.screamingsandals.gradle.builder.webhook.DiscordWebhookExtension
 
 class BuilderPlugin implements Plugin<Project> {
@@ -43,89 +39,33 @@ class BuilderPlugin implements Plugin<Project> {
         Utilities.configureLicenser(project)
 
         if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
-            project.task('sourceJar', type: Jar) {
-                it.archiveClassifier = 'sources'
-                from project.sourceSets.main.allJava
-            }
+            Utilities.configureSourceJarTasks(project)
         }
 
         if (System.getenv('JAVADOC_HOST') != null) {
-            project.javadoc {
-                options.addBooleanOption('html5', true)
-            }
-
-            project.task('javadocJar', type: Jar, dependsOn: project.javadoc) {
-                it.archiveClassifier = 'javadoc'
-                from project.javadoc
-            }
+            Utilities.configureJavadocTasks(project)
 
             if (System.getenv('JAVADOC_HOST') != null && System.getenv('JAVADOC_USER') != null && System.getenv('JAVADOC_SECRET') != null) {
-                project.tasks.register("uploadJavadoc") {
-                    doLast {
-                        try {
-                            def projectJavadocDirectories
-                            def custom = System.getProperty("JavadocUploadCustomDirectoryPath")
-                            if (custom != null && !custom.isEmpty()) {
-                                if (project.getRootProject() == project) {
-                                    projectJavadocDirectories = [custom]
-                                } else {
-                                    projectJavadocDirectories = [custom, project.getName()]
-                                }
-                            } else {
-                                if (project.getRootProject() == project) {
-                                    projectJavadocDirectories = [project.getName()]
-                                } else {
-                                    projectJavadocDirectories = [project.getRootProject().getName(), project.getName()]
-                                }
-                            }
-
-                            def jsch = new JSch()
-                            def jschSession = jsch.getSession(System.getenv('JAVADOC_USER'), System.getenv('JAVADOC_HOST'))
-                            jschSession.setConfig("StrictHostKeyChecking", "no");
-                            jschSession.setPassword(System.getenv('JAVADOC_SECRET'))
-                            jschSession.connect()
-                            def sftpChannel = jschSession.openChannel("sftp") as ChannelSftp
-                            sftpChannel.connect()
-
-                            sftpChannel.cd("www")
-
-                            projectJavadocDirectories.forEach {
-                                try {
-                                    sftpChannel.cd(it)
-                                } catch (SftpException ignored) {
-                                    sftpChannel.mkdir(it)
-                                    sftpChannel.cd(it)
-                                }
-                            }
-
-                            recursiveClear(sftpChannel)
-
-                            recursiveFolderUpload(sftpChannel, project.file('build/docs/javadoc'))
-
-                            sftpChannel.disconnect()
-
-                            jschSession.disconnect()
-                        } catch (SftpException exception) {
-                            exception.printStackTrace()
-                        }
-                    }
-                    dependsOn('javadoc')
+                project.tasks.register("uploadJavadoc", JavadocUploadTask) {
+                    it.sftpHost = System.getenv('JAVADOC_HOST')
+                    it.sftpUser = System.getenv('JAVADOC_USER')
+                    it.sftpPassword = System.getenv('JAVADOC_SECRET')
+                    it.javaDocCustomDirectoryPath = System.getProperty("JavadocUploadCustomDirectoryPath")
                 }
             }
         }
 
-        PublishingExtension publishing = project.extensions.getByName("publishing")
-        def maven = Utilities.setupPublishing(project, false, System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null, false).publication
+        def maven = Utilities.setupPublishing(project, false, System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null, false)
 
         project.ext['enableShadowPlugin'] = {
-            Utilities.enableShadowPlugin(project, maven)
+            Utilities.enableShadowPlugin(project, maven.publication)
         }
 
         List tasks = ["build"]
 
         if (!project.hasProperty('disablePublishingToMaven') || !project.property('disablePublishingToMaven')) {
             if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
-                new NexusRepository().setup(project, publishing)
+                new NexusRepository().setup(project, maven.extension)
             }
 
             if (!ciCdOptimized) {
@@ -147,33 +87,4 @@ class BuilderPlugin implements Plugin<Project> {
             }
         }
     }
-
-    def static recursiveClear(ChannelSftp sftpChannel) {
-        sftpChannel.ls(".").forEach {
-            if (it.filename == "." || it.filename == "..")
-                return
-            if (it.attrs.dir) {
-                sftpChannel.cd(it.filename)
-                recursiveClear(sftpChannel)
-                sftpChannel.cd("..")
-                sftpChannel.rmdir(it.filename)
-            } else {
-                sftpChannel.rm(it.filename)
-            }
-        }
-    }
-
-    def static recursiveFolderUpload(ChannelSftp channelSftp, File sourceFolder) {
-        sourceFolder.listFiles().each {
-            if (it.isDirectory()) {
-                channelSftp.mkdir(it.getName())
-                channelSftp.cd(it.getName())
-                recursiveFolderUpload(channelSftp, it)
-                channelSftp.cd("..")
-            } else {
-                channelSftp.put(it.getAbsolutePath(), it.getName())
-            }
-        }
-    }
-
 }

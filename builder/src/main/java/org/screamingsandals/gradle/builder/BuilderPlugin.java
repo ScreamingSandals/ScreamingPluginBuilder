@@ -33,7 +33,6 @@ public class BuilderPlugin implements Plugin<Project> {
             it.plugin(JavaLibraryPlugin.class);
         });
 
-        Utilities.configureLombok(project);
         Utilities.configureLicenser(project);
 
         if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {

@@ -1,6 +1,7 @@
 dependencies {
     compileOnly libs.kotlin.plugin
     compileOnly libs.kotlin.sam
+    compileOnly libs.shadow
 }
 
 gradlePlugin {

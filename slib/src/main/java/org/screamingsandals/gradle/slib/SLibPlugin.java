@@ -31,35 +31,41 @@ import java.util.Map;
 public class SLibPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
-        project.apply(it -> {
-           it.plugin(ShadowPlugin.class);
-        });
-
-        project.getRepositories().add(project.getRepositories().mavenCentral());
-
-        if (project.getRepositories().findByName(Constants.SANDALS_REPO_NAME) == null) {
-            project.getRepositories().add(
-                    project.getRepositories().maven(it -> {
-                        it.setName(Constants.SANDALS_REPO_NAME);
-                        it.setUrl(Constants.SANDALS_REPO_URL);
-                    })
-            );
-        }
-
-        if (project.getRepositories().findByName(Constants.PAPER_REPO_NAME) == null) {
-            project.getRepositories().add(
-                    project.getRepositories().maven(it -> {
-                        it.setName(Constants.PAPER_REPO_NAME);
-                        it.setUrl(Constants.PAPER_REPO_URL);
-                    })
-            );
-        }
-
         var extension = project.getExtensions().create("slib", SLibExtension.class);
 
         project.afterEvaluate(project1 -> {
             if (extension.getVersion() == null) {
                 return; // Not configured
+            }
+
+            try {
+                Class.forName("com.github.jengelman.gradle.plugins.shadow.ShadowPlugin");
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("ScreamingLib plugin requires Shadow plugin to be present! Please add it", e);
+            }
+
+            if (!project.getPlugins().hasPlugin(ShadowPlugin.class)) {
+                throw new RuntimeException("Shadow plugin is loaded on the classpath, but ScreamingLib plugin requires it to be applied!");
+            }
+
+            project.getRepositories().add(project.getRepositories().mavenCentral()); // TODO: why are we adding this?
+
+            if (project.getRepositories().findByName(Constants.SANDALS_REPO_NAME) == null) {
+                project.getRepositories().add(
+                        project.getRepositories().maven(it -> {
+                            it.setName(Constants.SANDALS_REPO_NAME);
+                            it.setUrl(Constants.SANDALS_REPO_URL);
+                        })
+                );
+            }
+
+            if (project.getRepositories().findByName(Constants.PAPER_REPO_NAME) == null) {
+                project.getRepositories().add(
+                        project.getRepositories().maven(it -> {
+                            it.setName(Constants.PAPER_REPO_NAME);
+                            it.setUrl(Constants.PAPER_REPO_URL);
+                        })
+                );
             }
 
             if (project.getPlugins().hasPlugin("org.jetbrains.kotlin.jvm")) {
@@ -79,7 +85,7 @@ public class SLibPlugin implements Plugin<Project> {
                 dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":api-utils:" + extension.getVersion());
                 if (extension.getMultiModuleApiSubprojectApiUtilsWrapperRelocation() != null) {
                     var shadowJar = project1.getTasks().withType(ShadowJar.class).getByName("shadowJar");
-                    shadowJar.relocate("org.screamingsandals.lib.utils.Wrapper", extension.getMultiModuleApiSubprojectApiUtilsWrapperRelocation());
+                    shadowJar.relocate("org.screamingsandals.lib.api", extension.getMultiModuleApiSubprojectApiUtilsWrapperRelocation());
                 }
                 return;
             }

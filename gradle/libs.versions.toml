@@ -1,6 +1,5 @@
 [versions]
 shadow = "8.1.7"
-lombok = "8.6"
 jsch = "0.1.55"
 gson = "2.10.1"
 licenser = "0.6.1"
@@ -15,7 +14,6 @@ shadow = { group = "io.github.goooler.shadow", name = "shadow-gradle-plugin", ve
 licenser = { group = "gradle.plugin.org.cadixdev.gradle", name = "licenser", version.ref = "licenser" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 jsch = { group = "com.jcraft", name = "jsch", version.ref = "jsch" }
-lombok = { group = "io.freefair.gradle", name = "lombok-plugin", version.ref = "lombok" }
 jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version.ref = "jetbrains-annotations" }
 projectlombok = { group = "org.projectlombok", name = "lombok", version.ref = "projectlombok" }
 kotlin-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }

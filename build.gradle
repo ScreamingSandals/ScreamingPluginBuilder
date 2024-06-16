@@ -30,8 +30,6 @@ subprojects {
         compileOnly libs.projectlombok
         compileOnly libs.jetbrains.annotations
         annotationProcessor libs.projectlombok
-
-        implementation libs.shadow
     }
 
     publishing {

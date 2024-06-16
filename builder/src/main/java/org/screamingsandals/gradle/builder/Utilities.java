@@ -17,7 +17,6 @@
 package org.screamingsandals.gradle.builder;
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin;
-import io.freefair.gradle.plugins.lombok.LombokPlugin;
 import lombok.Data;
 import lombok.experimental.UtilityClass;
 import org.cadixdev.gradle.licenser.LicenseExtension;
@@ -94,10 +93,6 @@ public class Utilities {
             maven.getArtifacts().removeIf(it -> it.getBuildDependencies().getDependencies(null).contains(project.getTasks().getByName("jar")));
             maven.artifact(project.getTasks().getByName("shadowJar"), it -> it.setClassifier(""));
         }
-    }
-
-    public static void configureLombok(@NotNull Project project) {
-        project.apply(it -> it.plugin(LombokPlugin.class));
     }
 
     public static void configureLicenser(@NotNull Project project) {

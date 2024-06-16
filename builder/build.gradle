@@ -3,11 +3,9 @@ plugins {
 }
 
 dependencies {
-    implementation libs.lombok
     implementation libs.jsch
-    implementation libs.gson
     implementation libs.licenser
-    implementation project(':slib')
+    implementation libs.shadow
 }
 
 gradlePlugin {

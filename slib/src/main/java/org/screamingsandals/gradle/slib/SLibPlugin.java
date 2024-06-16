@@ -59,15 +59,6 @@ public class SLibPlugin implements Plugin<Project> {
                 );
             }
 
-            if (project.getRepositories().findByName(Constants.PAPER_REPO_NAME) == null) {
-                project.getRepositories().add(
-                        project.getRepositories().maven(it -> {
-                            it.setName(Constants.PAPER_REPO_NAME);
-                            it.setUrl(Constants.PAPER_REPO_URL);
-                        })
-                );
-            }
-
             if (project.getPlugins().hasPlugin("org.jetbrains.kotlin.jvm")) {
                 if (!extension.isDisableAutoKaptApplicationForKotlin() && !project.getPlugins().hasPlugin("org.jetbrains.kotlin.kapt")){
                     project.getPlugins().apply("org.jetbrains.kotlin.kapt");
@@ -98,7 +89,7 @@ public class SLibPlugin implements Plugin<Project> {
                 return;
             }
 
-            if (extension.getPlatforms().stream().allMatch(s -> s.equals("bungee") || s.equals("velocity"))) {
+            if (extension.getPlatforms().stream().allMatch(s -> "bungee".equals(s) || "velocity".equals(s))) {
                 // Proxy
                 if (multiModuleProject) {
                     if (extension.getMultiModuleCommonSubproject().equals(project1.getName())) {
@@ -122,7 +113,7 @@ public class SLibPlugin implements Plugin<Project> {
                         dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":proxy-" + s + ":" + extension.getVersion());
                     });
                 }
-            } else if (extension.getPlatforms().stream().noneMatch(s -> s.equals("bungee") || s.equals("velocity"))) {
+            } else if (extension.getPlatforms().stream().noneMatch(s -> "bungee".equals(s) || "velocity".equals(s))) {
                 // Core
                 if (multiModuleProject) {
                     if (extension.getMultiModuleCommonSubproject().equals(project1.getName())) {
@@ -185,6 +176,7 @@ public class SLibPlugin implements Plugin<Project> {
                     } else {
                         compileJava.getOptions().getCompilerArgs().add("-AusePluginClassFrom=" + file);
                     }
+                    compileJava.getOutputs().upToDateWhen(task -> false); // TODO: fix the code above to work with UP-TO-DATE tasks
                 }
             }
 
@@ -193,30 +185,37 @@ public class SLibPlugin implements Plugin<Project> {
              */
             if (!extension.isDisableCompilerTricks()
                     && (multiModuleProject ? "bukkit".equals(extension.getMultiModuleConfiguration().get(project1.getName())) : extension.getPlatforms().contains("bukkit"))) {
-                // TODO: check if there's no bukkit in classpath
-                try {
-                    var slibCompilationTricks = Files.createTempDirectory("slibCompilationTricks").toFile().getAbsoluteFile();
+                if (project.getConfigurations().stream().noneMatch(files -> files.getDependencies().stream().anyMatch(dependency ->
+                        (Constants.PAPER_API_GROUP.equals(dependency.getGroup()) && Constants.PAPER_API.equals(dependency.getName()))
+                                || (Constants.PAPER_DESTROYSTOKYO_API_GROUP.equals(dependency.getGroup()) && Constants.PAPER_DESTROYSTOKYO_API.equals(dependency.getName()))
+                                || (Constants.PAPERSPIGOT_API_GROUP.equals(dependency.getGroup()) && Constants.PAPERSPIGOT_API.equals(dependency.getName()))
+                                || (Constants.SPIGOT_API_GROUP.equals(dependency.getGroup()) && Constants.SPIGOT_API.equals(dependency.getName()))
+                                || (Constants.BUKKIT_GROUP.equals(dependency.getGroup()) && Constants.BUKKIT_API.equals(dependency.getName()))
+                ))) {
+                    try {
+                        var slibCompilationTricks = Files.createTempDirectory("slibCompilationTricks").toFile().getAbsoluteFile();
 
-                    var fakesMap = Map.of(
-                        "org/bukkit/plugin/java/JavaPlugin.class", "/fakes/JavaPlugin.class",
-                        "org/bukkit/plugin/Plugin.class", "/fakes/Plugin.class",
-                        "org/bukkit/plugin/PluginBase.class", "/fakes/PluginBase.class",
-                        "org/slf4j/Logger.class", "/fakes/Logger.class"
-                    );
+                        var fakesMap = Map.of(
+                                "org/bukkit/plugin/java/JavaPlugin.class", "/fakes/JavaPlugin.class",
+                                "org/bukkit/plugin/Plugin.class", "/fakes/Plugin.class",
+                                "org/bukkit/plugin/PluginBase.class", "/fakes/PluginBase.class",
+                                "org/slf4j/Logger.class", "/fakes/Logger.class"
+                        );
 
-                    for (var entry : fakesMap.entrySet()) {
-                        var className = entry.getKey();
-                        var savedFake = entry.getValue();
+                        for (var entry : fakesMap.entrySet()) {
+                            var className = entry.getKey();
+                            var savedFake = entry.getValue();
 
-                        var stream = SLibPlugin.class.getResourceAsStream(savedFake);
-                        var trick = new File(slibCompilationTricks, className);
-                        trick.getParentFile().mkdirs();
-                        Files.copy(stream, trick.toPath());
+                            var stream = SLibPlugin.class.getResourceAsStream(savedFake);
+                            var trick = new File(slibCompilationTricks, className);
+                            trick.getParentFile().mkdirs();
+                            Files.copy(stream, trick.toPath());
+                        }
+
+                        dependencies.add("compileOnly", project1.files(slibCompilationTricks));
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-
-                    dependencies.add("compileOnly", project1.files(slibCompilationTricks));
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
             // TODO: bungee

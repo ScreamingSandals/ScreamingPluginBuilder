@@ -1,7 +1,3 @@
-plugins {
-    id 'groovy'
-}
-
 dependencies {
     implementation libs.jsch
     implementation libs.licenser

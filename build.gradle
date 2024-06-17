@@ -2,18 +2,6 @@ plugins {
     alias libs.plugins.licenser apply false
 }
 
-defaultTasks 'clean', 'build'
-
-def ciCdOptimized = System.getenv("OPTIMIZE_FOR_CI_CD") == "1"
-
-if (!ciCdOptimized) {
-    defaultTasks.add('publishToMavenLocal')
-}
-
-if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
-    defaultTasks.add('publish')
-}
-
 subprojects {
     apply plugin: 'java'
     apply plugin: 'java-gradle-plugin'
@@ -49,7 +37,7 @@ subprojects {
     }
 
     java {
-        sourceCompatibility = 11
+        sourceCompatibility = JavaVersion.VERSION_11
     }
 
     compileJava {

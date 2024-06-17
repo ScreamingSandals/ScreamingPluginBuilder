@@ -1,11 +1,11 @@
-name: Screaming Plugin Builder Test CI
+name: Screaming Plugin Builder CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ ver/1.1.x ]
 
 jobs:
   build:
-    # Only run on PRs if the source branch is on a different repo. We do not need to run everything twice.
-    if: ${{ github.event_name != 'pull_request' || github.repository != github.event.pull_request.head.repo.full_name }}
     runs-on: ubuntu-latest
 
     steps:
@@ -22,5 +22,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Build with Gradle
-        run: ./gradlew clean checkLicenses build --stacktrace --warning-mode all
+      - name: Build and publish with Gradle
+        run: ./gradlew clean checkLicenses build publish --stacktrace --warning-mode all
+        env:
+          NEXUS_URL_RELEASE: ${{ secrets.NEXUS_URL_RELEASE }}
+          NEXUS_URL_SNAPSHOT: ${{ secrets.NEXUS_URL_SNAPSHOT }}
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}

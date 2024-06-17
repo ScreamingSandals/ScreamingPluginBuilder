@@ -17,8 +17,6 @@
 package org.screamingsandals.gradle.builder;
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin;
-import lombok.Data;
-import lombok.experimental.UtilityClass;
 import org.cadixdev.gradle.licenser.LicenseExtension;
 import org.cadixdev.gradle.licenser.Licenser;
 import org.gradle.api.Project;
@@ -33,13 +31,15 @@ import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.screamingsandals.gradle.builder.maven.NexusRepository;
+import org.screamingsandals.gradle.builder.tasks.JavadocUploadTask;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.function.Predicate;
 
-@UtilityClass
-public class Utilities {
+public final class Utilities {
+    private Utilities() {
+    }
+
     public static @NotNull MavenConfiguration setupPublishing(@NotNull Project project) {
         return setupPublishing(project, false, false, false);
     }
@@ -158,40 +158,58 @@ public class Utilities {
 
     public static void setupMavenRepositoriesFromProperties(@NotNull Project project) {
         var publishing = (PublishingExtension) project.getExtensions().getByName("publishing");
-        if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
+        if (System.getenv(Constants.NEXUS_URL_RELEASE_PROPERTY) != null
+                && System.getenv(Constants.NEXUS_URL_SNAPSHOT_PROPERTY) != null
+                && System.getenv(Constants.NEXUS_USERNAME_PROPERTY) != null
+                && System.getenv(Constants.NEXUS_PASSWORD_PROPERTY) != null
+        ) {
             new NexusRepository().setup(project, publishing);
         }
     }
 
-    public static void configureScreamCompileTask(@NotNull Project project, boolean mavenPublishing, boolean disableMavenLocal) {
-        project.afterEvaluate(it -> {
-            var hasShadowPlugin = project.getTasks().findByName("shadowJar") != null;
+    public static void setupSftpJavadocPublishingTaskFromProperties(@NotNull Project project) {
+        if (System.getenv(Constants.JAVADOC_HOST_PROPERTY) != null
+                && System.getenv(Constants.JAVADOC_USER_PROPERTY) != null
+                && System.getenv(Constants.JAVADOC_SECRET_PROPERTY) != null
+        ) {
+            setupSftpJavadocPublishingTask(
+                    project,
+                    System.getenv(Constants.JAVADOC_HOST_PROPERTY),
+                    System.getenv(Constants.JAVADOC_USER_PROPERTY),
+                    System.getenv(Constants.JAVADOC_SECRET_PROPERTY),
+                    System.getenv(Constants.JAVADOC_UPLOAD_CUSTOM_DIRECTORY_PATH_PROPERTY)
+            );
+        }
+    }
 
-            var tasks = new ArrayList<String>();
+    public static void setupSftpJavadocPublishingTask(@NotNull Project project, @NotNull String javadocHost, @NotNull String javadocUser, @NotNull String javadocPassword, @Nullable String customDirectoryPath) {
+        if (project.getTasks().findByName("javadoc") == null) {
+            throw new IllegalStateException("Please call configureJavadocTasks() first!");
+        }
 
-            if (hasShadowPlugin) {
-                tasks.add("shadowJar");
-            } else {
-                tasks.add("build");
-            }
-
-            if (mavenPublishing) {
-                if (!disableMavenLocal) {
-                    tasks.add("publishToMavenLocal");
-                }
-
-                var publishing = (PublishingExtension) project.getExtensions().findByName("publishing");
-                if (publishing != null && !publishing.getRepositories().isEmpty()) {
-                    tasks.add("publish");
-                }
-            }
-            project.getTasks().create("screamCompile").setDependsOn(tasks);
+        project.getTasks().register("uploadJavadoc", JavadocUploadTask.class, it -> {
+            it.getSftpHost().set(System.getenv(javadocHost));
+            it.getSftpUser().set(System.getenv(javadocUser));
+            it.getSftpPassword().set(System.getenv(javadocPassword));
+            it.getJavaDocCustomDirectoryPath().set(customDirectoryPath);
         });
     }
 
-    @Data
     public static final class MavenConfiguration {
         private final @NotNull PublishingExtension extension;
         private final @NotNull MavenPublication publication;
+
+        public MavenConfiguration(@NotNull PublishingExtension extension, @NotNull MavenPublication publication) {
+            this.extension = extension;
+            this.publication = publication;
+        }
+
+        public @NotNull PublishingExtension getExtension() {
+            return extension;
+        }
+
+        public @NotNull MavenPublication getPublication() {
+            return publication;
+        }
     }
 }

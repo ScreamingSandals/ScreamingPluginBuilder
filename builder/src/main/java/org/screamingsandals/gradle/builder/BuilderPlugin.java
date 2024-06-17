@@ -21,47 +21,13 @@ import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.screamingsandals.gradle.builder.tasks.JavadocUploadTask;
 
 public class BuilderPlugin implements Plugin<Project> {
     @Override
     public void apply(@NotNull Project project) {
-        var ciCdOptimized = "1".equals(System.getenv("OPTIMIZE_FOR_CI_CD"));
-
         project.apply(it -> {
             it.plugin(MavenPublishPlugin.class);
             it.plugin(JavaLibraryPlugin.class);
         });
-
-        Utilities.configureLicenser(project);
-
-        if (System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null) {
-            Utilities.configureSourceJarTasks(project);
-        }
-
-        if (System.getenv("JAVADOC_HOST") != null) {
-            Utilities.configureJavadocTasks(project);
-
-            if (System.getenv("JAVADOC_HOST") != null && System.getenv("JAVADOC_USER") != null && System.getenv("JAVADOC_SECRET") != null) {
-                project.getTasks().register("uploadJavadoc", JavadocUploadTask.class, it -> {
-                    it.getSftpHost().set(System.getenv("JAVADOC_HOST"));
-                    it.getSftpUser().set(System.getenv("JAVADOC_USER"));
-                    it.getSftpPassword().set(System.getenv("JAVADOC_SECRET"));
-                    it.getJavaDocCustomDirectoryPath().set(System.getProperty("JavadocUploadCustomDirectoryPath"));
-                });
-            }
-        }
-
-        var maven = Utilities.setupPublishing(project, false, System.getenv("NEXUS_URL_SNAPSHOT") != null && System.getenv("NEXUS_URL_RELEASE") != null, false);
-
-        Utilities.configureShadowPlugin(project, maven.getPublication());
-
-        Utilities.setupAllowJavadocUploadTask(project);
-
-        if (!project.hasProperty("disablePublishingToMaven") || !"true".equalsIgnoreCase(String.valueOf(project.property("disablePublishingToMaven")))) {
-            Utilities.setupMavenRepositoriesFromProperties(project);
-        }
-
-        Utilities.configureScreamCompileTask(project, !project.hasProperty("disablePublishingToMaven") || !"true".equalsIgnoreCase(String.valueOf(project.property("disablePublishingToMaven"))), ciCdOptimized);
     }
 }

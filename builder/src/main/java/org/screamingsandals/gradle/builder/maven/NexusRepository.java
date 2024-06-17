@@ -19,6 +19,7 @@ package org.screamingsandals.gradle.builder.maven;
 import org.gradle.api.Project;
 import org.gradle.api.publish.PublishingExtension;
 import org.jetbrains.annotations.NotNull;
+import org.screamingsandals.gradle.builder.Constants;
 
 public class NexusRepository implements MavenRepository {
     @Override
@@ -27,12 +28,12 @@ public class NexusRepository implements MavenRepository {
                 publishing.repositories(it ->
                         it.maven(repository -> {
                             if (((String) project.getVersion()).contains("SNAPSHOT")) {
-                                repository.setUrl(System.getenv("NEXUS_URL_SNAPSHOT"));
+                                repository.setUrl(System.getenv(Constants.NEXUS_URL_SNAPSHOT_PROPERTY));
                             } else {
-                                repository.setUrl(System.getenv("NEXUS_URL_RELEASE"));
+                                repository.setUrl(System.getenv(Constants.NEXUS_URL_RELEASE_PROPERTY));
                             }
-                            repository.getCredentials().setUsername(System.getenv("NEXUS_USERNAME"));
-                            repository.getCredentials().setPassword(System.getenv("NEXUS_PASSWORD"));
+                            repository.getCredentials().setUsername(System.getenv(Constants.NEXUS_USERNAME_PROPERTY));
+                            repository.getCredentials().setPassword(System.getenv(Constants.NEXUS_PASSWORD_PROPERTY));
                         })
                 )
         );

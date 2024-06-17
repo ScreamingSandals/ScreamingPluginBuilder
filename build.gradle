@@ -15,9 +15,12 @@ subprojects {
 
     dependencies {
         compileOnly gradleApi()
-        compileOnly libs.projectlombok
         compileOnly libs.jetbrains.annotations
-        annotationProcessor libs.projectlombok
+
+        if (project.name != 'builder') { // Lombok is not required in builder. TODO: delombok slib and run
+            compileOnly libs.projectlombok
+            annotationProcessor libs.projectlombok
+        }
     }
 
     publishing {

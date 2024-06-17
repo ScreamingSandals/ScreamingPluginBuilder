@@ -20,7 +20,6 @@ subprojects {
     }
 
     dependencies {
-        "compileOnly"(gradleApi())
         "compileOnly"(rootProject.libs.jetbrains.annotations)
 
         if (project.name != "builder") { // Lombok is not required in builder. TODO: delombok slib and run

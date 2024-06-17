@@ -20,70 +20,18 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin;
 import org.cadixdev.gradle.licenser.LicenseExtension;
 import org.cadixdev.gradle.licenser.Licenser;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.SelfResolvingDependency;
 import org.gradle.api.plugins.JavaPluginExtension;
-import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.bundling.Jar;
-import org.gradle.api.tasks.javadoc.Javadoc;
-import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.screamingsandals.gradle.builder.maven.NexusRepository;
-import org.screamingsandals.gradle.builder.tasks.JavadocUploadTask;
 
 import java.util.Calendar;
 import java.util.function.Predicate;
 
 public final class Utilities {
     private Utilities() {
-    }
-
-    public static @NotNull MavenConfiguration setupPublishing(@NotNull Project project) {
-        return setupPublishing(project, false, false, false);
-    }
-
-    public static @NotNull MavenConfiguration setupPublishing(@NotNull Project project, boolean onlyPomArtifact, boolean addSourceJar, boolean addJavadocJar) {
-        var publishing = (PublishingExtension) project.getExtensions().getByName("publishing");
-        var publication = publishing.getPublications().create("maven", MavenPublication.class, it -> {
-            if (!onlyPomArtifact) {
-                it.artifact(project.getTasks().getByName("jar"));
-            }
-
-            if (addSourceJar) {
-                it.artifact(project.getTasks().getByName("sourceJar"));
-            }
-
-            if (addJavadocJar) {
-                it.artifact(project.getTasks().getByName("javadocJar"));
-            }
-
-            it.getArtifacts().forEach(a -> a.setClassifier(""));
-
-            it.getPom().withXml(xml -> {
-                var dependenciesNode = xml.asNode().appendNode("dependencies");
-                project.getConfigurations().getByName("compileOnly").getDependencies().forEach(dep -> {
-                    if (!(dep instanceof SelfResolvingDependency)) {
-                        var dependencyNode = dependenciesNode.appendNode("dependency");
-                        dependencyNode.appendNode("groupId", dep.getGroup());
-                        dependencyNode.appendNode("artifactId", dep.getName());
-                        dependencyNode.appendNode("version", dep.getVersion());
-                        dependencyNode.appendNode("scope", "provided");
-                    }
-                });
-                if (project.getTasks().findByName("shadowJar") == null) {
-                    project.getConfigurations().getByName("api").getDependencies().forEach(dep -> {
-                        var dependencyNode = dependenciesNode.appendNode("dependency");
-                        dependencyNode.appendNode("groupId", dep.getGroup());
-                        dependencyNode.appendNode("artifactId", dep.getName());
-                        dependencyNode.appendNode("version", dep.getVersion());
-                        dependencyNode.appendNode("scope", "compile");
-                    });
-                }
-            });
-        });
-        return new MavenConfiguration(publishing, publication);
     }
 
     public static void configureShadowPlugin(@NotNull Project project, @Nullable MavenPublication maven) {
@@ -110,24 +58,6 @@ public final class Utilities {
         }
     }
 
-    public static void configureJavadocTasks(@NotNull Project project) {
-        var task = project.getTasks().getByName("javadoc", javadocTask -> {
-           if (!(javadocTask instanceof Javadoc)) {
-               throw new IllegalArgumentException("Expected javadoc task, got " + javadocTask);
-           }
-           var javadoc = (Javadoc) javadocTask;
-           javadoc.options(op -> {
-               ((CoreJavadocOptions) op).addBooleanOption("html5", true);
-           });
-        });
-
-        project.getTasks().create("javadocJar", Jar.class, it -> {
-            it.dependsOn(task);
-            it.getArchiveClassifier().set("javadoc");
-            it.from(task);
-        });
-    }
-
     public static void configureSourceJarTasks(@NotNull Project project) {
         configureSourceJarTasks(project, null);
     }
@@ -146,70 +76,5 @@ public final class Utilities {
                 it.from(sourceSets.getByName("main").getAllJava());
             }
         });
-    }
-
-    public static void setupAllowJavadocUploadTask(@NotNull Project project) {
-        project.getTasks().create("allowJavadocUpload", it -> {
-            if (project.getTasks().findByName("uploadJavadoc") != null) {
-                it.dependsOn("uploadJavadoc");
-            }
-        });
-    }
-
-    public static void setupMavenRepositoriesFromProperties(@NotNull Project project) {
-        var publishing = (PublishingExtension) project.getExtensions().getByName("publishing");
-        if (System.getenv(Constants.NEXUS_URL_RELEASE_PROPERTY) != null
-                && System.getenv(Constants.NEXUS_URL_SNAPSHOT_PROPERTY) != null
-                && System.getenv(Constants.NEXUS_USERNAME_PROPERTY) != null
-                && System.getenv(Constants.NEXUS_PASSWORD_PROPERTY) != null
-        ) {
-            new NexusRepository().setup(project, publishing);
-        }
-    }
-
-    public static void setupSftpJavadocPublishingTaskFromProperties(@NotNull Project project) {
-        if (System.getenv(Constants.JAVADOC_HOST_PROPERTY) != null
-                && System.getenv(Constants.JAVADOC_USER_PROPERTY) != null
-                && System.getenv(Constants.JAVADOC_SECRET_PROPERTY) != null
-        ) {
-            setupSftpJavadocPublishingTask(
-                    project,
-                    System.getenv(Constants.JAVADOC_HOST_PROPERTY),
-                    System.getenv(Constants.JAVADOC_USER_PROPERTY),
-                    System.getenv(Constants.JAVADOC_SECRET_PROPERTY),
-                    System.getenv(Constants.JAVADOC_UPLOAD_CUSTOM_DIRECTORY_PATH_PROPERTY)
-            );
-        }
-    }
-
-    public static void setupSftpJavadocPublishingTask(@NotNull Project project, @NotNull String javadocHost, @NotNull String javadocUser, @NotNull String javadocPassword, @Nullable String customDirectoryPath) {
-        if (project.getTasks().findByName("javadoc") == null) {
-            throw new IllegalStateException("Please call configureJavadocTasks() first!");
-        }
-
-        project.getTasks().register("uploadJavadoc", JavadocUploadTask.class, it -> {
-            it.getSftpHost().set(System.getenv(javadocHost));
-            it.getSftpUser().set(System.getenv(javadocUser));
-            it.getSftpPassword().set(System.getenv(javadocPassword));
-            it.getJavaDocCustomDirectoryPath().set(customDirectoryPath);
-        });
-    }
-
-    public static final class MavenConfiguration {
-        private final @NotNull PublishingExtension extension;
-        private final @NotNull MavenPublication publication;
-
-        public MavenConfiguration(@NotNull PublishingExtension extension, @NotNull MavenPublication publication) {
-            this.extension = extension;
-            this.publication = publication;
-        }
-
-        public @NotNull PublishingExtension getExtension() {
-            return extension;
-        }
-
-        public @NotNull MavenPublication getPublication() {
-            return publication;
-        }
     }
 }

@@ -16,25 +16,21 @@
 
 package org.screamingsandals.gradle.slib;
 
-import lombok.Data;
-import lombok.Setter;
-import lombok.experimental.Tolerate;
 import org.gradle.api.artifacts.ModuleDependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.provider.Provider;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 
-@Data
 public class ThirdPartyModule implements AdditionalContent {
     /**
      * Group id of the third party module.
      */
-    @Setter(onParam_ = @NotNull) // don't allow users to set it to null
-    private String groupId;
+    private @Nullable String groupId;
     /**
      * Prefix of the artifact id of the third party module.
      *
@@ -42,15 +38,12 @@ public class ThirdPartyModule implements AdditionalContent {
      *
      * The final artifact id looks like `module-platform` or `module-common`
      */
-    @Setter(onParam_ = @NotNull)
-    private String module;
+    private @Nullable String module;
     /**
      * Version of the third party module.
      */
-    @Setter(onParam_ = @NotNull)
-    private String version;
+    private @Nullable String version;
 
-    @Tolerate
     public void setVersion(@NotNull Provider<@NotNull String> version) {
         this.version = version.get();
     }
@@ -68,7 +61,7 @@ public class ThirdPartyModule implements AdditionalContent {
      * Prefix of the artifact id of the third party module.
      *
      * <p>
-     *
+     * <p>
      * The final artifact id looks like `module-platform` or `module-common`
      *
      * @param module new artifact id prefix
@@ -98,7 +91,7 @@ public class ThirdPartyModule implements AdditionalContent {
     @Override
     @ApiStatus.Internal
     @ApiStatus.OverrideOnly
-    public void apply(String configuration, DependencyHandler dependencies, String slibVersion, List<String> platforms) {
+    public void apply(@NotNull String configuration, @NotNull DependencyHandler dependencies, @NotNull String slibVersion, @NotNull List<@NotNull String> platforms) {
         {
             var dependency = dependencies.add(configuration, groupId + ":" + module + "-common:" + version);
             if (dependency instanceof ModuleDependency) {
@@ -114,10 +107,38 @@ public class ThirdPartyModule implements AdditionalContent {
     }
 
     @Override
-    public void applyMultiModule(String configuration, DependencyHandler dependencies, String slibVersion, String platformName) {
+    public void applyMultiModule(@NotNull String configuration, @NotNull DependencyHandler dependencies, @NotNull String slibVersion, @NotNull String platformName) {
         var dependency = dependencies.add(configuration, groupId + ":" + module + "-" + platformName + ":" + version);
         if (dependency instanceof ModuleDependency) {
             ((ModuleDependency) dependency).exclude(Map.of("group", Constants.SCREAMING_LIB_GROUP_ID));
         }
+    }
+
+    public @Nullable String getGroupId() {
+        return this.groupId;
+    }
+
+    public @Nullable String getModule() {
+        return this.module;
+    }
+
+    public @Nullable String getVersion() {
+        return this.version;
+    }
+
+    public void setGroupId(@NotNull String groupId) {
+        this.groupId = groupId;
+    }
+
+    public void setModule(@NotNull String module) {
+        this.module = module;
+    }
+
+    public void setVersion(@NotNull String version) {
+        this.version = version;
+    }
+
+    public @NotNull String toString() {
+        return "ThirdPartyModule(groupId=" + this.groupId + ", module=" + this.module + ", version=" + this.version + ")";
     }
 }

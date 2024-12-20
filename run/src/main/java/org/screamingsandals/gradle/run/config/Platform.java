@@ -16,16 +16,10 @@
 
 package org.screamingsandals.gradle.run.config;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 import org.screamingsandals.gradle.run.installer.Installer;
 import org.screamingsandals.gradle.run.installer.BibliothekInstaller;
 
-@RequiredArgsConstructor
-@Getter
-@Accessors(fluent = true)
 public enum Platform {
     PAPER(true, true, "plugins", true) {
         @Override
@@ -45,5 +39,28 @@ public enum Platform {
     private final @NotNull String pluginDirName;
     private final boolean supportsPluginAsParameter;
 
+    Platform(boolean supportsServerProperties, boolean hasEula, @NotNull String pluginDirName, boolean supportsPluginAsParameter) {
+        this.supportsServerProperties = supportsServerProperties;
+        this.hasEula = hasEula;
+        this.pluginDirName = pluginDirName;
+        this.supportsPluginAsParameter = supportsPluginAsParameter;
+    }
+
     public abstract @NotNull Installer obtainInstaller();
+
+    public boolean supportsServerProperties() {
+        return this.supportsServerProperties;
+    }
+
+    public boolean hasEula() {
+        return this.hasEula;
+    }
+
+    public @NotNull String pluginDirName() {
+        return this.pluginDirName;
+    }
+
+    public boolean supportsPluginAsParameter() {
+        return this.supportsPluginAsParameter;
+    }
 }

@@ -17,7 +17,6 @@
 package org.screamingsandals.gradle.run.api;
 
 import com.google.gson.Gson;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -30,13 +29,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@RequiredArgsConstructor
 public class Bibliothek {
     private final @NotNull String baseUrl;
     private final @NotNull HttpClient httpClient = HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
     private final @NotNull Gson gson = new Gson();
+
+    public Bibliothek(@NotNull String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
 
     public int getLatestBuild(@NotNull String project, @NotNull String version) throws URISyntaxException {
         var request = HttpRequest.newBuilder()

@@ -16,7 +16,6 @@
 
 package org.screamingsandals.gradle.run.config;
 
-import lombok.RequiredArgsConstructor;
 import org.gradle.api.Action;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,11 +23,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-@RequiredArgsConstructor
 public class MultipleVersions implements Iterable<@NotNull Version> {
     private final @NotNull List<@NotNull Version> versions;
 
-    public void args(@NotNull String @NotNull... args) {
+    public MultipleVersions(@NotNull List<@NotNull Version> versions) {
+        this.versions = versions;
+    }
+
+    public void args(@NotNull String @NotNull ... args) {
         for (var version : versions) {
             version.args(args);
         }
@@ -40,7 +42,7 @@ public class MultipleVersions implements Iterable<@NotNull Version> {
         }
     }
 
-    public void jvmArgs(@NotNull String @NotNull... jvmArgs) {
+    public void jvmArgs(@NotNull String @NotNull ... jvmArgs) {
         for (var version : versions) {
             version.jvmArgs(jvmArgs);
         }

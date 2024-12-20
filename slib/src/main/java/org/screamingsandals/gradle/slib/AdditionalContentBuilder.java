@@ -17,25 +17,27 @@
 package org.screamingsandals.gradle.slib;
 
 import groovy.lang.Closure;
-import lombok.Data;
 import org.gradle.api.Action;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@Data
 public class AdditionalContentBuilder {
     @NotNull
     @ApiStatus.Internal
     private final List<AdditionalContent> additionalContent;
+
+    public AdditionalContentBuilder(@NotNull List<AdditionalContent> additionalContent) {
+        this.additionalContent = additionalContent;
+    }
 
     /**
      * Adds optional modules of ScreamingLib.
      *
      * @param modules slib optional modules
      */
-    public void module(@NotNull String @NotNull... modules) {
+    public void module(@NotNull String @NotNull ... modules) {
         for (var module : modules) {
             additionalContent.add(new SLibModule(module));
         }
@@ -53,7 +55,7 @@ public class AdditionalContentBuilder {
      * Unlike normal modules, these modules consist of just one artifact.
      *
      * <p>
-     *
+     * <p>
      * Note: Except `lang`, there are currently no modules that can be added using this method.
      * For adding lang use its own method {@link #lang()}
      *
@@ -61,7 +63,7 @@ public class AdditionalContentBuilder {
      * @see #module(String...)
      * @see #lang()
      */
-    public void singleModule(@NotNull String @NotNull... modules) {
+    public void singleModule(@NotNull String @NotNull ... modules) {
         for (var module : modules) {
             additionalContent.add(new SLibSingleModule(module));
         }
@@ -125,5 +127,13 @@ public class AdditionalContentBuilder {
         thirdPartyModuleConsumer.setDelegate(module);
         thirdPartyModuleConsumer.call(module);
         additionalContent.add(module);
+    }
+
+    public @NotNull List<AdditionalContent> getAdditionalContent() {
+        return this.additionalContent;
+    }
+
+    public @NotNull String toString() {
+        return "AdditionalContentBuilder(additionalContent=" + this.additionalContent + ")";
     }
 }

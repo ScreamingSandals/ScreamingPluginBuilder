@@ -18,15 +18,16 @@ package org.screamingsandals.gradle.slib;
 
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public interface AdditionalContent {
     @ApiStatus.Internal
     @ApiStatus.OverrideOnly
-    void apply(String configuration, DependencyHandler dependencies, String slibVersion, List<String> platforms);
+    void apply(@NotNull String configuration, @NotNull DependencyHandler dependencies, @NotNull String slibVersion, @NotNull List<@NotNull String> platforms);
 
     @ApiStatus.Internal
     @ApiStatus.OverrideOnly
-    void applyMultiModule(String configuration, DependencyHandler dependencies, String slibVersion, String platformName);
+    void applyMultiModule(@NotNull String configuration, @NotNull DependencyHandler dependencies, @NotNull String slibVersion, @NotNull String platformName);
 }

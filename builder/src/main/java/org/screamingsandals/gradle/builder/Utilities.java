@@ -63,7 +63,7 @@ public final class Utilities {
     }
 
     public static void configureSourceJarTasks(@NotNull Project project, @Nullable Predicate<@NotNull SourceSet> sourceSetSelector) {
-        project.getTasks().create("sourceJar", Jar.class, it -> {
+        project.getTasks().register("sourceJar", Jar.class, it -> {
             it.getArchiveClassifier().set("sources");
             var sourceSets = project.getExtensions().getByType(JavaPluginExtension.class).getSourceSets();
             if (sourceSetSelector != null) {

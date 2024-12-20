@@ -36,13 +36,13 @@ public class RunPlugin implements Plugin<Project> {
             if (!extension.getVersions().isEmpty()) {
                 extension.getVersions().forEach(version -> {
                     String serverName = version.getPlatform().name().charAt(0) + version.getPlatform().name().substring(1).toLowerCase(Locale.ROOT) + "Server" + version.getVersion();
-                    project.getTasks().create("update" + serverName, UpdateVersionTask.class, it -> {
+                    project.getTasks().register("update" + serverName, UpdateVersionTask.class, it -> {
                         it.setDescription("Updates " + version.getPlatform().name().toLowerCase(Locale.ROOT) + " server version " + version.getVersion() + " to the latest build.");
                         it.getPlatform().set(version.getPlatform());
                         it.getVersion().set(version.getVersion());
                         it.getSubDirectory().set(extension.getTestingDirectory() + "/" + version.getSubDirectory());
                     });
-                    project.getTasks().create("run" + serverName, RunServerTask.class, it -> {
+                    project.getTasks().register("run" + serverName, RunServerTask.class, it -> {
                         it.setDescription("Runs a " + version.getPlatform().name().toLowerCase(Locale.ROOT) + " server version " + version.getVersion() + " with newly compiled plugin jar artifact.");
 
                         it.getPlatform().set(version.getPlatform());

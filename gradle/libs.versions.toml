@@ -2,10 +2,9 @@
 shadow = "8.3.5"
 gson = "2.11.0"
 licenser = "0.6.1"
-jetbrains-annotations = "26.0.1"
 
 # compile only
-projectlombok = "1.18.36"
+jetbrains-annotations = "26.0.1"
 kotlin = "2.1.0"
 
 [libraries]
@@ -13,7 +12,6 @@ shadow = { group = "com.gradleup.shadow", name = "com.gradleup.shadow.gradle.plu
 licenser = { group = "gradle.plugin.org.cadixdev.gradle", name = "licenser", version.ref = "licenser" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version.ref = "jetbrains-annotations" }
-projectlombok = { group = "org.projectlombok", name = "lombok", version.ref = "projectlombok" }
 kotlin-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-sam = { group = "org.jetbrains.kotlin", name = "kotlin-sam-with-receiver", version.ref = "kotlin" }
 

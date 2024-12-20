@@ -16,10 +16,6 @@
 
 package org.screamingsandals.gradle.run;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.gradle.api.Action;
 import org.gradle.api.file.RegularFile;
 import org.gradle.api.provider.Provider;
@@ -37,14 +33,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-@Data
-@RequiredArgsConstructor(onConstructor_ = {@Inject})
 public class RunTestServerExtension {
-    @Getter(AccessLevel.NONE)
     private final @NotNull ProviderFactory providers;
     private @NotNull List<@NotNull Version> versions = new ArrayList<>();
     private @Nullable Provider<RegularFile> pluginJar;
     private @NotNull String testingDirectory = "test-environment";
+
+    @Inject
+    public RunTestServerExtension(@NotNull ProviderFactory providers) {
+        this.providers = providers;
+    }
 
     public @NotNull Version version(@NotNull Version version) {
         this.versions.add(version);
@@ -67,7 +65,7 @@ public class RunTestServerExtension {
         return server;
     }
 
-    public @NotNull MultipleVersions versions(@NotNull Platform platform, @NotNull String @NotNull... versions) {
+    public @NotNull MultipleVersions versions(@NotNull Platform platform, @NotNull String @NotNull ... versions) {
         var list = new ArrayList<Version>();
         for (var version : versions) {
             list.add(version(platform, version));
@@ -97,7 +95,7 @@ public class RunTestServerExtension {
         return version(Platform.PAPER, version, callback);
     }
 
-    public @NotNull MultipleVersions paperVersions(@NotNull String @NotNull... versions) {
+    public @NotNull MultipleVersions paperVersions(@NotNull String @NotNull ... versions) {
         return versions(Platform.PAPER, versions);
     }
 
@@ -120,5 +118,36 @@ public class RunTestServerExtension {
 
     public void testingDirectory(@NotNull String testingDirectory) {
         this.testingDirectory = testingDirectory;
+    }
+
+    public @NotNull List<@NotNull Version> getVersions() {
+        return this.versions;
+    }
+
+    public @Nullable Provider<RegularFile> getPluginJar() {
+        return this.pluginJar;
+    }
+
+    public @NotNull String getTestingDirectory() {
+        return this.testingDirectory;
+    }
+
+    public void setVersions(@NotNull List<@NotNull Version> versions) {
+        this.versions = versions;
+    }
+
+    public void setPluginJar(@Nullable Provider<RegularFile> pluginJar) {
+        this.pluginJar = pluginJar;
+    }
+
+    public void setTestingDirectory(@NotNull String testingDirectory) {
+        this.testingDirectory = testingDirectory;
+    }
+
+    public @NotNull String toString() {
+        return "RunTestServerExtension(providers=" + this.providers
+                + ", versions=" + this.versions
+                + ", pluginJar=" + this.pluginJar
+                + ", testingDirectory=" + this.testingDirectory + ")";
     }
 }

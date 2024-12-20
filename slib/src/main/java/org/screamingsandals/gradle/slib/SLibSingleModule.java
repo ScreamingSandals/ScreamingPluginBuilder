@@ -16,32 +16,41 @@
 
 package org.screamingsandals.gradle.slib;
 
-import lombok.Data;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@Data
 public class SLibSingleModule implements AdditionalContent {
     /**
      * Artifact id of the optional internal module
      */
-    @NotNull
-    private final String artifactId;
+    private final @NotNull String artifactId;
+
+    public SLibSingleModule(@NotNull String artifactId) {
+        this.artifactId = artifactId;
+    }
 
     @Override
     @ApiStatus.Internal
     @ApiStatus.OverrideOnly
-    public void apply(String configuration, DependencyHandler dependencies, String slibVersion, List<String> platforms) {
+    public void apply(@NotNull String configuration, @NotNull DependencyHandler dependencies, @NotNull String slibVersion, @NotNull List<@NotNull String> platforms) {
         dependencies.add(configuration, Constants.SCREAMING_LIB_GROUP_ID + ":" + artifactId + ":" + slibVersion);
     }
 
     @Override
-    public void applyMultiModule(String configuration, DependencyHandler dependencies, String slibVersion, String platformName) {
+    public void applyMultiModule(@NotNull String configuration, @NotNull DependencyHandler dependencies, @NotNull String slibVersion, @NotNull String platformName) {
         if ("common".equals(platformName)) {
             dependencies.add(configuration, Constants.SCREAMING_LIB_GROUP_ID + ":" + artifactId + ":" + slibVersion);
         }
+    }
+
+    public @NotNull String getArtifactId() {
+        return this.artifactId;
+    }
+
+    public @NotNull String toString() {
+        return "SLibSingleModule(artifactId=" + this.artifactId + ")";
     }
 }

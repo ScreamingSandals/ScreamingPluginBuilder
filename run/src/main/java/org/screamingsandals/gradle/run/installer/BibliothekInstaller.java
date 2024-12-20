@@ -16,7 +16,6 @@
 
 package org.screamingsandals.gradle.run.installer;
 
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.screamingsandals.gradle.run.api.Bibliothek;
 
@@ -24,10 +23,14 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@RequiredArgsConstructor
 public class BibliothekInstaller implements Installer {
     private final @NotNull String bibliothekApiUrl;
     private final @NotNull String project;
+
+    public BibliothekInstaller(@NotNull String bibliothekApiUrl, @NotNull String project) {
+        this.bibliothekApiUrl = bibliothekApiUrl;
+        this.project = project;
+    }
 
     @Override
     public @NotNull File install(@NotNull String version, @NotNull File folder, boolean forceUpdate) throws Exception {

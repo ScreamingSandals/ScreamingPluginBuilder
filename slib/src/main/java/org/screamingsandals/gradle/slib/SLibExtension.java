@@ -17,57 +17,50 @@
 package org.screamingsandals.gradle.slib;
 
 import groovy.lang.Closure;
-import lombok.Data;
-import lombok.Setter;
-import lombok.experimental.Tolerate;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-@Data
 public class SLibExtension {
     /**
      * ScreamingLib version
      */
-    @Setter(onParam_ = @NotNull) // don't allow users to set it to null
-    private String version;
+    private @Nullable String version;
     /**
      * Custom Relocate Path (default to the group id)
      */
-    @Nullable
-    private String customRelocatePath;
+    private @Nullable String customRelocatePath;
     /**
      * Name of the common subproject. If null, this is not a multi module project.
      */
-    @Nullable
-    private String multiModuleCommonSubproject;
+    private @Nullable String multiModuleCommonSubproject;
     /**
      * Multi module configuration. If null, this is not a multi module project.
      * <p>
      * Key - Subproject name
      * Value - Platform name
      */
-    @Nullable
-    private Map<String, String> multiModuleConfiguration;
+    private @Nullable Map<@NotNull String, @NotNull String> multiModuleConfiguration;
     /**
      * Name of the universal subproject (containing the final jar). If null, this is not a multi module project.
      */
-    @Nullable
-    private String multiModuleUniversalSubproject;
+    private @Nullable String multiModuleUniversalSubproject;
     /**
      * Name of the api subproject. This subproject is optional.
      */
-    @Nullable
-    private String multiModuleApiSubproject;
+    private @Nullable String multiModuleApiSubproject;
     /**
      * Package name the wrapper class will be relocated to.
      */
-    @Nullable
-    private String multiModuleApiSubprojectApiUtilsWrapperRelocation;
+    private @Nullable String multiModuleApiSubprojectApiUtilsWrapperRelocation;
     /**
      * Whether `api` configuration should be used instead of `implementation` (sometimes it's better for gradle)
      */
@@ -75,8 +68,8 @@ public class SLibExtension {
     /**
      * Supported platforms
      */
-    private final List<String> platforms = new ArrayList<>();
-    private final List<AdditionalContent> additionalContent = new ArrayList<>();
+    private final @NotNull List<@NotNull String> platforms = new ArrayList<>();
+    private final @NotNull List<@NotNull AdditionalContent> additionalContent = new ArrayList<>();
 
     /**
      * Disables automatic relocation.
@@ -129,7 +122,6 @@ public class SLibExtension {
     @ApiStatus.Experimental
     private boolean disableAutoSAMWithReceiverConfigurationForKotlin;
 
-    @Tolerate
     public void setVersion(@NotNull Provider<@NotNull String> version) {
         this.version = version.get();
     }
@@ -270,5 +262,135 @@ public class SLibExtension {
         closure.setDelegate(builder);
         closure.setResolveStrategy(Closure.DELEGATE_FIRST);
         closure.call(builder);
+    }
+
+    public @Nullable String getVersion() {
+        return this.version;
+    }
+
+    public @Nullable String getCustomRelocatePath() {
+        return this.customRelocatePath;
+    }
+
+    public @Nullable String getMultiModuleCommonSubproject() {
+        return this.multiModuleCommonSubproject;
+    }
+
+    public @Nullable Map<String, String> getMultiModuleConfiguration() {
+        return this.multiModuleConfiguration;
+    }
+
+    public @Nullable String getMultiModuleUniversalSubproject() {
+        return this.multiModuleUniversalSubproject;
+    }
+
+    public @Nullable String getMultiModuleApiSubproject() {
+        return this.multiModuleApiSubproject;
+    }
+
+    public @Nullable String getMultiModuleApiSubprojectApiUtilsWrapperRelocation() {
+        return this.multiModuleApiSubprojectApiUtilsWrapperRelocation;
+    }
+
+    public boolean isUseApiConfigurationInsteadOfImplementation() {
+        return this.useApiConfigurationInsteadOfImplementation;
+    }
+
+    public @NotNull List<@NotNull String> getPlatforms() {
+        return this.platforms;
+    }
+
+    public @NotNull List<@NotNull AdditionalContent> getAdditionalContent() {
+        return this.additionalContent;
+    }
+
+    public boolean isDisableRelocate() {
+        return this.disableRelocate;
+    }
+
+    public boolean isDisableCompilerTricks() {
+        return this.disableCompilerTricks;
+    }
+
+    public boolean isDisableAnnotationProcessor() {
+        return this.disableAnnotationProcessor;
+    }
+
+    public boolean isDisableAutoKaptApplicationForKotlin() {
+        return this.disableAutoKaptApplicationForKotlin;
+    }
+
+    public boolean isDisableAutoSAMWithReceiverConfigurationForKotlin() {
+        return this.disableAutoSAMWithReceiverConfigurationForKotlin;
+    }
+
+    public void setCustomRelocatePath(@Nullable String customRelocatePath) {
+        this.customRelocatePath = customRelocatePath;
+    }
+
+    public void setMultiModuleCommonSubproject(@Nullable String multiModuleCommonSubproject) {
+        this.multiModuleCommonSubproject = multiModuleCommonSubproject;
+    }
+
+    public void setMultiModuleConfiguration(@Nullable Map<@NotNull String, @NotNull String> multiModuleConfiguration) {
+        this.multiModuleConfiguration = multiModuleConfiguration;
+    }
+
+    public void setMultiModuleUniversalSubproject(@Nullable String multiModuleUniversalSubproject) {
+        this.multiModuleUniversalSubproject = multiModuleUniversalSubproject;
+    }
+
+    public void setMultiModuleApiSubproject(@Nullable String multiModuleApiSubproject) {
+        this.multiModuleApiSubproject = multiModuleApiSubproject;
+    }
+
+    public void setMultiModuleApiSubprojectApiUtilsWrapperRelocation(@Nullable String multiModuleApiSubprojectApiUtilsWrapperRelocation) {
+        this.multiModuleApiSubprojectApiUtilsWrapperRelocation = multiModuleApiSubprojectApiUtilsWrapperRelocation;
+    }
+
+    public void setUseApiConfigurationInsteadOfImplementation(boolean useApiConfigurationInsteadOfImplementation) {
+        this.useApiConfigurationInsteadOfImplementation = useApiConfigurationInsteadOfImplementation;
+    }
+
+    public void setDisableRelocate(boolean disableRelocate) {
+        this.disableRelocate = disableRelocate;
+    }
+
+    public void setDisableCompilerTricks(boolean disableCompilerTricks) {
+        this.disableCompilerTricks = disableCompilerTricks;
+    }
+
+    public void setDisableAnnotationProcessor(boolean disableAnnotationProcessor) {
+        this.disableAnnotationProcessor = disableAnnotationProcessor;
+    }
+
+    public void setDisableAutoKaptApplicationForKotlin(boolean disableAutoKaptApplicationForKotlin) {
+        this.disableAutoKaptApplicationForKotlin = disableAutoKaptApplicationForKotlin;
+    }
+
+    public void setDisableAutoSAMWithReceiverConfigurationForKotlin(boolean disableAutoSAMWithReceiverConfigurationForKotlin) {
+        this.disableAutoSAMWithReceiverConfigurationForKotlin = disableAutoSAMWithReceiverConfigurationForKotlin;
+    }
+
+    public void setVersion(@NotNull String version) {
+        this.version = version;
+    }
+
+    public @NotNull String toString() {
+        return "SLibExtension(version=" + this.version
+                + ", customRelocatePath=" + this.customRelocatePath
+                + ", multiModuleCommonSubproject=" + this.multiModuleCommonSubproject
+                + ", multiModuleConfiguration=" + this.multiModuleConfiguration
+                + ", multiModuleUniversalSubproject=" + this.multiModuleUniversalSubproject
+                + ", multiModuleApiSubproject=" + this.multiModuleApiSubproject
+                + ", multiModuleApiSubprojectApiUtilsWrapperRelocation=" + this.multiModuleApiSubprojectApiUtilsWrapperRelocation
+                + ", useApiConfigurationInsteadOfImplementation=" + this.useApiConfigurationInsteadOfImplementation
+                + ", platforms=" + this.platforms
+                + ", additionalContent=" + this.additionalContent
+                + ", disableRelocate=" + this.disableRelocate
+                + ", disableCompilerTricks=" + this.disableCompilerTricks
+                + ", disableAnnotationProcessor=" + this.disableAnnotationProcessor
+                + ", disableAutoKaptApplicationForKotlin=" + this.disableAutoKaptApplicationForKotlin
+                + ", disableAutoSAMWithReceiverConfigurationForKotlin=" + this.disableAutoSAMWithReceiverConfigurationForKotlin + ")";
     }
 }

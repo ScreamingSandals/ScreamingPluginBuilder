@@ -16,14 +16,12 @@
 
 package org.screamingsandals.gradle.run.config;
 
-import lombok.Getter;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Getter
 @ApiStatus.Internal
 public class SingleServerProperties implements ServerProperties {
     private final @NotNull Map<@NotNull String, String> serverProperties = new HashMap<>();
@@ -38,5 +36,9 @@ public class SingleServerProperties implements ServerProperties {
 
     public void onlineMode(boolean onlineMode) {
         serverProperties.put("online-mode", Boolean.toString(onlineMode));
+    }
+
+    public @NotNull Map<@NotNull String, String> getServerProperties() {
+        return this.serverProperties;
     }
 }

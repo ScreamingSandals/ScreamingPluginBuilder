@@ -16,14 +16,16 @@
 
 package org.screamingsandals.gradle.run.config;
 
-import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-@Data
 public class MultipleServerProperties implements ServerProperties {
     private final @NotNull List<@NotNull Version> versions;
+
+    public MultipleServerProperties(@NotNull List<@NotNull Version> versions) {
+        this.versions = versions;
+    }
 
     public void property(@NotNull String key, @NotNull String value) {
         for (var version : versions) {
@@ -41,5 +43,9 @@ public class MultipleServerProperties implements ServerProperties {
         for (var version : versions) {
             version.getServerProperties().onlineMode(onlineMode);
         }
+    }
+
+    public @NotNull String toString() {
+        return "MultipleServerProperties(versions=" + this.versions + ")";
     }
 }

@@ -16,12 +16,14 @@
 
 package org.screamingsandals.gradle.run.utils;
 
-import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
-@UtilityClass
-public class Constants {
+public final class Constants {
     public static final @NotNull String TASK_GROUP = "Run Test Server";
 
     public static final @NotNull String SHADOW_JAR_TASK = "shadowJar";
+
+    private Constants() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 }

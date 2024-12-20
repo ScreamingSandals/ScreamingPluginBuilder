@@ -16,31 +16,33 @@
 
 package org.screamingsandals.gradle.slib;
 
-import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
-@UtilityClass
-public class Constants {
-    public final @NotNull String SCREAMING_LIB_GROUP_ID = "org.screamingsandals.lib";
-    public final @NotNull String SIMPLE_INVENTORIES_GROUP_ID = "org.screamingsandals.simpleinventories";
-    public final @NotNull String SIMPLE_INVENTORIES_MODULE_NAME = "core";
+public final class Constants {
+    public static final @NotNull String SCREAMING_LIB_GROUP_ID = "org.screamingsandals.lib";
+    public static final @NotNull String SIMPLE_INVENTORIES_GROUP_ID = "org.screamingsandals.simpleinventories";
+    public static final @NotNull String SIMPLE_INVENTORIES_MODULE_NAME = "core";
 
-    public final @NotNull String SANDALS_REPO_NAME = "sandals-repo";
-    public final @NotNull String SANDALS_REPO_URL = "https://repo.screamingsandals.org/public/";
+    public static final @NotNull String SANDALS_REPO_NAME = "sandals-repo";
+    public static final @NotNull String SANDALS_REPO_URL = "https://repo.screamingsandals.org/public/";
 
-    public final @NotNull String IMPLEMENTATION_CONFIGURATION = "implementation";
-    public final @NotNull String API_CONFIGURATION = "api";
-    public final @NotNull String ANNOTATION_PROCESSOR = "annotationProcessor";
-    public final @NotNull String KAPT = "kapt";
+    public static final @NotNull String IMPLEMENTATION_CONFIGURATION = "implementation";
+    public static final @NotNull String API_CONFIGURATION = "api";
+    public static final @NotNull String ANNOTATION_PROCESSOR = "annotationProcessor";
+    public static final @NotNull String KAPT = "kapt";
 
-    public final @NotNull String PAPER_API_GROUP = "io.papermc.paper";
-    public final @NotNull String PAPER_API = "paper-api";
-    public final @NotNull String PAPER_DESTROYSTOKYO_API_GROUP = "com.destroystokyo.paper";
-    public final @NotNull String PAPER_DESTROYSTOKYO_API = "paper-api";
-    public final @NotNull String PAPERSPIGOT_API_GROUP = "org.github.paperspigot";
-    public final @NotNull String PAPERSPIGOT_API = "paperspigot-api";
-    public final @NotNull String SPIGOT_API_GROUP = "org.spigotmc";
-    public final @NotNull String SPIGOT_API = "spigot-api";
-    public final @NotNull String BUKKIT_GROUP = "org.bukkit";
-    public final @NotNull String BUKKIT_API = "bukkit";
+    public static final @NotNull String PAPER_API_GROUP = "io.papermc.paper";
+    public static final @NotNull String PAPER_API = "paper-api";
+    public static final @NotNull String PAPER_DESTROYSTOKYO_API_GROUP = "com.destroystokyo.paper";
+    public static final @NotNull String PAPER_DESTROYSTOKYO_API = "paper-api";
+    public static final @NotNull String PAPERSPIGOT_API_GROUP = "org.github.paperspigot";
+    public static final @NotNull String PAPERSPIGOT_API = "paperspigot-api";
+    public static final @NotNull String SPIGOT_API_GROUP = "org.spigotmc";
+    public static final @NotNull String SPIGOT_API = "spigot-api";
+    public static final @NotNull String BUKKIT_GROUP = "org.bukkit";
+    public static final @NotNull String BUKKIT_API = "bukkit";
+
+    private Constants() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+    }
 }

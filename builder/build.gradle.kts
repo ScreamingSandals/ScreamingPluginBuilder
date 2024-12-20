@@ -1,5 +1,4 @@
 dependencies {
-    implementation(libs.jsch)
     implementation(libs.licenser)
     implementation(libs.shadow)
 }

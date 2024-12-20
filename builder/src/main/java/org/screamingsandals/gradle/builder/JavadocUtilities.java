@@ -21,8 +21,6 @@ import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.external.javadoc.CoreJavadocOptions;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.screamingsandals.gradle.builder.tasks.JavadocUploadTask;
 
 public final class JavadocUtilities {
     private JavadocUtilities() {
@@ -39,46 +37,10 @@ public final class JavadocUtilities {
             });
         });
 
-        project.getTasks().create("javadocJar", Jar.class, it -> {
+        project.getTasks().register("javadocJar", Jar.class, it -> {
             it.dependsOn(task);
             it.getArchiveClassifier().set("javadoc");
             it.from(task);
-        });
-    }
-
-    public static void setupAllowJavadocUploadTask(@NotNull Project project) {
-        project.getTasks().create("allowJavadocUpload", it -> {
-            if (project.getTasks().findByName("uploadJavadoc") != null) {
-                it.dependsOn("uploadJavadoc");
-            }
-        });
-    }
-
-    public static void setupSftpJavadocPublishingTaskFromProperties(@NotNull Project project) {
-        if (System.getenv(Constants.JAVADOC_HOST_PROPERTY) != null
-                && System.getenv(Constants.JAVADOC_USER_PROPERTY) != null
-                && System.getenv(Constants.JAVADOC_SECRET_PROPERTY) != null
-        ) {
-            setupSftpJavadocPublishingTask(
-                    project,
-                    System.getenv(Constants.JAVADOC_HOST_PROPERTY),
-                    System.getenv(Constants.JAVADOC_USER_PROPERTY),
-                    System.getenv(Constants.JAVADOC_SECRET_PROPERTY),
-                    System.getenv(Constants.JAVADOC_UPLOAD_CUSTOM_DIRECTORY_PATH_PROPERTY)
-            );
-        }
-    }
-
-    public static void setupSftpJavadocPublishingTask(@NotNull Project project, @NotNull String javadocHost, @NotNull String javadocUser, @NotNull String javadocPassword, @Nullable String customDirectoryPath) {
-        if (project.getTasks().findByName("javadoc") == null) {
-            throw new IllegalStateException("Please call configureJavadocTasks() first!");
-        }
-
-        project.getTasks().register("uploadJavadoc", JavadocUploadTask.class, it -> {
-            it.getSftpHost().set(javadocHost);
-            it.getSftpUser().set(javadocUser);
-            it.getSftpPassword().set(javadocPassword);
-            it.getJavaDocCustomDirectoryPath().set(customDirectoryPath);
         });
     }
 }

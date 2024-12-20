@@ -26,9 +26,4 @@ public final class Constants {
     public static final @NotNull String NEXUS_URL_RELEASE_PROPERTY = "NEXUS_URL_RELEASE";
     public static final @NotNull String NEXUS_USERNAME_PROPERTY = "NEXUS_USERNAME";
     public static final @NotNull String NEXUS_PASSWORD_PROPERTY = "NEXUS_PASSWORD";
-
-    public static final @NotNull String JAVADOC_HOST_PROPERTY = "JAVADOC_HOST";
-    public static final @NotNull String JAVADOC_USER_PROPERTY = "JAVADOC_USER";
-    public static final @NotNull String JAVADOC_SECRET_PROPERTY = "JAVADOC_SECRET";
-    public static final @NotNull String JAVADOC_UPLOAD_CUSTOM_DIRECTORY_PATH_PROPERTY = "JavadocUploadCustomDirectoryPath";
 }

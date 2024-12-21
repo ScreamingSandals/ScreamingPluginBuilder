@@ -1,7 +1,7 @@
 # screaming-plugin-builder
 Gradle plugin for making your build.gradle smaller and prepared for ScreamingLib plugins!
 
-**This gradle plugin requires Gradle >= 6.0**
+**This gradle plugin requires Gradle >= 8.0**
 
 ## Table of contents
 * [Apply Plugin](#apply-plugin)
@@ -28,7 +28,7 @@ pluginManagement {
 Then go to your build.gradle:
 ```groovy
 plugins {
-  id 'org.screamingsandals.plugin-builder' version '1.0.49'
+  id 'org.screamingsandals.plugin-builder' version 'LATEST_VERSION'
 }
 
 // Spigradle and Shadow will be imported automatically
@@ -43,15 +43,13 @@ defaultTasks 'screamCompile'
 This task will:
 * compile plugins and shade all dependencies with scope `implementation` into new jar file
 * prepare your pom.xml to right format and publish it to your local maven repository (folder `.m2`)
-* If you run gradle with switch `-PscreamingRepository="file:///directory/with/repository"`
-  * then it'll also publish your work here
 
 ## Example with subprojects
 ```groovy
 defaultTasks 'clean', 'screamCompile' // use our task as default
 
 plugins {
-  id 'org.screamingsandals.plugin-builder' version '1.0.49'
+  id 'org.screamingsandals.plugin-builder' version 'LATEST_VERSION'
 }
 
 allprojects {

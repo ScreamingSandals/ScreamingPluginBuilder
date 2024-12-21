@@ -50,7 +50,7 @@ public class SLibExtension {
      */
     private @Nullable Map<@NotNull String, @NotNull String> multiModuleConfiguration;
     /**
-     * Name of the universal subproject (containing the final jar). If null, this is not a multi module project.
+     * Name of the universal subproject (containing the final jar). It is not required if you do not need
      */
     private @Nullable String multiModuleUniversalSubproject;
     /**

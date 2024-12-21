@@ -68,7 +68,7 @@ public class SLibPlugin implements Plugin<Project> {
                     project.getExtensions().getByType(SamWithReceiverExtension.class).annotation("org.screamingsandals.lib.utils.annotations.ImplicitReceiver");
                 }
             }
-            var multiModuleProject = extension.getMultiModuleConfiguration() != null && extension.getMultiModuleCommonSubproject() != null && extension.getMultiModuleUniversalSubproject() != null;
+            var multiModuleProject = extension.getMultiModuleConfiguration() != null && extension.getMultiModuleCommonSubproject() != null;
             var implConfig = extension.isUseApiConfigurationInsteadOfImplementation() ? Constants.API_CONFIGURATION : Constants.IMPLEMENTATION_CONFIGURATION;
 
             var dependencies = project1.getDependencies();
@@ -84,6 +84,9 @@ public class SLibPlugin implements Plugin<Project> {
                 dependencies.add(implConfig, project1.project(":" + extension.getMultiModuleCommonSubproject()));
                 for (var pr : extension.getMultiModuleConfiguration().keySet()) {
                     dependencies.add(implConfig, project1.project(":" + pr));
+                }
+                if (extension.getPlatforms().contains("bukkit")) {
+                    project.getTasks().withType(ShadowJar.class).getByName("shadowJar").getManifest().attributes(Map.of("paperweight-mappings-namespace", "mojang"));
                 }
                 relocate(project1, extension);
                 return;
@@ -104,6 +107,7 @@ public class SLibPlugin implements Plugin<Project> {
                         }
                         dependencies.add(implConfig, project1.project(":" + extension.getMultiModuleCommonSubproject()));
                         dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":proxy-" + platform + ":" + extension.getVersion());
+                        relocate(project1, extension);
                     } else {
                         throw new UnsupportedOperationException("Can't determine what is this subproject for: " + project1.getName());
                     }
@@ -128,6 +132,10 @@ public class SLibPlugin implements Plugin<Project> {
                         }
                         dependencies.add(implConfig, project1.project(":" + extension.getMultiModuleCommonSubproject()));
                         dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":core-" + platform + ":" + extension.getVersion());
+                        if ("bukkit".equals(platform)) {
+                            project.getTasks().withType(ShadowJar.class).getByName("shadowJar").getManifest().attributes(Map.of("paperweight-mappings-namespace", "mojang"));
+                        }
+                        relocate(project1, extension);
                     } else {
                         throw new UnsupportedOperationException("Can't determine what is this subproject for: " + project1.getName());
                     }
@@ -135,6 +143,9 @@ public class SLibPlugin implements Plugin<Project> {
                     dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":core-common:" + extension.getVersion());
                     extension.getPlatforms().forEach(s -> {
                         dependencies.add(implConfig, Constants.SCREAMING_LIB_GROUP_ID + ":core-" + s + ":" + extension.getVersion());
+                        if ("bukkit".equals(s)) {
+                            project.getTasks().withType(ShadowJar.class).getByName("shadowJar").getManifest().attributes(Map.of("paperweight-mappings-namespace", "mojang"));
+                        }
                     });
                 }
             } else {

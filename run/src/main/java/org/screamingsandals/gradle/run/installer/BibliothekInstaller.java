@@ -20,8 +20,9 @@ import org.jetbrains.annotations.NotNull;
 import org.screamingsandals.gradle.run.api.Bibliothek;
 
 import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 public class BibliothekInstaller implements Installer {
     private final @NotNull String bibliothekApiUrl;
@@ -39,7 +40,7 @@ public class BibliothekInstaller implements Installer {
         }
 
         System.out.println("Preparing server.jar");
-        var serverJar = new File(project, "server.jar"); // TODO: shared-cache?
+        var serverJar = new File(folder, "server.jar"); // TODO: shared-cache?
         if (!serverJar.exists() || forceUpdate) {
             Bibliothek api = new Bibliothek(bibliothekApiUrl);
 
@@ -51,7 +52,9 @@ public class BibliothekInstaller implements Installer {
 
             var downloadUrl = api.getDownloadUrl(project, version, latestBuild);
 
-            Files.copy(Path.of(downloadUrl), serverJar.toPath());
+            try (InputStream in = downloadUrl.toURL().openStream()) {
+                Files.copy(in, serverJar.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
         }
 
         return serverJar;

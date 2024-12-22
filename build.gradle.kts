@@ -14,8 +14,13 @@ subprojects {
 
     repositories {
         mavenCentral()
+        gradlePluginPortal()
         maven {
-            url = uri("https://plugins.gradle.org/m2/")
+            // TODO: remove repository when (if) uploaded to gradle plugin portal
+            url = uri("https://maven.neoforged.net/releases")
+            content {
+                includeGroup("net.neoforged.licenser")
+            }
         }
     }
 

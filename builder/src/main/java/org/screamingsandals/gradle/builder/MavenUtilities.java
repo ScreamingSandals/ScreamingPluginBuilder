@@ -27,15 +27,17 @@ public final class MavenUtilities {
     private MavenUtilities() {
     }
 
-    public static @NotNull MavenConfiguration setupPublishing(@NotNull Project project) {
+    public static @NotNull MavenPublication setupPublishing(@NotNull Project project) {
         return setupPublishing(project, false, false, false);
     }
 
-    public static @NotNull MavenConfiguration setupPublishing(@NotNull Project project, boolean onlyPomArtifact, boolean addSourceJar, boolean addJavadocJar) {
+    public static @NotNull MavenPublication setupPublishing(@NotNull Project project, boolean onlyPomArtifact, boolean addSourceJar, boolean addJavadocJar) {
         var publishing = (PublishingExtension) project.getExtensions().getByName("publishing");
-        var publication = publishing.getPublications().create("maven", MavenPublication.class, it -> {
+        return publishing.getPublications().create("maven", MavenPublication.class, it -> {
+            var shadowJar = project.getTasks().findByName("shadowJar");
+
             if (!onlyPomArtifact) {
-                it.artifact(project.getTasks().getByName("jar"));
+                it.artifact(shadowJar != null ? shadowJar: project.getTasks().getByName("jar"));
             }
 
             if (addSourceJar) {
@@ -59,7 +61,7 @@ public final class MavenUtilities {
                         dependencyNode.appendNode("scope", "provided");
                     }
                 });
-                if (project.getTasks().findByName("shadowJar") == null) {
+                if (shadowJar == null) {
                     project.getConfigurations().getByName("api").getDependencies().forEach(dep -> {
                         var dependencyNode = dependenciesNode.appendNode("dependency");
                         dependencyNode.appendNode("groupId", dep.getGroup());
@@ -70,7 +72,6 @@ public final class MavenUtilities {
                 }
             });
         });
-        return new MavenConfiguration(publishing, publication);
     }
 
     public static void setupMavenRepositoriesFromProperties(@NotNull Project project) {
@@ -81,24 +82,6 @@ public final class MavenUtilities {
                 && System.getenv(Constants.NEXUS_PASSWORD_PROPERTY) != null
         ) {
             new NexusRepository().setup(project, publishing);
-        }
-    }
-
-    public static final class MavenConfiguration {
-        private final @NotNull PublishingExtension extension;
-        private final @NotNull MavenPublication publication;
-
-        public MavenConfiguration(@NotNull PublishingExtension extension, @NotNull MavenPublication publication) {
-            this.extension = extension;
-            this.publication = publication;
-        }
-
-        public @NotNull PublishingExtension getExtension() {
-            return extension;
-        }
-
-        public @NotNull MavenPublication getPublication() {
-            return publication;
         }
     }
 }

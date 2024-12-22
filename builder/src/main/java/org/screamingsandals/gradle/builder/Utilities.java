@@ -16,12 +16,12 @@
 
 package org.screamingsandals.gradle.builder;
 
+import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin;
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin;
 import org.cadixdev.gradle.licenser.LicenseExtension;
 import org.cadixdev.gradle.licenser.Licenser;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPluginExtension;
-import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.bundling.Jar;
 import org.jetbrains.annotations.NotNull;
@@ -34,12 +34,12 @@ public final class Utilities {
     private Utilities() {
     }
 
-    public static void configureShadowPlugin(@NotNull Project project, @Nullable MavenPublication maven) {
+    public static void configureShadowPlugin(@NotNull Project project) {
         project.apply(it -> it.plugin(ShadowPlugin.class));
 
-        if (maven != null) {
-            maven.getArtifacts().removeIf(it -> it.getBuildDependencies().getDependencies(null).contains(project.getTasks().getByName("jar")));
-            maven.artifact(project.getTasks().getByName("shadowJar"), it -> it.setClassifier(""));
+        var assemble = project.getTasks().findByName("assemble");
+        if (assemble != null) {
+            assemble.dependsOn(ShadowJavaPlugin.SHADOW_JAR_TASK_NAME);
         }
     }
 

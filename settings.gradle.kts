@@ -1,9 +1,8 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven {
-            // TODO: remove repository when (if) uploaded to gradle plugin portal
-            url = uri("https://maven.neoforged.net/releases")
+        // TODO: remove repository when (if) uploaded to gradle plugin portal
+        maven("https://maven.neoforged.net/releases") {
             content {
                 includeGroup("net.neoforged.licenser")
             }

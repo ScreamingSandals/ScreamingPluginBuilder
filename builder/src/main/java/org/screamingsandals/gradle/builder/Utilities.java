@@ -18,11 +18,14 @@ package org.screamingsandals.gradle.builder;
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin;
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin;
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
 import org.cadixdev.gradle.licenser.LicenseExtension;
 import org.cadixdev.gradle.licenser.Licenser;
 import org.gradle.api.Project;
+import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,36 +37,46 @@ public final class Utilities {
     private Utilities() {
     }
 
-    public static void configureShadowPlugin(@NotNull Project project) {
+    public static @NotNull TaskProvider<ShadowJar> configureShadowPlugin(@NotNull Project project) {
         project.apply(it -> it.plugin(ShadowPlugin.class));
 
-        var assemble = project.getTasks().findByName("assemble");
-        if (assemble != null) {
-            assemble.dependsOn(ShadowJavaPlugin.SHADOW_JAR_TASK_NAME);
-        }
+        var jarTask = project.getTasks().withType(Jar.class).getByName("jar");
+        var oldClassifier = jarTask.getArchiveClassifier().get();
+        jarTask.getArchiveClassifier().set("unshaded");
+        var shadowJarTask = project.getTasks().named(ShadowJavaPlugin.SHADOW_JAR_TASK_NAME, ShadowJar.class, shadowJar -> {
+            shadowJar.getArchiveClassifier().set(oldClassifier);
+        });
+        project.getTasks().named("build", build -> {
+            build.dependsOn(ShadowJavaPlugin.SHADOW_JAR_TASK_NAME);
+        });
+        return shadowJarTask;
     }
 
-    public static void configureLicenser(@NotNull Project project) {
+    public static @Nullable LicenseExtension configureLicenser(@NotNull Project project) {
         var headerFile = project.getRootProject().file("license_header.txt");
 
-        if (headerFile.exists()) {
-            project.apply(it -> it.plugin(Licenser.class));
-
-            var extension = project.getExtensions().getByType(LicenseExtension.class);
-            extension.setHeader(headerFile);
-            extension.ignoreFailures(true);
-            extension.properties(it -> {
-                it.set("year", Calendar.getInstance().get(Calendar.YEAR));
-            });
+        if (!headerFile.exists()) {
+            return null;
         }
+
+        project.apply(it -> it.plugin(Licenser.class));
+
+        var extension = project.getExtensions().getByType(LicenseExtension.class);
+        extension.setHeader(headerFile);
+        extension.ignoreFailures(true);
+        extension.properties(it -> {
+            it.set("year", Calendar.getInstance().get(Calendar.YEAR));
+        });
+        return extension;
     }
 
-    public static void configureSourceJarTasks(@NotNull Project project) {
-        configureSourceJarTasks(project, null);
+    public static @NotNull TaskProvider<Jar> configureSourcesJar(@NotNull Project project) {
+        return configureSourcesJar(project, null);
     }
 
-    public static void configureSourceJarTasks(@NotNull Project project, @Nullable Predicate<@NotNull SourceSet> sourceSetSelector) {
-        project.getTasks().register("sourceJar", Jar.class, it -> {
+    public static @NotNull TaskProvider<Jar> configureSourcesJar(@NotNull Project project, @Nullable Predicate<@NotNull SourceSet> sourceSetSelector) {
+        return project.getTasks().register(Constants.SOURCES_JAR_TASK_NAME, Jar.class, it -> {
+            it.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
             it.getArchiveClassifier().set("sources");
             var sourceSets = project.getExtensions().getByType(JavaPluginExtension.class).getSourceSets();
             if (sourceSetSelector != null) {

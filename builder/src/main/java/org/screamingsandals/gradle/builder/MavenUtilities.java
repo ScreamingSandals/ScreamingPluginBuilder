@@ -42,11 +42,11 @@ public final class MavenUtilities {
             it.getArtifacts().forEach(a -> a.setClassifier(""));
 
             if (addSourceJar) {
-                it.artifact(project.getTasks().getByName("sourceJar"));
+                it.artifact(project.getTasks().getByName(Constants.SOURCES_JAR_TASK_NAME));
             }
 
             if (addJavadocJar) {
-                it.artifact(project.getTasks().getByName("javadocJar"));
+                it.artifact(project.getTasks().getByName(Constants.JAVADOC_JAR_TASK_NAME));
             }
 
             it.getPom().withXml(xml -> {

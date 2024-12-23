@@ -16,19 +16,48 @@
 
 package org.screamingsandals.gradle.builder
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.cadixdev.gradle.licenser.LicenseExtension
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.javadoc.Javadoc
 
-fun Project.configureShadowPlugin() = Utilities.configureShadowPlugin(this)
+fun Project.configureShadowPlugin(action: (ShadowJar.() -> Unit)? = null) =
+    Utilities.configureShadowPlugin(this).let {
+        if (action != null) {
+            it.configure(action)
+        }
+    }
 
-fun Project.configureLicenser() = Utilities.configureLicenser(this)
+fun Project.configureLicenser(action: (LicenseExtension.() -> Unit)? = null) =
+    Utilities.configureLicenser(this)?.let {
+        if (action != null) {
+            it.action()
+        }
+    }
 
-fun Project.configureSourceJarTasks(predicate: ((SourceSet) -> Boolean)? = null) = Utilities.configureSourceJarTasks(this, predicate)
+fun Project.configureSourcesJar(predicate: ((SourceSet) -> Boolean)? = null, action: (Jar.() -> Unit)? = null) =
+    Utilities.configureSourcesJar(this, predicate).let {
+        if (action != null) {
+            it.configure(action)
+        }
+    }
 
-fun Project.configureJavadocTasks() = JavadocUtilities.configureJavadocTasks(this)
+fun Project.configureJavadocTasks(action: (Javadoc.() -> Unit)? = null) =
+    JavadocUtilities.configureJavadocTasks(this).let {
+        if (action != null) {
+            it.action()
+        }
+    }
 
-fun Project.setupMavenPublishing(onlyPomArtifact: Boolean = false, addSourceJar: Boolean = false, addJavadocJar: Boolean = false, action: (MavenPublication.() -> Unit)? = null) =
+fun Project.setupMavenPublishing(
+    onlyPomArtifact: Boolean = false,
+    addSourceJar: Boolean = false,
+    addJavadocJar: Boolean = false,
+    action: (MavenPublication.() -> Unit)? = null
+) =
     MavenUtilities.setupPublishing(this, onlyPomArtifact, addSourceJar, addJavadocJar).let {
         if (action != null) {
             it.action()

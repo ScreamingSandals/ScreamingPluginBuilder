@@ -26,8 +26,8 @@ public final class JavadocUtilities {
     private JavadocUtilities() {
     }
 
-    public static void configureJavadocTasks(@NotNull Project project) {
-        var task = project.getTasks().getByName("javadoc", javadocTask -> {
+    public static @NotNull Javadoc configureJavadocTasks(@NotNull Project project) {
+        var task = project.getTasks().getByName(Constants.JAVADOC_TASK_NAME, javadocTask -> {
             if (!(javadocTask instanceof Javadoc)) {
                 throw new IllegalArgumentException("Expected javadoc task, got " + javadocTask);
             }
@@ -37,10 +37,11 @@ public final class JavadocUtilities {
             });
         });
 
-        project.getTasks().register("javadocJar", Jar.class, it -> {
+        project.getTasks().register(Constants.JAVADOC_JAR_TASK_NAME, Jar.class, it -> {
             it.dependsOn(task);
             it.getArchiveClassifier().set("javadoc");
             it.from(task);
         });
+        return (Javadoc) task;
     }
 }

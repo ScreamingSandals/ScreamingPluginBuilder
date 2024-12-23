@@ -22,6 +22,10 @@ public final class Constants {
     private Constants() {
     }
 
+    public static final @NotNull String SOURCES_JAR_TASK_NAME = "sourcesJar";
+    public static final @NotNull String JAVADOC_JAR_TASK_NAME = "javadocJar";
+    public static final @NotNull String JAVADOC_TASK_NAME = "javadoc";
+
     public static final @NotNull String NEXUS_URL_SNAPSHOT_PROPERTY = "NEXUS_URL_SNAPSHOT";
     public static final @NotNull String NEXUS_URL_RELEASE_PROPERTY = "NEXUS_URL_RELEASE";
     public static final @NotNull String NEXUS_USERNAME_PROPERTY = "NEXUS_USERNAME";

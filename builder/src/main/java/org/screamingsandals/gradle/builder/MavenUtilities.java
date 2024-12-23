@@ -35,10 +35,11 @@ public final class MavenUtilities {
         var publishing = (PublishingExtension) project.getExtensions().getByName("publishing");
         return publishing.getPublications().create("maven", MavenPublication.class, it -> {
             var shadowJar = project.getTasks().findByName("shadowJar");
-
             if (!onlyPomArtifact) {
                 it.artifact(shadowJar != null ? shadowJar: project.getTasks().getByName("jar"));
             }
+
+            it.getArtifacts().forEach(a -> a.setClassifier(""));
 
             if (addSourceJar) {
                 it.artifact(project.getTasks().getByName("sourceJar"));
@@ -47,8 +48,6 @@ public final class MavenUtilities {
             if (addJavadocJar) {
                 it.artifact(project.getTasks().getByName("javadocJar"));
             }
-
-            it.getArtifacts().forEach(a -> a.setClassifier(""));
 
             it.getPom().withXml(xml -> {
                 var dependenciesNode = xml.asNode().appendNode("dependencies");

@@ -18,6 +18,7 @@ package org.screamingsandals.gradle.builder
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.cadixdev.gradle.licenser.LicenseExtension
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.SourceSet
@@ -65,3 +66,5 @@ fun Project.setupMavenPublishing(
     }
 
 fun Project.setupMavenRepositoriesFromProperties() = MavenUtilities.setupMavenRepositoriesFromProperties(this)
+
+fun Project.configureJavac(javaVersion: JavaVersion) = Utilities.configureJavac(this, javaVersion)

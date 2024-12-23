@@ -21,12 +21,14 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin;
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
 import org.cadixdev.gradle.licenser.LicenseExtension;
 import org.cadixdev.gradle.licenser.Licenser;
+import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.Jar;
+import org.gradle.api.tasks.compile.JavaCompile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,6 +90,16 @@ public final class Utilities {
             } else {
                 it.from(sourceSets.getByName("main").getAllJava());
             }
+        });
+    }
+
+    public static void configureJavac(@NotNull Project project, @NotNull JavaVersion javaVersion) {
+        project.getExtensions().configure(JavaPluginExtension.class, extension -> {
+            extension.setSourceCompatibility(javaVersion);
+        });
+        project.getTasks().withType(JavaCompile.class, task -> {
+            task.getOptions().getCompilerArgs().add("-Xlint:deprecation");
+            task.getOptions().getRelease().set(Integer.parseInt(javaVersion.getMajorVersion()));
         });
     }
 }

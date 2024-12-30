@@ -31,6 +31,8 @@ import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget;
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension;
 
 import java.util.Calendar;
 import java.util.function.Predicate;
@@ -101,5 +103,9 @@ public final class Utilities {
             task.getOptions().getCompilerArgs().add("-Xlint:deprecation");
             task.getOptions().getRelease().set(Integer.parseInt(javaVersion.getMajorVersion()));
         });
+        // Automatically configure Kotlin if present
+        if (project.getPlugins().hasPlugin("org.jetbrains.kotlin.jvm")) {
+           project.getExtensions().getByType(KotlinJvmProjectExtension.class).getCompilerOptions().getJvmTarget().set(JvmTarget.fromTarget(javaVersion.toString()));
+        }
     }
 }

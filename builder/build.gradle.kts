@@ -11,6 +11,7 @@ kotlin {
 }
 
 dependencies {
+    compileOnly(libs.kotlin.plugin)
     implementation(libs.licenser)
     implementation(libs.shadow)
 }

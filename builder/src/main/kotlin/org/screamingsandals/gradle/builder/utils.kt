@@ -20,6 +20,8 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.cadixdev.gradle.licenser.LicenseExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.attributes.DocsType
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.bundling.Jar
@@ -39,11 +41,24 @@ fun Project.configureLicenser(action: (LicenseExtension.() -> Unit)? = null) =
         }
     }
 
-fun Project.configureSourcesJar(predicate: ((SourceSet) -> Boolean)? = null, action: (Jar.() -> Unit)? = null) =
+fun Project.configureSourcesJar(predicate: ((SourceSet) -> Boolean)? = null, action: (Jar.() -> Unit)? = null, configureShadedSourcesInclude: Boolean = false): Utilities.JarPair =
     Utilities.configureSourcesJar(this, predicate).let {
         if (action != null) {
-            it.configure(action)
+            it.task.configure(action)
         }
+        if (configureShadedSourcesInclude && it.copySpecAction != null) {
+            it.task.configure { t ->
+                t.from(configurations.named("runtimeClasspath", Configuration::class.java).map { dep ->
+                    dep.incoming.artifactView { view ->
+                        view.withVariantReselection()
+                        view.attributes { attr ->
+                            attr.attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType::class.java, DocsType.SOURCES))
+                        }
+                    }.files.map { zipTree(it) }
+                }, it.copySpecAction!!)
+            }
+        }
+        it
     }
 
 fun Project.configureJavadocTasks(action: (Javadoc.() -> Unit)? = null) =

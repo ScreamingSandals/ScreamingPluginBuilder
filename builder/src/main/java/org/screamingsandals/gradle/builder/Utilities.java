@@ -18,11 +18,14 @@ package org.screamingsandals.gradle.builder;
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin;
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin;
+import com.github.jengelman.gradle.plugins.shadow.relocation.RelocatePathContext;
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
 import org.cadixdev.gradle.licenser.LicenseExtension;
 import org.cadixdev.gradle.licenser.Licenser;
+import org.gradle.api.Action;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
+import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSet;
@@ -33,8 +36,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget;
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension;
+import org.screamingsandals.gradle.builder.shadow.RelocateFilterReader;
 
 import java.util.Calendar;
+import java.util.Map;
 import java.util.function.Predicate;
 
 public final class Utilities {
@@ -74,25 +79,56 @@ public final class Utilities {
         return extension;
     }
 
-    public static @NotNull TaskProvider<Jar> configureSourcesJar(@NotNull Project project) {
+    public static @NotNull JarPair configureSourcesJar(@NotNull Project project) {
         return configureSourcesJar(project, null);
     }
 
-    public static @NotNull TaskProvider<Jar> configureSourcesJar(@NotNull Project project, @Nullable Predicate<@NotNull SourceSet> sourceSetSelector) {
-        return project.getTasks().register(Constants.SOURCES_JAR_TASK_NAME, Jar.class, it -> {
+    public static @NotNull JarPair configureSourcesJar(@NotNull Project project, @Nullable Predicate<@NotNull SourceSet> sourceSetSelector) {
+        var shadowJar = project.getTasks().withType(ShadowJar.class).findByName(ShadowJavaPlugin.SHADOW_JAR_TASK_NAME);
+        Action<CopySpec> specAction;
+        if (shadowJar != null) {
+            specAction = spec -> {
+                // Use our FilterReader with relocators from shadow
+                spec.filter(Map.of("relocators", shadowJar.getRelocators()), RelocateFilterReader.class);
+
+                spec.eachFile(fileCopyDetails -> {
+                    String path = fileCopyDetails.getPath();
+                    for (var relocator : shadowJar.getRelocators().get()) {
+                        if (relocator.canRelocatePath(path)) {
+                            String relocatedPath = relocator.relocatePath(new RelocatePathContext(path));
+                            fileCopyDetails.setPath(relocatedPath);
+                            break;
+                        }
+                    }
+                });
+            };
+        } else {
+            specAction = null;
+        }
+
+        return new JarPair(project.getTasks().register(Constants.SOURCES_JAR_TASK_NAME, Jar.class, it -> {
             it.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
             it.getArchiveClassifier().set("sources");
+
             var sourceSets = project.getExtensions().getByType(JavaPluginExtension.class).getSourceSets();
             if (sourceSetSelector != null) {
                 sourceSets.forEach(sourceSet -> {
                     if (sourceSetSelector.test(sourceSet)) {
-                        it.from(sourceSet.getAllJava());
+                        if (specAction != null) {
+                            it.from(sourceSet.getAllJava(), specAction);
+                        } else {
+                            it.from(sourceSet.getAllJava());
+                        }
                     }
                 });
             } else {
-                it.from(sourceSets.getByName("main").getAllJava());
+                if (specAction != null) {
+                    it.from(sourceSets.getByName("main").getAllJava(), specAction);
+                } else {
+                    it.from(sourceSets.getByName("main").getAllJava());
+                }
             }
-        });
+        }), specAction);
     }
 
     public static void configureJavac(@NotNull Project project, @NotNull JavaVersion javaVersion) {
@@ -106,6 +142,24 @@ public final class Utilities {
         // Automatically configure Kotlin if present
         if (project.getPlugins().hasPlugin("org.jetbrains.kotlin.jvm")) {
            project.getExtensions().getByType(KotlinJvmProjectExtension.class).getCompilerOptions().getJvmTarget().set(JvmTarget.fromTarget(javaVersion.toString()));
+        }
+    }
+
+    public static final class JarPair {
+        private final @NotNull TaskProvider<Jar> task;
+        private final @Nullable Action<@NotNull CopySpec> copySpecAction;
+
+        public JarPair(@NotNull TaskProvider<Jar> task, @Nullable Action<@NotNull CopySpec> copySpecAction) {
+            this.task = task;
+            this.copySpecAction = copySpecAction;
+        }
+
+        public @NotNull TaskProvider<Jar> getTask() {
+            return task;
+        }
+
+        public @Nullable Action<@NotNull CopySpec> getCopySpecAction() {
+            return copySpecAction;
         }
     }
 }

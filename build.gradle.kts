@@ -64,6 +64,7 @@ subprojects {
         properties {
             set("year", Calendar.getInstance().get(Calendar.YEAR))
         }
+        exclude("org/screamingsandals/gradle/run/VersionInfo.java")
     }
 }
 

@@ -1,5 +1,16 @@
+plugins {
+    alias(libs.plugins.buildconfig)
+}
+
 dependencies {
     implementation(libs.gson)
+}
+
+buildConfig {
+    className("VersionInfo")
+    packageName("org.screamingsandals.gradle.run")
+
+    buildConfigField("String", "VERSION", "\"${project.version}\"")
 }
 
 gradlePlugin {

@@ -17,19 +17,19 @@
 package org.screamingsandals.gradle.run.installer;
 
 import org.jetbrains.annotations.NotNull;
-import org.screamingsandals.gradle.run.api.Bibliothek;
+import org.screamingsandals.gradle.run.api.Fill;
 
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-public class BibliothekInstaller implements Installer {
-    private final @NotNull String bibliothekApiUrl;
+public class FillInstaller implements Installer {
+    private final @NotNull String fillApiUrl;
     private final @NotNull String project;
 
-    public BibliothekInstaller(@NotNull String bibliothekApiUrl, @NotNull String project) {
-        this.bibliothekApiUrl = bibliothekApiUrl;
+    public FillInstaller(@NotNull String fillApiUrl, @NotNull String project) {
+        this.fillApiUrl = fillApiUrl;
         this.project = project;
     }
 
@@ -42,15 +42,9 @@ public class BibliothekInstaller implements Installer {
         System.out.println("Preparing server.jar");
         var serverJar = new File(folder, "server.jar"); // TODO: shared-cache?
         if (!serverJar.exists() || forceUpdate) {
-            Bibliothek api = new Bibliothek(bibliothekApiUrl);
+            Fill api = new Fill(fillApiUrl);
 
-            var latestBuild = api.getLatestBuild(project, version);
-
-            if (latestBuild == 0) {
-                throw new RuntimeException("Can't obtain build number for version " + version);
-            }
-
-            var downloadUrl = api.getDownloadUrl(project, version, latestBuild);
+            var downloadUrl = api.getDownloadUrl(project, version);
 
             try (InputStream in = downloadUrl.toURL().openStream()) {
                 Files.copy(in, serverJar.toPath(), StandardCopyOption.REPLACE_EXISTING);

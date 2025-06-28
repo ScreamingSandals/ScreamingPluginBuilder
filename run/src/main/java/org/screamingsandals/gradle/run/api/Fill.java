@@ -18,6 +18,7 @@ package org.screamingsandals.gradle.run.api;
 
 import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
+import org.screamingsandals.gradle.run.VersionInfo;
 
 import java.io.IOException;
 import java.net.URI;
@@ -25,47 +26,31 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
-public class Bibliothek {
+public class Fill {
     private final @NotNull String baseUrl;
     private final @NotNull HttpClient httpClient = HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
     private final @NotNull Gson gson = new Gson();
 
-    public Bibliothek(@NotNull String baseUrl) {
+    public Fill(@NotNull String baseUrl) {
         this.baseUrl = baseUrl;
     }
 
-    public int getLatestBuild(@NotNull String project, @NotNull String version) throws URISyntaxException {
-        var request = HttpRequest.newBuilder()
-                .uri(new URI(this.baseUrl + "/v2/projects/" + project + "/versions/" + version))
-                .GET()
-                .build();
-
-        try {
-            var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() != 200) {
-                throw new RuntimeException("Could not get latest build number of " + project + " v" + version + ": " + response.statusCode());
-            }
-
-            return Collections.max(gson.fromJson(response.body(), VersionResponse.class).builds);
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("An exception occurred while trying to get the latest build number of " + project + " v" + version, e);
-        }
+    public @NotNull URI getDownloadUrl(@NotNull String project, @NotNull String version) throws URISyntaxException {
+        return getDownloadUrl(project, version, "latest");
     }
 
-    public @NotNull URI getDownloadUrl(@NotNull String project, @NotNull String version, int build) throws URISyntaxException {
-        return getDownloadUrl(project, version, build, "application");
+    public @NotNull URI getDownloadUrl(@NotNull String project, @NotNull String version, @NotNull String build) throws URISyntaxException {
+        return getDownloadUrl(project, version, build, "server:default");
     }
 
-    public @NotNull URI getDownloadUrl(@NotNull String project, @NotNull String version, int build, @NotNull String artifactName) throws URISyntaxException {
+    public @NotNull URI getDownloadUrl(@NotNull String project, @NotNull String version, @NotNull String build, @NotNull String artifactName) throws URISyntaxException {
         var request = HttpRequest.newBuilder()
-                .uri(new URI(this.baseUrl + "/v2/projects/" + project + "/versions/" + version + "/builds/" + build))
+                .uri(new URI(this.baseUrl + "/v3/projects/" + project + "/versions/" + version + "/builds/" + build))
+                .header("User-Agent", "screaming-gradle/" + VersionInfo.VERSION + " (https://github.com/ScreamingSandals/ScreamingPluginBuilder)")
                 .GET()
                 .build();
 
@@ -82,14 +67,10 @@ public class Bibliothek {
             if (artifact == null) {
                 throw new RuntimeException("Could not get the download url of " + project + " v" + version + "#" + build + ": artifact " + artifactName + " is unknown");
             }
-            return new URI(this.baseUrl + "/v2/projects/" + project + "/versions/" + version + "/builds/" + build + "/downloads/" + artifact.name);
+            return new URI(artifact.url);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("An exception occurred while trying to get the download url of " + project + " v" + version + "#" + build, e);
         }
-    }
-
-    private static class VersionResponse {
-        private @NotNull List<@NotNull Integer> builds;
     }
 
     private static class BuildInfo {
@@ -97,8 +78,6 @@ public class Bibliothek {
     }
 
     private static class Artifact {
-        private @NotNull String name;
-        private @NotNull String sha1;
+        private @NotNull String url;
     }
-
 }

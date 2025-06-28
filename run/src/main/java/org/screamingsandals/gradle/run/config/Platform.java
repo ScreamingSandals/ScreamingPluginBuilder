@@ -18,19 +18,19 @@ package org.screamingsandals.gradle.run.config;
 
 import org.jetbrains.annotations.NotNull;
 import org.screamingsandals.gradle.run.installer.Installer;
-import org.screamingsandals.gradle.run.installer.BibliothekInstaller;
+import org.screamingsandals.gradle.run.installer.FillInstaller;
 
 public enum Platform {
     PAPER(true, true, "plugins", true) {
         @Override
         public @NotNull Installer obtainInstaller() {
-            return new BibliothekInstaller("https://api.papermc.io", "paper");
+            return new FillInstaller("https://fill.papermc.io", "paper");
         }
     },
     FOLIA(true, true, "plugins", true) {
         @Override
         public @NotNull Installer obtainInstaller() {
-            return new BibliothekInstaller("https://api.papermc.io", "folia");
+            return new FillInstaller("https://fill.papermc.io", "folia");
         }
     };
 

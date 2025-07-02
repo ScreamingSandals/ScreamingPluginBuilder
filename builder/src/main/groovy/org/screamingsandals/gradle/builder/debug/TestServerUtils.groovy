@@ -11,27 +11,20 @@ class TestServerUtils {
         println 'Preparing server.jar'
         def serverJar = new File(testServerDirectory, "server.jar")
         if (!serverJar.exists() || forceUpdate) {
-            def latestBuild = 0
-            new URL("https://api.papermc.io/v2/projects/paper/versions/$version").newInputStream().withReader {
+            def downloadUrl = ""
+            def connection = new URL("https://fill.papermc.io/v3/projects/paper/versions/$version/builds/latest").openConnection()
+            connection.setRequestProperty("User-Agent", "screaming-gradle/1.0.88 (https://github.com/ScreamingSandals/ScreamingPluginBuilder)")
+
+            connection.getInputStream().withReader {
                 def map = new Gson().fromJson(it, Map.class)
-                latestBuild = Collections.max(map.get("builds") as List) as int
+                downloadUrl = ((map.get("downloads") as Map).get("server:default") as Map).get("url") as String
             }
 
-            if (latestBuild == 0) {
-                throw new RuntimeException("Can't obtain build number for version $version")
+            if (downloadUrl == "") {
+                throw new RuntimeException("Can't obtain download for version $version")
             }
 
-            def downloadName = ""
-            new URL("https://api.papermc.io/v2/projects/paper/versions/$version/builds/$latestBuild").newInputStream().withReader {
-                def map = new Gson().fromJson(it, Map.class)
-                downloadName = ((map.get("downloads") as Map).get("application") as Map).get("name") as String
-            }
-
-            if (downloadName == "") {
-                throw new RuntimeException("Can't obtain download for version $version build $latestBuild")
-            }
-
-            serverJar.withOutputStream { it << new URL("https://api.papermc.io/v2/projects/paper/versions/$version/builds/$latestBuild/downloads/$downloadName").newInputStream() }
+            serverJar.withOutputStream { it << new URL(downloadUrl).newInputStream() }
         }
 
         return serverJar

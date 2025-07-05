@@ -1,5 +1,5 @@
 [versions]
-shadow = "9.0.0-beta16"
+shadow = "9.0.0-rc1"
 gson = "2.13.1"
 licenser = "0.7.5"
 buildconfig = "5.6.7"

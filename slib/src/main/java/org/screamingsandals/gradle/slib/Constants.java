@@ -22,6 +22,9 @@ public final class Constants {
     public static final @NotNull String SCREAMING_LIB_GROUP_ID = "org.screamingsandals.lib";
     public static final @NotNull String SIMPLE_INVENTORIES_GROUP_ID = "org.screamingsandals.simpleinventories";
     public static final @NotNull String SIMPLE_INVENTORIES_MODULE_NAME = "core";
+    public static final @NotNull String STUB_GROUP_ID = "org.screamingsandals.stub";
+    public static final @NotNull String STUB_BUKKIT = "slib-compiler-stub-bukkit";
+    public static final @NotNull String STUB_VERSION = "1.0.0";
 
     public static final @NotNull String SANDALS_REPO_NAME = "sandals-repo";
     public static final @NotNull String SANDALS_REPO_URL = "https://repo.screamingsandals.org/public/";

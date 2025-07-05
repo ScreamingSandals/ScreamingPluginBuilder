@@ -203,30 +203,7 @@ public class SLibPlugin implements Plugin<Project> {
                                 || (Constants.SPIGOT_API_GROUP.equals(dependency.getGroup()) && Constants.SPIGOT_API.equals(dependency.getName()))
                                 || (Constants.BUKKIT_GROUP.equals(dependency.getGroup()) && Constants.BUKKIT_API.equals(dependency.getName()))
                 ))) {
-                    try {
-                        var slibCompilationTricks = Files.createTempDirectory("slibCompilationTricks").toFile().getAbsoluteFile();
-
-                        var fakesMap = Map.of(
-                                "org/bukkit/plugin/java/JavaPlugin.class", "/fakes/JavaPlugin.class",
-                                "org/bukkit/plugin/Plugin.class", "/fakes/Plugin.class",
-                                "org/bukkit/plugin/PluginBase.class", "/fakes/PluginBase.class",
-                                "org/slf4j/Logger.class", "/fakes/Logger.class"
-                        );
-
-                        for (var entry : fakesMap.entrySet()) {
-                            var className = entry.getKey();
-                            var savedFake = entry.getValue();
-
-                            var stream = SLibPlugin.class.getResourceAsStream(savedFake);
-                            var trick = new File(slibCompilationTricks, className);
-                            trick.getParentFile().mkdirs();
-                            Files.copy(stream, trick.toPath());
-                        }
-
-                        dependencies.add("compileOnly", project1.files(slibCompilationTricks));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    dependencies.add("compileOnly", Constants.STUB_GROUP_ID + ":" + Constants.STUB_BUKKIT + ":" + Constants.STUB_VERSION);
                 }
             }
             // TODO: bungee

@@ -26,7 +26,7 @@ public final class JavadocUtilities {
     private JavadocUtilities() {
     }
 
-    public static @NotNull Javadoc configureJavadocTasks(@NotNull Project project) {
+    public static @NotNull Javadoc configureJavadocTasks(@NotNull Project project, boolean useSourcesJarAsInput) {
         var task = project.getTasks().getByName(Constants.JAVADOC_TASK_NAME, javadocTask -> {
             if (!(javadocTask instanceof Javadoc)) {
                 throw new IllegalArgumentException("Expected javadoc task, got " + javadocTask);
@@ -35,6 +35,13 @@ public final class JavadocUtilities {
             javadoc.options(op -> {
                 ((CoreJavadocOptions) op).addBooleanOption("html5", true);
             });
+            if (useSourcesJarAsInput) {
+                var sourcesJarTask = project.getTasks().withType(Jar.class).getByName(Constants.SOURCES_JAR_TASK_NAME);
+                javadoc.dependsOn(sourcesJarTask);
+                javadoc.setSource(project.zipTree(sourcesJarTask.getArchiveFile()).matching(patternFilterable -> {
+                    patternFilterable.include("**/*.java");
+                }));
+            }
         });
 
         project.getTasks().register(Constants.JAVADOC_JAR_TASK_NAME, Jar.class, it -> {

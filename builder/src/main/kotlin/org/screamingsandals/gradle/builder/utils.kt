@@ -61,8 +61,8 @@ fun Project.configureSourcesJar(predicate: ((SourceSet) -> Boolean)? = null, act
         it
     }
 
-fun Project.configureJavadocTasks(action: (Javadoc.() -> Unit)? = null) =
-    JavadocUtilities.configureJavadocTasks(this).let {
+fun Project.configureJavadocTasks(useSourcesJarAsInput: Boolean = false, action: (Javadoc.() -> Unit)? = null) =
+    JavadocUtilities.configureJavadocTasks(this, useSourcesJarAsInput).let {
         if (action != null) {
             it.action()
         }

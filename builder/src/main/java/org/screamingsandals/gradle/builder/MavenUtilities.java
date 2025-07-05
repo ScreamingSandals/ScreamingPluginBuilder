@@ -52,13 +52,11 @@ public final class MavenUtilities {
             it.getPom().withXml(xml -> {
                 var dependenciesNode = xml.asNode().appendNode("dependencies");
                 project.getConfigurations().getByName("compileOnly").getDependencies().forEach(dep -> {
-                    if (!(dep instanceof SelfResolvingDependency)) {
-                        var dependencyNode = dependenciesNode.appendNode("dependency");
-                        dependencyNode.appendNode("groupId", dep.getGroup());
-                        dependencyNode.appendNode("artifactId", dep.getName());
-                        dependencyNode.appendNode("version", dep.getVersion());
-                        dependencyNode.appendNode("scope", "provided");
-                    }
+                    var dependencyNode = dependenciesNode.appendNode("dependency");
+                    dependencyNode.appendNode("groupId", dep.getGroup());
+                    dependencyNode.appendNode("artifactId", dep.getName());
+                    dependencyNode.appendNode("version", dep.getVersion());
+                    dependencyNode.appendNode("scope", "provided");
                 });
                 if (shadowJar == null) {
                     project.getConfigurations().getByName("api").getDependencies().forEach(dep -> {

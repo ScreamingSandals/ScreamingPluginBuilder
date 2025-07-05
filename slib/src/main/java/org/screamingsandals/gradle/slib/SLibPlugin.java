@@ -181,13 +181,14 @@ public class SLibPlugin implements Plugin<Project> {
                 }
                 if (multiModuleProject) {
                     var compileJava = project1.getTasks().withType(JavaCompile.class).getByName("compileJava");
-                    var file = project.project(":" + extension.getMultiModuleCommonSubproject()).getLayout().getBuildDirectory().file("slib/pluginName.txt").get().getAsFile().getAbsolutePath();
+                    var file = project.project(":" + extension.getMultiModuleCommonSubproject()).getLayout().getBuildDirectory().file("slib/pluginName.txt");
                     if (extension.getMultiModuleCommonSubproject().equals(project1.getName())) {
-                        compileJava.getOptions().getCompilerArgs().add("-AlookForPluginAndSaveFullClassNameTo=" + file);
+                        compileJava.getOptions().getCompilerArgs().add("-AlookForPluginAndSaveFullClassNameTo=" + file.get().getAsFile().getAbsolutePath());
+                        compileJava.getOutputs().file(file);
                     } else {
-                        compileJava.getOptions().getCompilerArgs().add("-AusePluginClassFrom=" + file);
+                        compileJava.getOptions().getCompilerArgs().add("-AusePluginClassFrom=" + file.get().getAsFile().getAbsolutePath());
+                        compileJava.getInputs().file(file);
                     }
-                    compileJava.getOutputs().upToDateWhen(task -> false); // TODO: fix the code above to work with UP-TO-DATE tasks
                 }
             }
 

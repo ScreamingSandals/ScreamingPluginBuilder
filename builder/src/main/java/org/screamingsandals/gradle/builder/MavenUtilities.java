@@ -49,7 +49,29 @@ public final class MavenUtilities {
                 it.artifact(project.getTasks().getByName(Constants.JAVADOC_JAR_TASK_NAME));
             }
 
-            it.getPom().withXml(xml -> {
+            var pom = it.getPom();
+            if ("true".equals(System.getenv("GITHUB_ACTIONS"))) {
+                var github = System.getenv("GITHUB_SERVER_URL");
+                var githubNoProtocol = github.split("://", 2)[1];
+                var repository = System.getenv("GITHUB_REPOSITORY");
+                var runId = System.getenv("GITHUB_RUN_ID");
+
+                pom.scm(scm -> {
+                    scm.getConnection().set("scm:git:" + githubNoProtocol + "/" + repository + ".git");
+                    scm.getDeveloperConnection().set("scm:git:ssh://" + githubNoProtocol + "/" + repository + ".git");
+                    scm.getUrl().set(github + "/" + repository);
+
+                    if (System.getenv("GITHUB_SHA") != null) {
+                        scm.getTag().set(System.getenv("GITHUB_SHA"));
+                    }
+                });
+
+                pom.getProperties().put("github.actions.url", github + "/" + repository + "/actions/runs/" + runId);
+                if (System.getenv("GIT_COMMIT_MESSAGE") != null) {
+                    pom.getProperties().put("git.commit.message", System.getenv("GIT_COMMIT_MESSAGE"));
+                }
+            }
+            pom.withXml(xml -> {
                 var dependenciesNode = xml.asNode().appendNode("dependencies");
                 project.getConfigurations().getByName("compileOnly").getDependencies().forEach(dep -> {
                     var dependencyNode = dependenciesNode.appendNode("dependency");

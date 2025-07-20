@@ -45,7 +45,7 @@ public abstract class RunServerTask extends JavaExec {
     public abstract @NotNull Property<String> getVersion();
 
     @Input
-    public abstract @NotNull Property<String> getSubDirectory();
+    public abstract @NotNull Property<String> getDirectory();
 
     @InputFile
     public abstract @NotNull RegularFileProperty getPluginJar();
@@ -63,7 +63,7 @@ public abstract class RunServerTask extends JavaExec {
     public void exec() {
         var platform = this.getPlatform().get();
         var version = this.getVersion().get();
-        var testServerDirectory = this.getProject().file(getSubDirectory().get());
+        var testServerDirectory = new File(this.getDirectory().get());
         var pluginJar = this.getPluginJar().getAsFile().get().toPath();
 
         @NotNull File serverExecutable;

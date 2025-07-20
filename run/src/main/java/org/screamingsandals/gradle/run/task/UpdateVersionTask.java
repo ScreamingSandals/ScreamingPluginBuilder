@@ -24,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import org.screamingsandals.gradle.run.config.Platform;
 import org.screamingsandals.gradle.run.utils.Constants;
 
+import java.io.File;
+
 public abstract class UpdateVersionTask extends DefaultTask {
     @Input
     public abstract @NotNull Property<Platform> getPlatform();
@@ -32,7 +34,7 @@ public abstract class UpdateVersionTask extends DefaultTask {
     public abstract @NotNull Property<String> getVersion();
 
     @Input
-    public abstract @NotNull Property<String> getSubDirectory();
+    public abstract @NotNull Property<String> getDirectory();
 
     public UpdateVersionTask() {
         setGroup(Constants.TASK_GROUP);
@@ -40,7 +42,7 @@ public abstract class UpdateVersionTask extends DefaultTask {
 
     @TaskAction
     public void run() throws Exception {
-        var testServerDirectory = this.getProject().file(getSubDirectory().get());
+        var testServerDirectory = new File(this.getDirectory().get());
 
         try {
             getPlatform().get().obtainInstaller().install(getVersion().get(), testServerDirectory, true);

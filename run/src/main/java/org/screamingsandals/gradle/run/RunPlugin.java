@@ -36,18 +36,19 @@ public class RunPlugin implements Plugin<Project> {
             if (!extension.getVersions().isEmpty()) {
                 extension.getVersions().forEach(version -> {
                     String serverName = version.getPlatform().name().charAt(0) + version.getPlatform().name().substring(1).toLowerCase(Locale.ROOT) + "Server" + version.getVersion();
+                    var directory = project.file(extension.getTestingDirectory() + "/" + version.getSubDirectory()).getAbsolutePath();
                     project.getTasks().register("update" + serverName, UpdateVersionTask.class, it -> {
                         it.setDescription("Updates " + version.getPlatform().name().toLowerCase(Locale.ROOT) + " server version " + version.getVersion() + " to the latest build.");
                         it.getPlatform().set(version.getPlatform());
                         it.getVersion().set(version.getVersion());
-                        it.getSubDirectory().set(extension.getTestingDirectory() + "/" + version.getSubDirectory());
+                        it.getDirectory().set(directory);
                     });
                     project.getTasks().register("run" + serverName, RunServerTask.class, it -> {
                         it.setDescription("Runs a " + version.getPlatform().name().toLowerCase(Locale.ROOT) + " server version " + version.getVersion() + " with newly compiled plugin jar artifact.");
 
                         it.getPlatform().set(version.getPlatform());
                         it.getVersion().set(version.getVersion());
-                        it.getSubDirectory().set(extension.getTestingDirectory() + "/" + version.getSubDirectory());
+                        it.getDirectory().set(directory);
                         if (version.getPlatform().supportsServerProperties()) {
                             it.getServerProperties().set(version.getServerProperties().getServerProperties());
                         }

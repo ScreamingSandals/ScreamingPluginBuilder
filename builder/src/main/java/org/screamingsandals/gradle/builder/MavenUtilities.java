@@ -17,7 +17,6 @@
 package org.screamingsandals.gradle.builder;
 
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.SelfResolvingDependency;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.jetbrains.annotations.NotNull;

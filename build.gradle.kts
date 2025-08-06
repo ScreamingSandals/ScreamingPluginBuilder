@@ -56,7 +56,7 @@ subprojects {
 
     tasks.withType<JavaCompile> {
         options.compilerArgs.add("-Xlint:deprecation")
-        options.release = 11
+        options.release = 17
     }
 
     extensions.configure<LicenseExtension> {

@@ -4,6 +4,7 @@ import java.util.Calendar
 
 plugins {
     alias(libs.plugins.licenser) apply false
+    kotlin("jvm") version libs.versions.kotlin apply false
 }
 
 subprojects {

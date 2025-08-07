@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-package org.screamingsandals.gradle.run.installer;
+package org.screamingsandals.gradle.run.config
 
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.ApiStatus
 
-import java.io.File;
+@ApiStatus.Internal
+class SingleServerProperties : ServerProperties {
+    val serverProperties: MutableMap<String, String> = mutableMapOf()
 
-public interface Installer {
-    @NotNull File install(@NotNull String version, @NotNull File folder, boolean forceUpdate) throws Exception;
+    override fun property(key: String, value: String) {
+        serverProperties[key] = value
+    }
+
+    override fun port(port: Int) {
+        serverProperties["port"] = port.toString()
+    }
+
+    override fun onlineMode(onlineMode: Boolean) {
+        serverProperties["online-mode"] = onlineMode.toString()
+    }
 }

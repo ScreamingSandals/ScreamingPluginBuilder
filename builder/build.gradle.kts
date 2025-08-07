@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("jvm") version libs.versions.kotlin
+    kotlin("jvm")
 }
 
 kotlin {

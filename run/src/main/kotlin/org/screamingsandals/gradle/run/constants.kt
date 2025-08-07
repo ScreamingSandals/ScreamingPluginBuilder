@@ -14,16 +14,7 @@
  * limitations under the License.
  */
 
-package org.screamingsandals.gradle.run.utils;
+package org.screamingsandals.gradle.run
 
-import org.jetbrains.annotations.NotNull;
-
-public final class Constants {
-    public static final @NotNull String TASK_GROUP = "Run Test Server";
-
-    public static final @NotNull String SHADOW_JAR_TASK = "shadowJar";
-
-    private Constants() {
-        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
-    }
-}
+const val TASK_GROUP: String = "Run Test Server"
+const val SHADOW_JAR_TASK: String = "shadowJar"

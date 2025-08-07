@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package org.screamingsandals.gradle.builder;
+package org.screamingsandals.gradle.builder
 
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.plugins.JavaLibraryPlugin;
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin;
-import org.jetbrains.annotations.NotNull;
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.plugins.JavaLibraryPlugin
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
-public class BuilderPlugin implements Plugin<Project> {
-    @Override
-    public void apply(@NotNull Project project) {
-        project.apply(it -> {
-            it.plugin(MavenPublishPlugin.class);
-            it.plugin(JavaLibraryPlugin.class);
-        });
+class BuilderPlugin : Plugin<Project> {
+    override fun apply(project: Project) {
+        project.apply {
+            it.plugin(MavenPublishPlugin::class.java)
+            it.plugin(JavaLibraryPlugin::class.java)
+        }
     }
 }

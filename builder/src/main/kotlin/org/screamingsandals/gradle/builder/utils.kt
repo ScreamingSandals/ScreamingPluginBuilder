@@ -55,7 +55,7 @@ fun Project.configureSourcesJar(predicate: ((SourceSet) -> Boolean)? = null, act
                             attr.attribute(DocsType.DOCS_TYPE_ATTRIBUTE, objects.named(DocsType::class.java, DocsType.SOURCES))
                         }
                     }.files.map { zipTree(it) }
-                }, it.copySpecAction!!)
+                }, it.copySpecAction)
             }
         }
         it

@@ -16,7 +16,6 @@
 
 package org.screamingsandals.gradle.builder;
 
-import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin;
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin;
 import com.github.jengelman.gradle.plugins.shadow.relocation.RelocatePathContext;
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
@@ -52,11 +51,11 @@ public final class Utilities {
         var jarTask = project.getTasks().withType(Jar.class).getByName("jar");
         var oldClassifier = jarTask.getArchiveClassifier().get();
         jarTask.getArchiveClassifier().set("unshaded");
-        var shadowJarTask = project.getTasks().named(ShadowJavaPlugin.SHADOW_JAR_TASK_NAME, ShadowJar.class, shadowJar -> {
+        var shadowJarTask = project.getTasks().named(ShadowJar.SHADOW_JAR_TASK_NAME, ShadowJar.class, shadowJar -> {
             shadowJar.getArchiveClassifier().set(oldClassifier);
         });
         project.getTasks().named("build", build -> {
-            build.dependsOn(ShadowJavaPlugin.SHADOW_JAR_TASK_NAME);
+            build.dependsOn(ShadowJar.SHADOW_JAR_TASK_NAME);
         });
         return shadowJarTask;
     }
@@ -84,7 +83,7 @@ public final class Utilities {
     }
 
     public static @NotNull JarPair configureSourcesJar(@NotNull Project project, @Nullable Predicate<@NotNull SourceSet> sourceSetSelector) {
-        var shadowJar = project.getTasks().withType(ShadowJar.class).findByName(ShadowJavaPlugin.SHADOW_JAR_TASK_NAME);
+        var shadowJar = project.getTasks().withType(ShadowJar.class).findByName(ShadowJar.SHADOW_JAR_TASK_NAME);
         Action<CopySpec> specAction;
         if (shadowJar != null) {
             specAction = spec -> {

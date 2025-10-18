@@ -1,8 +1,8 @@
 [versions]
-shadow = "9.1.0"
-gson = "2.13.1"
+shadow = "9.2.2"
+gson = "2.13.2"
 licenser = "0.7.5"
-buildconfig = "5.6.7"
+buildconfig = "5.7.0"
 
 # compile only
 jetbrains-annotations = "26.0.2"

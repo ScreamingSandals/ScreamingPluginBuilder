@@ -1,5 +1,7 @@
 import org.cadixdev.gradle.licenser.LicenseExtension
 import org.cadixdev.gradle.licenser.Licenser
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import java.util.Calendar
 
 plugins {
@@ -12,6 +14,7 @@ subprojects {
     apply<JavaGradlePluginPlugin>()
     apply<MavenPublishPlugin>()
     apply<Licenser>()
+    apply(plugin = "org.jetbrains.kotlin.jvm")
 
     repositories {
         mavenCentral()
@@ -58,6 +61,12 @@ subprojects {
     tasks.withType<JavaCompile> {
         options.compilerArgs.add("-Xlint:deprecation")
         options.release = 17
+    }
+
+    extensions.configure<KotlinJvmProjectExtension> {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
 
     extensions.configure<LicenseExtension> {

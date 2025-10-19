@@ -13,21 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.screamingsandals.gradle.slib
 
-package org.screamingsandals.gradle.slib;
+import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.jetbrains.annotations.ApiStatus
 
-import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-
-public interface AdditionalContent {
+interface AdditionalContent {
     @ApiStatus.Internal
-    @ApiStatus.OverrideOnly
-    void apply(@NotNull String configuration, @NotNull DependencyHandler dependencies, @NotNull String slibVersion, @NotNull List<@NotNull String> platforms);
+    fun apply(
+        configuration: String,
+        dependencies: DependencyHandler,
+        slibVersion: String,
+        platforms: List<String>,
+    )
 
     @ApiStatus.Internal
-    @ApiStatus.OverrideOnly
-    void applyMultiModule(@NotNull String configuration, @NotNull DependencyHandler dependencies, @NotNull String slibVersion, @NotNull String platformName);
+    fun applyMultiModule(
+        configuration: String,
+        dependencies: DependencyHandler,
+        slibVersion: String,
+        platformName: String,
+    )
 }

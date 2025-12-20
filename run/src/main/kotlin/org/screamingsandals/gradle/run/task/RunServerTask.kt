@@ -49,7 +49,7 @@ abstract class RunServerTask : JavaExec() {
     abstract val serverProperties: MapProperty<String, String>
 
     init {
-        group = TASK_GROUP
+        group = "run"
         this.serverProperties.convention(mapOf())
         standardInput = System.`in`
     }

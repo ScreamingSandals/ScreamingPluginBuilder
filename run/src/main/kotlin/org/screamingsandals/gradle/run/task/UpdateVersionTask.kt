@@ -34,7 +34,7 @@ abstract class UpdateVersionTask : DefaultTask() {
     abstract val directory: Property<String>
 
     init {
-        group = TASK_GROUP
+        group = "run"
     }
 
     @TaskAction

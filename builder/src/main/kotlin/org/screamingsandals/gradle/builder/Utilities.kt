@@ -19,8 +19,8 @@ package org.screamingsandals.gradle.builder
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.github.jengelman.gradle.plugins.shadow.relocation.RelocatePathContext
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.cadixdev.gradle.licenser.LicenseExtension
-import org.cadixdev.gradle.licenser.Licenser
+import dev.yumi.gradle.licenser.YumiLicenserGradleExtension
+import dev.yumi.gradle.licenser.YumiLicenserGradlePlugin
 import org.gradle.api.Action
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -54,21 +54,18 @@ object Utilities {
         return shadowJarTask
     }
 
-    fun configureLicenser(project: Project): LicenseExtension? {
+    fun configureLicenser(project: Project): YumiLicenserGradleExtension? {
         val headerFile = project.rootProject.file("license_header.txt")
 
         if (!headerFile.exists()) {
             return null
         }
 
-        project.apply { it.plugin(Licenser::class.java) }
+        project.apply { it.plugin(YumiLicenserGradlePlugin::class.java) }
 
-        val extension = project.extensions.getByType(LicenseExtension::class.java)
-        extension.setHeader(headerFile)
-        extension.ignoreFailures(true)
-        extension.properties {
-            it.set("year", Calendar.getInstance().get(Calendar.YEAR))
-        }
+        val extension = project.extensions.getByType(YumiLicenserGradleExtension::class.java)
+        extension.rule(headerFile)
+        extension.projectCreationYear.set(Calendar.getInstance().get(Calendar.YEAR))
         return extension
     }
 
@@ -131,6 +128,7 @@ object Utilities {
             it.sourceCompatibility = javaVersion
         }
         project.tasks.withType(JavaCompile::class.java) {
+            it.options.encoding = "UTF-8"
             it.options.compilerArgs.add("-Xlint:deprecation")
             it.options.release.set(javaVersion.majorVersion.toInt())
         }

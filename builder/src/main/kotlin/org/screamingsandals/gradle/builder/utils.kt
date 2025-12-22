@@ -17,7 +17,7 @@
 package org.screamingsandals.gradle.builder
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.cadixdev.gradle.licenser.LicenseExtension
+import dev.yumi.gradle.licenser.YumiLicenserGradleExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -34,7 +34,7 @@ fun Project.configureShadowPlugin(action: (ShadowJar.() -> Unit)? = null) =
         }
     }
 
-fun Project.configureLicenser(action: (LicenseExtension.() -> Unit)? = null) =
+fun Project.configureLicenser(action: (YumiLicenserGradleExtension.() -> Unit)? = null) =
     Utilities.configureLicenser(this)?.let {
         if (action != null) {
             it.action()

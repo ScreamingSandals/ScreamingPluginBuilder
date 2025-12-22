@@ -1,5 +1,5 @@
-import org.cadixdev.gradle.licenser.LicenseExtension
-import org.cadixdev.gradle.licenser.Licenser
+import dev.yumi.gradle.licenser.YumiLicenserGradleExtension
+import dev.yumi.gradle.licenser.YumiLicenserGradlePlugin
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import java.util.Calendar
@@ -13,18 +13,12 @@ subprojects {
     apply<JavaPlugin>()
     apply<JavaGradlePluginPlugin>()
     apply<MavenPublishPlugin>()
-    apply<Licenser>()
+    apply<YumiLicenserGradlePlugin>()
     apply(plugin = "org.jetbrains.kotlin.jvm")
 
     repositories {
         mavenCentral()
         gradlePluginPortal()
-        // TODO: remove repository when (if) uploaded to gradle plugin portal
-        maven("https://maven.neoforged.net/releases") {
-            content {
-                includeGroup("net.neoforged.licenser")
-            }
-        }
     }
 
     dependencies {
@@ -69,12 +63,9 @@ subprojects {
         }
     }
 
-    extensions.configure<LicenseExtension> {
-        header(rootProject.file("license_header.txt"))
-        properties {
-            set("year", Calendar.getInstance().get(Calendar.YEAR))
-        }
-        exclude("org/screamingsandals/gradle/run/VersionInfo.kt")
+    extensions.configure<YumiLicenserGradleExtension> {
+        rule(rootProject.file("license_header.txt"))
+        projectCreationYear = Calendar.getInstance().get(Calendar.YEAR)
     }
 }
 

@@ -6,4 +6,4 @@ This repo contains three gradle plugins used in ScreamingSandals organisation to
 * `org.screamingsandals.plugin-slib` - A plugin for developing ScreamingLib-based projects.
 * `org.screamingsandals.plugin-run` - A plugin for testing plugins in various Minecraft server versions. Currently supporting Paper.
 
-**This gradle plugin requires Gradle 8.x, tested with latest minor release**
+**This gradle plugin requires Gradle 9.x, tested with latest minor release**

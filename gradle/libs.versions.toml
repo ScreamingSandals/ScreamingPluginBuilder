@@ -1,21 +1,21 @@
 [versions]
-shadow = "9.2.2"
+shadow = "9.3.0"
 gson = "2.13.2"
-licenser = "0.7.5"
-buildconfig = "5.7.0"
+licenser = "2.2.1"
+buildconfig = "6.0.7"
 
 # compile only
 jetbrains-annotations = "26.0.2"
-kotlin = "2.2.0"
+kotlin = "2.2.20"
 
 [libraries]
 shadow = { group = "com.gradleup.shadow", name = "com.gradleup.shadow.gradle.plugin", version.ref = "shadow" }
-licenser = { group = "net.neoforged.licenser", name = "net.neoforged.licenser.gradle.plugin", version.ref = "licenser" }
+licenser = { group = "dev.yumi.gradle.licenser", name = "dev.yumi.gradle.licenser.gradle.plugin", version.ref = "licenser" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version.ref = "jetbrains-annotations" }
 kotlin-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-sam = { group = "org.jetbrains.kotlin", name = "kotlin-sam-with-receiver", version.ref = "kotlin" }
 
 [plugins]
-licenser = { id = "net.neoforged.licenser", version.ref = "licenser" }
+licenser = { id = "dev.yumi.gradle.licenser", version.ref = "licenser" }
 buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }

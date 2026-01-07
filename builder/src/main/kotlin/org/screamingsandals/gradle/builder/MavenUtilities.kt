@@ -18,6 +18,7 @@ package org.screamingsandals.gradle.builder
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.Project
+import org.gradle.api.artifacts.FileCollectionDependency
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.screamingsandals.gradle.builder.maven.NexusRepository
@@ -72,6 +73,11 @@ object MavenUtilities {
                     val dependenciesNode = xml.asNode().appendNode("dependencies")
                     project.configurations.getByName("compileOnly").dependencies
                         .forEach { dep ->
+                            // Skip file collection dependencies
+                            if (dep is FileCollectionDependency && dep.name == "unspecified") {
+                                return@forEach
+                            }
+
                             val dependencyNode = dependenciesNode.appendNode("dependency")
                             dependencyNode.appendNode("groupId", dep.group)
                             dependencyNode.appendNode("artifactId", dep.name)

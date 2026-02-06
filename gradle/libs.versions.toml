@@ -1,12 +1,12 @@
 [versions]
-shadow = "9.3.0"
+shadow = "9.3.1"
 gson = "2.13.2"
-licenser = "2.2.1"
+licenser = "2.2.2"
 buildconfig = "6.0.7"
 
 # compile only
 jetbrains-annotations = "26.0.2"
-kotlin = "2.2.20"
+kotlin = "2.2.21"
 
 [libraries]
 shadow = { group = "com.gradleup.shadow", name = "com.gradleup.shadow.gradle.plugin", version.ref = "shadow" }

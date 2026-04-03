@@ -33,8 +33,15 @@ abstract class UpdateVersionTask : DefaultTask() {
     @get:Input
     abstract val directory: Property<String>
 
+    @get:Input
+    abstract val cacheDir: Property<String>
+
     init {
         group = "run"
+
+        cacheDir.convention(
+            project.rootProject.layout.projectDirectory.dir(".gradle/screaming-builder-run").asFile.absolutePath
+        )
     }
 
     @TaskAction
@@ -42,7 +49,7 @@ abstract class UpdateVersionTask : DefaultTask() {
         val testServerDirectory = File(this.directory.get())
 
         try {
-            this.platform.get().obtainInstaller().install(this.version.get(), testServerDirectory, true)
+            this.platform.get().obtainInstaller().install(this.version.get(), testServerDirectory, true, File(this.cacheDir.get()))
         } catch (e: Exception) {
             throw RuntimeException(
                 "Unable to update server " + this.platform.get() + " version " + this.version.get(),

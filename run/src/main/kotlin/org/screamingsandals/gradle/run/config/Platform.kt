@@ -17,6 +17,7 @@
 package org.screamingsandals.gradle.run.config
 
 import org.screamingsandals.gradle.run.installer.FillInstaller
+import org.screamingsandals.gradle.run.installer.BuildToolsInstaller
 import org.screamingsandals.gradle.run.installer.Installer
 
 enum class Platform(
@@ -25,6 +26,9 @@ enum class Platform(
     val pluginDirName: String,
     val supportsPluginAsParameter: Boolean
 ) {
+    SPIGOT(true, true, "plugins", false) {
+        override fun obtainInstaller(): Installer = BuildToolsInstaller("https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar")
+    },
     PAPER(true, true, "plugins", true) {
         override fun obtainInstaller(): Installer = FillInstaller("https://fill.papermc.io", "paper")
     },

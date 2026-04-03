@@ -23,7 +23,7 @@ import java.nio.file.StandardCopyOption
 
 class FillInstaller(private val fillApiUrl: String, private val project: String) : Installer {
     @Throws(Exception::class)
-    override fun install(version: String, folder: File, forceUpdate: Boolean): File {
+    override fun install(version: String, folder: File, forceUpdate: Boolean, cacheDir: File): File {
         if (!folder.exists()) {
             folder.mkdirs()
         }

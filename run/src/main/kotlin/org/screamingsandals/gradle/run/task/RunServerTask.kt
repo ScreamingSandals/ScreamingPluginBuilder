@@ -48,10 +48,17 @@ abstract class RunServerTask : JavaExec() {
     @get:Input
     abstract val serverProperties: MapProperty<String, String>
 
+    @get:Input
+    abstract val cacheDir: Property<String>
+
     init {
         group = "run"
         this.serverProperties.convention(mapOf())
         standardInput = System.`in`
+
+        cacheDir.convention(
+            project.rootProject.layout.projectDirectory.dir(".gradle/screaming-builder-run").asFile.absolutePath
+        )
     }
 
     override fun exec() {
@@ -62,7 +69,7 @@ abstract class RunServerTask : JavaExec() {
 
         val serverExecutable: File
         try {
-            serverExecutable = platform.obtainInstaller().install(version, testServerDirectory, false)
+            serverExecutable = platform.obtainInstaller().install(version, testServerDirectory, false, File(this.cacheDir.get()))
         } catch (e: Exception) {
             throw RuntimeException("Unable to install server $platform version $version", e)
         }

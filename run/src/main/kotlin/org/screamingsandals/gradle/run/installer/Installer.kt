@@ -20,5 +20,5 @@ import java.io.File
 
 interface Installer {
     @Throws(Exception::class)
-    fun install(version: String, folder: File, forceUpdate: Boolean): File
+    fun install(version: String, folder: File, forceUpdate: Boolean, cacheDir: File): File
 }
